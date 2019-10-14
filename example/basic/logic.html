@@ -1,0 +1,53 @@
+<!doctype html>
+<html data-framework="vue">
+  <head>
+    <meta charset="utf-8">
+    <title>Lone.js • Basic</title>
+  </head>
+  <body>
+    <div id="app" class="router"></div>
+    <!-- Delete ".min" for console warnings in development -->
+    <script src="../../dist/lone.logic.js"></script>
+    <script>
+      Lone.logic({
+        data: () => ({ n: 0 }),
+        methods: {
+          navigateAndIncrement() {
+            const increment = () => this.n++;
+            if (this.$route.path === "/") {
+              this.$router.push("/foo", increment);
+            } else {
+              this.$router.push("/", increment);
+            }
+          },
+          navigatorTo() {
+            this.navigateTo({
+              url: "/é#%25ñ"
+            });
+          }
+        },
+        created() {
+          console.log("app.main.js: created~~~");
+        },
+        onLoad(query) {
+          console.log("app.main.js: onLoad~~~, query:", query);
+        },
+        mounted() {
+          console.log("app.main.js: mounted~~~");
+        },
+        onReady() {
+          console.log("app.main.js: onReady~~~");
+        },
+        onUnload() {
+          console.log("app.main.js: onUnload~~~");
+        },
+        onShow() {
+          console.log("app.main.js: onShow~~~");
+        },
+        onHide() {
+          console.log("app.main.js: onHide~~~");
+        }
+      })
+    </script>
+  </body>
+</html>
