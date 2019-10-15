@@ -108,7 +108,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "callHook", function() { return callHook; });
 /* harmony import */ var _helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./helper */ "./packages/lone-logic/helper.js");
 /* harmony import */ var _events__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./events */ "./packages/lone-logic/events.js");
+/* harmony import */ var _schedule__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./schedule */ "./packages/lone-logic/schedule.js");
 var _class;
+
 
 
 
@@ -125,14 +127,20 @@ let LogicComponent = Object(_events__WEBPACK_IMPORTED_MODULE_1__["default"])(_cl
 
   [init](options) {
     const vm = this;
+    vm._events = Object.create(null);
     vm.$options = Object(_helper__WEBPACK_IMPORTED_MODULE_0__["initOptions"])(options);
     callHook(vm, 'beforeCreate');
-    vm._events = Object.create(null);
     Object(_helper__WEBPACK_IMPORTED_MODULE_0__["initData"])(vm);
     callHook(vm, 'created');
   }
 
-  setData(data, cb) {}
+  setData(data) {
+    const oldData = this.data;
+    _schedule__WEBPACK_IMPORTED_MODULE_2__["master"].send('logic:data', {
+      id: this._id,
+      data: Object.assign(oldData, data)
+    });
+  }
 
 }) || _class;
 
@@ -148,8 +156,9 @@ function callHook(vm, hook) {
         Object(_helper__WEBPACK_IMPORTED_MODULE_0__["handleError"])(e, vm, `${hook} hook`);
       }
     }
-  } // vm.$emit('hook:' + hook)
+  }
 
+  vm.$emit('hook:' + hook);
 }
 
 /***/ }),
@@ -168,8 +177,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./helper */ "./packages/lone-logic/helper.js");
 
 
-function events(target) {
-  const proto = target.prototype;
+function events(Lone) {
+  const proto = Lone.prototype;
   proto.$on = on;
   proto.$once = once;
   proto.$off = off;
@@ -320,7 +329,7 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ __webpack_exports__["default"] = (function (options) {
   const component = new _component__WEBPACK_IMPORTED_MODULE_0__["default"](options);
-  Object(_schedule__WEBPACK_IMPORTED_MODULE_1__["addComponent"])(component.id, component);
+  Object(_schedule__WEBPACK_IMPORTED_MODULE_1__["addComponent"])(component._id, component);
   return component;
 });
 
@@ -330,26 +339,46 @@ __webpack_require__.r(__webpack_exports__);
 /*!*****************************************!*\
   !*** ./packages/lone-logic/schedule.js ***!
   \*****************************************/
-/*! exports provided: addComponent */
+/*! exports provided: componentStorage, master, addComponent */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "componentStorage", function() { return componentStorage; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "master", function() { return master; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "addComponent", function() { return addComponent; });
 /* harmony import */ var lone_messenger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lone-messenger */ "./packages/lone-messenger/index.js");
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./component */ "./packages/lone-logic/component.js");
+
 
 const componentStorage = new Map();
 const master = new lone_messenger__WEBPACK_IMPORTED_MODULE_0__["Master"]({
   env: 'postMessage'
 });
-master.onmessage('customType', function (data) {
-  console.log('logic:', data);
-});
-master.send('customType', {
-  name: 'Berwin'
-});
 function addComponent(id, component) {
   componentStorage.set(id, component);
+}
+const MESSENGER_EVENTS_UI = {
+  'ui:inited': function ({
+    id
+  }) {
+    const vm = componentStorage.get(id);
+    master.send('logic:data', {
+      id,
+      data: vm.data
+    });
+  },
+  'ui:ready': function ({
+    id
+  }) {
+    const vm = componentStorage.get(id);
+    Object(_component__WEBPACK_IMPORTED_MODULE_1__["callHook"])(vm, 'onReady');
+    Object(_component__WEBPACK_IMPORTED_MODULE_1__["callHook"])(vm, 'mounted');
+  }
+};
+
+for (const [event, fn] of Object.entries(MESSENGER_EVENTS_UI)) {
+  master.onmessage(event, fn);
 }
 
 /***/ }),
@@ -636,7 +665,6 @@ class PostMessenger extends _base_post_messenger__WEBPACK_IMPORTED_MODULE_0__["d
     vm._onmessage(function (data) {
       if (data.type === 'connection') {
         vm[source] = this.source;
-        console.log('111', this.source);
       }
     });
   }

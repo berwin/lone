@@ -378,7 +378,6 @@ class PostMessenger extends _base_post_messenger__WEBPACK_IMPORTED_MODULE_0__["d
     vm._onmessage(function (data) {
       if (data.type === 'connection') {
         vm[source] = this.source;
-        console.log('111', this.source);
       }
     });
   }
@@ -411,14 +410,19 @@ __webpack_require__.r(__webpack_exports__);
 const slave = new lone_messenger__WEBPACK_IMPORTED_MODULE_0__["Slave"]({
   env: 'postMessage'
 });
-slave.onmessage('customType', function (data) {
+slave.onmessage('logic:data', function (data) {
   console.log('ui:', data);
 });
 setTimeout(function () {
-  slave.send('customType', {
-    name: 'Berwin'
+  slave.send('ui:inited', {
+    id: 0
   });
 }, 1000);
+setTimeout(function () {
+  slave.send('ui:ready', {
+    id: 0
+  });
+}, 2000);
 /* harmony default export */ __webpack_exports__["default"] = (function () {
   console.log('ui');
 });

@@ -1,8 +1,8 @@
 import { isArray } from 'lone-util'
 import { handleError } from './helper'
 
-export default function events (target) {
-  const proto = target.prototype
+export default function events (Lone) {
+  const proto = Lone.prototype
   proto.$on = on
   proto.$once = once
   proto.$off = off

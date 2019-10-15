@@ -4,13 +4,17 @@ const slave = new Slave({
   env: 'postMessage'
 })
 
-slave.onmessage('customType', function (data) {
+slave.onmessage('logic:data', function (data) {
   console.log('ui:', data)
 })
 
 setTimeout(function () {
-  slave.send('customType', { name: 'Berwin' })
+  slave.send('ui:inited', { id: 0 })
 }, 1000)
+
+setTimeout(function () {
+  slave.send('ui:ready', { id: 0 })
+}, 2000)
 
 export default function () {
   console.log('ui')

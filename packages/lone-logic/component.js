@@ -1,5 +1,7 @@
 import { initOptions, handleError, initData } from './helper'
 import events from './events'
+import { master } from './schedule'
+
 const init = Symbol('lone-logic:init')
 
 let id = 0
@@ -15,14 +17,20 @@ class LogicComponent {
 
   [init] (options) {
     const vm = this
+    vm._events = Object.create(null)
     vm.$options = initOptions(options)
     callHook(vm, 'beforeCreate')
-    vm._events = Object.create(null)
     initData(vm)
     callHook(vm, 'created')
   }
 
-  setData (data, cb) {}
+  setData (data) {
+    const oldData = this.data
+    master.send('logic:data', {
+      id: this._id,
+      data: Object.assign(oldData, data)
+    })
+  }
 }
 
 export default LogicComponent
@@ -38,5 +46,5 @@ export function callHook (vm, hook) {
       }
     }
   }
-  // vm.$emit('hook:' + hook)
+  vm.$emit('hook:' + hook)
 }

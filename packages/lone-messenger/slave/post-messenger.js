@@ -15,7 +15,6 @@ class PostMessenger extends BaseMessenger {
     vm._onmessage(function (data) {
       if (data.type === 'connection') {
         vm[source] = this.source
-        console.log('111', this.source)
       }
     })
   }

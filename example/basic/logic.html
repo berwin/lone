@@ -33,6 +33,12 @@
           console.log("app.main.js: onLoad~~~, query:", query);
         },
         mounted() {
+          const vm = this
+          setTimeout(() => {
+            vm.setData({
+              n: 2
+            })
+          }, 1000);
           console.log("app.main.js: mounted~~~");
         },
         onReady() {
