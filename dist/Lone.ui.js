@@ -405,16 +405,49 @@ class PostMessenger extends _base_post_messenger__WEBPACK_IMPORTED_MODULE_0__["d
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _schedule__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./schedule */ "./packages/lone-ui/schedule.js");
+
+/* harmony default export */ __webpack_exports__["default"] = (function () {
+  console.log('ui');
+});
+
+/***/ }),
+
+/***/ "./packages/lone-ui/schedule.js":
+/*!**************************************!*\
+  !*** ./packages/lone-ui/schedule.js ***!
+  \**************************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
 /* harmony import */ var lone_messenger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lone-messenger */ "./packages/lone-messenger/index.js");
 
+const viewStorage = new Map();
 const slave = new lone_messenger__WEBPACK_IMPORTED_MODULE_0__["Slave"]({
   env: 'postMessage'
 });
-slave.onmessage('logic:data', function (data) {
-  console.log('ui:', data);
-});
+const MESSENGER_EVENTS_LOGIC = {
+  'logic:data': function ({
+    id,
+    data
+  }) {
+    const view = viewStorage.get(id);
+    console.log(view);
+  },
+  'view:navigateTo': function () {
+    console.log('ui-schedule: view:navigateTo');
+  }
+};
+
+for (const [event, fn] of Object.entries(MESSENGER_EVENTS_LOGIC)) {
+  slave.onmessage(event, fn);
+}
+
 setTimeout(function () {
   slave.send('ui:inited', {
+    name: 'test',
     id: 0
   });
 }, 1000);
@@ -423,9 +456,6 @@ setTimeout(function () {
     id: 0
   });
 }, 2000);
-/* harmony default export */ __webpack_exports__["default"] = (function () {
-  console.log('ui');
-});
 
 /***/ }),
 

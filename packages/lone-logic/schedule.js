@@ -1,20 +1,17 @@
 import { Master } from 'lone-messenger'
-import { callHook } from './component'
+import { callHook, createComponentInstance } from './component'
 
-export const componentStorage = new Map()
+export const instanceStorage = new Map()
 export const master = new Master({ env: 'postMessage' })
 
-export function addComponent (id, component) {
-  componentStorage.set(id, component)
-}
-
 const MESSENGER_EVENTS_UI = {
-  'ui:inited': function ({ id }) {
-    const vm = componentStorage.get(id)
+  'ui:inited': function ({ name, id }) {
+    const vm = createComponentInstance(name, id)
+    instanceStorage.set(id, vm)
     master.send('logic:data', { id, data: vm.data })
   },
   'ui:ready': function ({ id }) {
-    const vm = componentStorage.get(id)
+    const vm = instanceStorage.get(id)
     callHook(vm, 'onReady')
     callHook(vm, 'mounted')
   }

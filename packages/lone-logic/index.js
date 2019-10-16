@@ -1,8 +1,3 @@
-import Component from './component'
-import { addComponent } from './schedule'
+import './schedule'
 
-export default function (options) {
-  const component = new Component(options)
-  addComponent(component._id, component)
-  return component
-}
+export { default } from './component'
