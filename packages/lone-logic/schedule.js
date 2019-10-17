@@ -2,7 +2,7 @@ import { Master } from 'lone-messenger'
 import { callHook, createComponentInstance } from './component'
 
 export const instanceStorage = new Map()
-export const master = new Master({ env: 'postMessage' })
+export const master = new Master({ env: 'postMessage', channel: 'logic' })
 
 const MESSENGER_EVENTS_UI = {
   'ui:inited': function ({ name, id }) {

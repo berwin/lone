@@ -1,8 +1,9 @@
 class Messenger {
-  constructor () {
+  constructor (options) {
     if (new.target === Messenger) {
       throw new TypeError('Messenger is only used for inheritance, not allowed to use directly.')
     }
+    this.channel = options.channel
     this._messages = Object.create(null)
     this._listen()
   }
@@ -18,7 +19,7 @@ class Messenger {
   _listen () {
     this._onmessage(evt => {
       const cbs = this._messages[evt.type]
-      if (!cbs) return
+      if (!cbs || evt.channel !== this.channel) return
       let i = cbs.length
       while (i--) {
         cbs[i].call(evt, evt.data)

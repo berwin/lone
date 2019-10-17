@@ -106,11 +106,12 @@ return /******/ (function(modules) { // webpackBootstrap
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 class Messenger {
-  constructor() {
+  constructor(options) {
     if (new.target === Messenger) {
       throw new TypeError('Messenger is only used for inheritance, not allowed to use directly.');
     }
 
+    this.channel = options.channel;
     this._messages = Object.create(null);
 
     this._listen();
@@ -127,7 +128,7 @@ class Messenger {
   _listen() {
     this._onmessage(evt => {
       const cbs = this._messages[evt.type];
-      if (!cbs) return;
+      if (!cbs || evt.channel !== this.channel) return;
       let i = cbs.length;
 
       while (i--) {
@@ -174,6 +175,7 @@ class NativeMessenger extends _messenger__WEBPACK_IMPORTED_MODULE_0__["default"]
     if (!Object(lone_util__WEBPACK_IMPORTED_MODULE_1__["isObject"])(data)) throw new TypeError('data must be plain object.');
     const bag = JSON.stringify({
       type,
+      channel: this.channel,
       data
     });
     window.senative.call('sendMessage', bag, (code, data, msg) => {});
@@ -276,8 +278,8 @@ __webpack_require__.r(__webpack_exports__);
 const connection = Symbol('messenger:slave#connection');
 
 class PostMessenger extends _base_post_messenger__WEBPACK_IMPORTED_MODULE_0__["default"] {
-  constructor() {
-    super();
+  constructor(options) {
+    super(options);
     this[connection]();
   }
 
@@ -289,6 +291,7 @@ class PostMessenger extends _base_post_messenger__WEBPACK_IMPORTED_MODULE_0__["d
     const slave = window.parent;
     slave.postMessage({
       type,
+      channel: this.channel,
       data
     }, slave.origin);
   }
@@ -336,8 +339,8 @@ __webpack_require__.r(__webpack_exports__);
 const connection = Symbol('messenger:slave#connection');
 
 class NativeMessenger extends _base_native_messenger__WEBPACK_IMPORTED_MODULE_0__["default"] {
-  constructor() {
-    super();
+  constructor(options) {
+    super(options);
     this[connection]();
   }
 
@@ -366,8 +369,8 @@ const connection = Symbol('messenger:slave#connection');
 const source = Symbol('messenger:slave#connection');
 
 class PostMessenger extends _base_post_messenger__WEBPACK_IMPORTED_MODULE_0__["default"] {
-  constructor() {
-    super();
+  constructor(options) {
+    super(options);
     this[source] = null;
     this[connection]();
   }
@@ -375,8 +378,11 @@ class PostMessenger extends _base_post_messenger__WEBPACK_IMPORTED_MODULE_0__["d
   [connection]() {
     const vm = this;
 
-    vm._onmessage(function (data) {
-      if (data.type === 'connection') {
+    vm._onmessage(function ({
+      type,
+      channel
+    }) {
+      if (type === 'connection' && channel === vm.channel) {
         vm[source] = this.source;
       }
     });
@@ -384,8 +390,10 @@ class PostMessenger extends _base_post_messenger__WEBPACK_IMPORTED_MODULE_0__["d
 
   _postMessage(type, data) {
     const master = this[source];
+    if (!master) throw new Error('No Master Source, please connection first!');
     master.postMessage({
       type,
+      channel: this.channel,
       data
     }, master.origin);
   }
@@ -413,6 +421,44 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./packages/lone-ui/page.js":
+/*!**********************************!*\
+  !*** ./packages/lone-ui/page.js ***!
+  \**********************************/
+/*! exports provided: createPage */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createPage", function() { return createPage; });
+const pageStack = [];
+function createPage() {
+  const view = document.createElement('iframe');
+  setStyle(view);
+  document.body.appendChild(view);
+  insertPageJS(view);
+  return view;
+}
+
+function setStyle(view) {
+  const doc = document.documentElement;
+  view.style.width = doc.clientWidth + 'px';
+  view.style.height = doc.clientHeight + 'px';
+  view.style.position = 'fixed';
+  view.style.border = 'none';
+  view.style.zIndex = pageStack.length;
+  view.style.backgroundColor = 'white';
+}
+
+function insertPageJS(view) {
+  const script = document.createElement('script');
+  script.src = "../../dist/lone.page.js"; // eslint-disable-line
+
+  view.contentDocument.body.appendChild(script);
+}
+
+/***/ }),
+
 /***/ "./packages/lone-ui/schedule.js":
 /*!**************************************!*\
   !*** ./packages/lone-ui/schedule.js ***!
@@ -423,39 +469,60 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var lone_messenger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lone-messenger */ "./packages/lone-messenger/index.js");
+/* harmony import */ var _page__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./page */ "./packages/lone-ui/page.js");
 
-const viewStorage = new Map();
-const slave = new lone_messenger__WEBPACK_IMPORTED_MODULE_0__["Slave"]({
-  env: 'postMessage'
+
+const pageStack = [];
+const logicSlave = new lone_messenger__WEBPACK_IMPORTED_MODULE_0__["Slave"]({
+  env: 'postMessage',
+  channel: 'logic'
 });
-const MESSENGER_EVENTS_LOGIC = {
+const pageSlave = new lone_messenger__WEBPACK_IMPORTED_MODULE_0__["Slave"]({
+  env: 'postMessage',
+  channel: 'page'
+});
+const LOGIC_EVENTS = {
   'logic:data': function ({
     id,
     data
   }) {
-    const view = viewStorage.get(id);
-    console.log(view);
-  },
-  'view:navigateTo': function () {
-    console.log('ui-schedule: view:navigateTo');
+    const view = pageStack[pageStack.length - 1];
+    console.log('logic:data:', view, id, data);
   }
 };
+const PAGE_EVENTS = {
+  'page:navigateTo': function () {
+    const page = Object(_page__WEBPACK_IMPORTED_MODULE_1__["createPage"])();
+    pageStack.push(page);
+    console.log('ui-schedule: view:navigateTo');
+  },
+  'page:inited': function ({
+    name,
+    id
+  }) {
+    logicSlave.send('ui:inited', {
+      name,
+      id
+    });
+  },
+  'page:ready': function ({
+    id
+  }) {
+    logicSlave.send('ui:ready', {
+      id
+    });
+  }
+};
+listenEvents(logicSlave, LOGIC_EVENTS);
+listenEvents(pageSlave, PAGE_EVENTS);
 
-for (const [event, fn] of Object.entries(MESSENGER_EVENTS_LOGIC)) {
-  slave.onmessage(event, fn);
+function listenEvents(messenger, events) {
+  for (const [event, fn] of Object.entries(events)) {
+    messenger.onmessage(event, fn);
+  }
 }
 
-setTimeout(function () {
-  slave.send('ui:inited', {
-    name: 'test',
-    id: 0
-  });
-}, 1000);
-setTimeout(function () {
-  slave.send('ui:ready', {
-    id: 0
-  });
-}, 2000);
+PAGE_EVENTS['page:navigateTo'](); // Test
 
 /***/ }),
 

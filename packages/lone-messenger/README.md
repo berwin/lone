@@ -14,7 +14,8 @@ Create a Master `messenger`:
 import { Master } from 'lone-messenger'
 
 const master = new Master({
-  env: 'postMessage'
+  env: 'postMessage',
+  channel: 'logic'
 })
 
 master.onmessage('customType', function (data) {
@@ -30,7 +31,8 @@ Create a Slave `messenger`:
 import { Slave } from 'seapp-shared/messenger'
 
 const slave = new Slave({
-  env: 'postMessage'
+  env: 'postMessage',
+  channel: 'logic'
 })
 
 slave.onmessage('customType', function (data) {

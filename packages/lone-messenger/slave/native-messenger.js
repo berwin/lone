@@ -3,8 +3,8 @@ import BaseMessenger from '../base/native-messenger'
 const connection = Symbol('messenger:slave#connection')
 
 class NativeMessenger extends BaseMessenger {
-  constructor () {
-    super()
+  constructor (options) {
+    super(options)
     this[connection]()
   }
 

@@ -4,16 +4,16 @@ const connection = Symbol('messenger:slave#connection')
 const source = Symbol('messenger:slave#connection')
 
 class PostMessenger extends BaseMessenger {
-  constructor () {
-    super()
+  constructor (options) {
+    super(options)
     this[source] = null
     this[connection]()
   }
 
   [connection] () {
     const vm = this
-    vm._onmessage(function (data) {
-      if (data.type === 'connection') {
+    vm._onmessage(function ({ type, channel }) {
+      if (type === 'connection' && channel === vm.channel) {
         vm[source] = this.source
       }
     })
@@ -21,7 +21,8 @@ class PostMessenger extends BaseMessenger {
 
   _postMessage (type, data) {
     const master = this[source]
-    master.postMessage({ type, data }, master.origin)
+    if (!master) throw new Error('No Master Source, please connection first!')
+    master.postMessage({ type, channel: this.channel, data }, master.origin)
   }
 }
 

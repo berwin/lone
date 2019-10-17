@@ -7,7 +7,8 @@ function resolve (dir) {
 module.exports = {
   entry: {
     logic: resolve('packages/lone-logic/index.js'),
-    ui: resolve('packages/lone-ui/index.js')
+    ui: resolve('packages/lone-ui/index.js'),
+    page: resolve('packages/lone-page/index.js')
   },
   output: {
     path: resolve('dist'),
@@ -32,9 +33,16 @@ module.exports = {
         loader: 'babel-loader',
         options: {
           // "presets": ["@babel/preset-env"],
-          "plugins": [
-            ["@babel/plugin-proposal-decorators", { "legacy": true }]
-          ],
+          plugins: [
+            ['@babel/plugin-proposal-decorators', { legacy: true }]
+          ]
+        }
+      },
+      {
+        test: /\.js$/,
+        loader: resolve('scripts/replace-loader.js'),
+        options: {
+          __PAGEJS__: '"../../dist/lone.page.js"'
         }
       }
     ]

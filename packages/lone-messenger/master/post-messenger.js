@@ -3,8 +3,8 @@ import BaseMessenger from '../base/post-messenger'
 const connection = Symbol('messenger:slave#connection')
 
 class PostMessenger extends BaseMessenger {
-  constructor () {
-    super()
+  constructor (options) {
+    super(options)
     this[connection]()
   }
 
@@ -14,7 +14,7 @@ class PostMessenger extends BaseMessenger {
 
   _postMessage (type, data) {
     const slave = window.parent
-    slave.postMessage({ type, data }, slave.origin)
+    slave.postMessage({ type, channel: this.channel, data }, slave.origin)
   }
 }
 
