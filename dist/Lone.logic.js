@@ -618,7 +618,6 @@ class NativeMessenger {
     if (!Object(lone_util__WEBPACK_IMPORTED_MODULE_0__["isObject"])(data)) throw new TypeError('data must be plain object.');
     const bag = JSON.stringify({
       type,
-      channel,
       data
     });
     window.senative.call('sendMessage', bag, (code, data, msg) => {});
@@ -677,7 +676,6 @@ class PostMessenger {
     if (!slave) throw new Error('No Slave Source, please connection first!');
     slave.postMessage({
       type,
-      channel,
       data
     }, slave.origin);
   }
