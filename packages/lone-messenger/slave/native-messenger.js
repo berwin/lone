@@ -1,15 +1,16 @@
-import BaseMessenger from '../base/native-messenger'
+import Messenger from '../base/native-messenger'
+import { isObject } from 'lone-util'
 
-const connection = Symbol('messenger:slave#connection')
-
-class NativeMessenger extends BaseMessenger {
+class NativeMessenger extends Messenger {
   constructor (options) {
-    super(options)
-    this[connection]()
+    super()
+    this.channel = options.channel
   }
 
-  [connection] () {
-    window.senative.call('frontPageReady', '', function (code, msg, data) {})
+  _postMessage (type, channel, data) {
+    if (!isObject(data)) throw new TypeError('data must be plain object.')
+    const bag = JSON.stringify({ type, channel, data })
+    window.senative.call('sendMessage', bag, (code, data, msg) => {})
   }
 }
 

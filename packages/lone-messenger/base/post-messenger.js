@@ -1,9 +1,13 @@
 import Messenger from './messenger'
 
 class PostMessenger extends Messenger {
+  constructor () {
+    super()
+    this.listen()
+  }
+
   _onmessage (fn) {
     window.addEventListener('message', function (evt) {
-      if (evt.origin !== location.origin) return
       fn.call(evt, evt.data)
     })
   }

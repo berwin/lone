@@ -1,20 +1,30 @@
-import BaseMessenger from '../base/post-messenger'
+const source = Symbol('messenger:master#connection')
 
-const connection = Symbol('messenger:slave#connection')
-
-class PostMessenger extends BaseMessenger {
-  constructor (options) {
-    super(options)
-    this[connection]()
+class PostMessenger {
+  constructor () {
+    this[source] = Object.create(null)
   }
 
-  [connection] () {
-    this._postMessage('connection')
+  connection () {
+    const vm = this
+    vm.onmessage(function ({ type, channel }) {
+      if (type === 'connection') {
+        vm[source][channel] = this.source
+      }
+    })
   }
 
-  _postMessage (type, data) {
-    const slave = window.parent
-    slave.postMessage({ type, channel: this.channel, data }, slave.origin)
+  onmessage (fn) {
+    window.addEventListener('message', function (evt) {
+      if (evt.origin !== location.origin) return
+      fn.call(evt, evt.data)
+    })
+  }
+
+  send (type, channel, data) {
+    const slave = this[source][channel]
+    if (!slave) throw new Error('No Slave Source, please connection first!')
+    slave.postMessage({ type, channel, data }, slave.origin)
   }
 }
 

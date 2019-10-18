@@ -1,14 +1,15 @@
-import { Master } from 'lone-messenger'
+import { Slave } from 'lone-messenger'
 import { callHook, createComponentInstance } from './component'
+import { getChannel } from './helper'
 
 export const instanceStorage = new Map()
-export const master = new Master({ env: 'postMessage', channel: 'logic' })
+export const slave = new Slave({ env: 'postMessage', channel: 'logic' })
 
 const MESSENGER_EVENTS_UI = {
   'ui:inited': function ({ name, id }) {
     const vm = createComponentInstance(name, id)
     instanceStorage.set(id, vm)
-    master.send('logic:data', { id, data: vm.data })
+    slave.send('logic:data', getChannel(id), { id, data: vm.data })
   },
   'ui:ready': function ({ id }) {
     const vm = instanceStorage.get(id)
@@ -18,5 +19,5 @@ const MESSENGER_EVENTS_UI = {
 }
 
 for (const [event, fn] of Object.entries(MESSENGER_EVENTS_UI)) {
-  master.onmessage(event, fn)
+  slave.onmessage(event, fn)
 }

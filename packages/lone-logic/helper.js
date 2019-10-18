@@ -33,3 +33,7 @@ function getData (data, vm) {
     return {}
   }
 }
+
+export function getChannel (componentId) {
+  return componentId.split('_')[0]
+}

@@ -1,6 +1,6 @@
-import { initOptions, handleError, initData } from './helper'
+import { initOptions, handleError, initData, getChannel } from './helper'
 import events from './events'
-import { master } from './schedule'
+import { slave } from './schedule'
 
 const componentStorage = new Map()
 const init = Symbol('lone-logic:init')
@@ -24,7 +24,7 @@ class LogicComponent {
 
   setData (data) {
     const oldData = this.data
-    master.send('logic:data', {
+    slave.send('logic:data', getChannel(this._id), {
       id: this._id,
       data: Object.assign(oldData, data)
     })

@@ -137,7 +137,7 @@ let LogicComponent = Object(_events__WEBPACK_IMPORTED_MODULE_1__["default"])(_cl
 
   setData(data) {
     const oldData = this.data;
-    _schedule__WEBPACK_IMPORTED_MODULE_2__["master"].send('logic:data', {
+    _schedule__WEBPACK_IMPORTED_MODULE_2__["slave"].send('logic:data', Object(_helper__WEBPACK_IMPORTED_MODULE_0__["getChannel"])(this._id), {
       id: this._id,
       data: Object.assign(oldData, data)
     });
@@ -279,7 +279,7 @@ function emit(event) {
 /*!***************************************!*\
   !*** ./packages/lone-logic/helper.js ***!
   \***************************************/
-/*! exports provided: initOptions, handleError, initData */
+/*! exports provided: initOptions, handleError, initData, getChannel */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -287,6 +287,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "initOptions", function() { return initOptions; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "handleError", function() { return handleError; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "initData", function() { return initData; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getChannel", function() { return getChannel; });
 /* harmony import */ var lone_util_constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lone-util/constants */ "./packages/lone-util/constants.js");
 /* harmony import */ var lone_util__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! lone-util */ "./packages/lone-util/index.js");
 
@@ -319,6 +320,10 @@ function getData(data, vm) {
   }
 }
 
+function getChannel(componentId) {
+  return componentId.split('_')[0];
+}
+
 /***/ }),
 
 /***/ "./packages/lone-logic/index.js":
@@ -343,19 +348,21 @@ __webpack_require__.r(__webpack_exports__);
 /*!*****************************************!*\
   !*** ./packages/lone-logic/schedule.js ***!
   \*****************************************/
-/*! exports provided: instanceStorage, master */
+/*! exports provided: instanceStorage, slave */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "instanceStorage", function() { return instanceStorage; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "master", function() { return master; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "slave", function() { return slave; });
 /* harmony import */ var lone_messenger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lone-messenger */ "./packages/lone-messenger/index.js");
 /* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./component */ "./packages/lone-logic/component.js");
+/* harmony import */ var _helper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./helper */ "./packages/lone-logic/helper.js");
+
 
 
 const instanceStorage = new Map();
-const master = new lone_messenger__WEBPACK_IMPORTED_MODULE_0__["Master"]({
+const slave = new lone_messenger__WEBPACK_IMPORTED_MODULE_0__["Slave"]({
   env: 'postMessage',
   channel: 'logic'
 });
@@ -366,7 +373,7 @@ const MESSENGER_EVENTS_UI = {
   }) {
     const vm = Object(_component__WEBPACK_IMPORTED_MODULE_1__["createComponentInstance"])(name, id);
     instanceStorage.set(id, vm);
-    master.send('logic:data', {
+    slave.send('logic:data', Object(_helper__WEBPACK_IMPORTED_MODULE_2__["getChannel"])(id), {
       id,
       data: vm.data
     });
@@ -381,7 +388,7 @@ const MESSENGER_EVENTS_UI = {
 };
 
 for (const [event, fn] of Object.entries(MESSENGER_EVENTS_UI)) {
-  master.onmessage(event, fn);
+  slave.onmessage(event, fn);
 }
 
 /***/ }),
@@ -396,29 +403,26 @@ for (const [event, fn] of Object.entries(MESSENGER_EVENTS_UI)) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 class Messenger {
-  constructor(options) {
+  constructor() {
     if (new.target === Messenger) {
       throw new TypeError('Messenger is only used for inheritance, not allowed to use directly.');
     }
 
-    this.channel = options.channel;
     this._messages = Object.create(null);
-
-    this._listen();
   }
 
   onmessage(type, fn) {
     (this._messages[type] || (this._messages[type] = [])).push(fn);
   }
 
-  send(type, data) {
-    this._postMessage(type, data);
+  send(type, channel, data) {
+    this._postMessage(type, channel, data);
   }
 
-  _listen() {
+  listen() {
     this._onmessage(evt => {
       const cbs = this._messages[evt.type];
-      if (!cbs || evt.channel !== this.channel) return;
+      if (!cbs) return;
       let i = cbs.length;
 
       while (i--) {
@@ -456,19 +460,12 @@ class Messenger {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _messenger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./messenger */ "./packages/lone-messenger/base/messenger.js");
-/* harmony import */ var lone_util__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! lone-util */ "./packages/lone-util/index.js");
-
 
 
 class NativeMessenger extends _messenger__WEBPACK_IMPORTED_MODULE_0__["default"] {
-  _postMessage(type, data) {
-    if (!Object(lone_util__WEBPACK_IMPORTED_MODULE_1__["isObject"])(data)) throw new TypeError('data must be plain object.');
-    const bag = JSON.stringify({
-      type,
-      channel: this.channel,
-      data
-    });
-    window.senative.call('sendMessage', bag, (code, data, msg) => {});
+  constructor() {
+    super();
+    this.listen();
   }
 
   _onmessage(fn) {
@@ -497,9 +494,13 @@ __webpack_require__.r(__webpack_exports__);
 
 
 class PostMessenger extends _messenger__WEBPACK_IMPORTED_MODULE_0__["default"] {
+  constructor() {
+    super();
+    this.listen();
+  }
+
   _onmessage(fn) {
     window.addEventListener('message', function (evt) {
-      if (evt.origin !== location.origin) return;
       fn.call(evt, evt.data);
     });
   }
@@ -540,17 +541,99 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _base_native_messenger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../base/native-messenger */ "./packages/lone-messenger/base/native-messenger.js");
-/* harmony import */ var _post_messenger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./post-messenger */ "./packages/lone-messenger/master/post-messenger.js");
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Master; });
+/* harmony import */ var _base_messenger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../base/messenger */ "./packages/lone-messenger/base/messenger.js");
+/* harmony import */ var _native_messenger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./native-messenger */ "./packages/lone-messenger/master/native-messenger.js");
+/* harmony import */ var _post_messenger__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./post-messenger */ "./packages/lone-messenger/master/post-messenger.js");
 
 
-/* harmony default export */ __webpack_exports__["default"] = (new Proxy(class Master {}, {
-  construct(trapTarget, argumentList) {
-    const options = argumentList[0];
-    return Reflect.construct(options.env && options.env === 'postMessage' ? _post_messenger__WEBPACK_IMPORTED_MODULE_1__["default"] : _base_native_messenger__WEBPACK_IMPORTED_MODULE_0__["default"], argumentList);
+
+const connection = Symbol('messenger:master#connection');
+class Master extends _base_messenger__WEBPACK_IMPORTED_MODULE_0__["default"] {
+  constructor(options) {
+    super();
+    this.env = options.env;
+    this.native = new _native_messenger__WEBPACK_IMPORTED_MODULE_1__["default"]();
+    this.post = new _post_messenger__WEBPACK_IMPORTED_MODULE_2__["default"]();
+    this[connection]();
+    this.listen();
   }
 
-}));
+  [connection]() {
+    if (this._isNative()) this.native.connection();
+    this.post.connection();
+  }
+
+  listen() {
+    this._onmessage(evt => {
+      const cbs = this._messages[evt.type];
+      if (!cbs) return;
+      let i = cbs.length;
+
+      while (i--) {
+        cbs[i].call(evt, evt.channel, evt.data);
+      }
+    });
+  }
+
+  _onmessage(fn) {
+    if (this._isNative()) this.native.onmessage(fn);
+    this.post.onmessage(fn);
+  }
+
+  _postMessage(type, channel, data) {
+    if (channel === 'logic' && this._isNative()) {
+      return this.native.send(type, channel, data);
+    }
+
+    return this.post.send(type, channel, data);
+  }
+
+  _isNative() {
+    return this.env !== 'postMessage';
+  }
+
+}
+
+/***/ }),
+
+/***/ "./packages/lone-messenger/master/native-messenger.js":
+/*!************************************************************!*\
+  !*** ./packages/lone-messenger/master/native-messenger.js ***!
+  \************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var lone_util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lone-util */ "./packages/lone-util/index.js");
+
+
+class NativeMessenger {
+  connection() {
+    window.senative.call('frontPageReady', '', function (code, msg, data) {});
+  }
+
+  send(type, channel, data) {
+    if (!Object(lone_util__WEBPACK_IMPORTED_MODULE_0__["isObject"])(data)) throw new TypeError('data must be plain object.');
+    const bag = JSON.stringify({
+      type,
+      channel,
+      data
+    });
+    window.senative.call('sendMessage', bag, (code, data, msg) => {});
+  }
+
+  onmessage(fn) {
+    window.onSeNativeMessage = function (rawData) {
+      const data = JSON.parse(rawData);
+      fn(data);
+    };
+  }
+
+}
+
+/* harmony default export */ __webpack_exports__["default"] = (NativeMessenger);
 
 /***/ }),
 
@@ -563,25 +646,38 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _base_post_messenger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../base/post-messenger */ "./packages/lone-messenger/base/post-messenger.js");
+const source = Symbol('messenger:master#connection');
 
-const connection = Symbol('messenger:slave#connection');
-
-class PostMessenger extends _base_post_messenger__WEBPACK_IMPORTED_MODULE_0__["default"] {
-  constructor(options) {
-    super(options);
-    this[connection]();
+class PostMessenger {
+  constructor() {
+    this[source] = Object.create(null);
   }
 
-  [connection]() {
-    this._postMessage('connection');
+  connection() {
+    const vm = this;
+    vm.onmessage(function ({
+      type,
+      channel
+    }) {
+      if (type === 'connection') {
+        vm[source][channel] = this.source;
+      }
+    });
   }
 
-  _postMessage(type, data) {
-    const slave = window.parent;
+  onmessage(fn) {
+    window.addEventListener('message', function (evt) {
+      if (evt.origin !== location.origin) return;
+      fn.call(evt, evt.data);
+    });
+  }
+
+  send(type, channel, data) {
+    const slave = this[source][channel];
+    if (!slave) throw new Error('No Slave Source, please connection first!');
     slave.postMessage({
       type,
-      channel: this.channel,
+      channel,
       data
     }, slave.origin);
   }
@@ -625,17 +721,24 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _base_native_messenger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../base/native-messenger */ "./packages/lone-messenger/base/native-messenger.js");
+/* harmony import */ var lone_util__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! lone-util */ "./packages/lone-util/index.js");
 
-const connection = Symbol('messenger:slave#connection');
+
 
 class NativeMessenger extends _base_native_messenger__WEBPACK_IMPORTED_MODULE_0__["default"] {
   constructor(options) {
-    super(options);
-    this[connection]();
+    super();
+    this.channel = options.channel;
   }
 
-  [connection]() {
-    window.senative.call('frontPageReady', '', function (code, msg, data) {});
+  _postMessage(type, channel, data) {
+    if (!Object(lone_util__WEBPACK_IMPORTED_MODULE_1__["isObject"])(data)) throw new TypeError('data must be plain object.');
+    const bag = JSON.stringify({
+      type,
+      channel,
+      data
+    });
+    window.senative.call('sendMessage', bag, (code, data, msg) => {});
   }
 
 }
@@ -656,36 +759,25 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _base_post_messenger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../base/post-messenger */ "./packages/lone-messenger/base/post-messenger.js");
 
 const connection = Symbol('messenger:slave#connection');
-const source = Symbol('messenger:slave#connection');
 
 class PostMessenger extends _base_post_messenger__WEBPACK_IMPORTED_MODULE_0__["default"] {
   constructor(options) {
-    super(options);
-    this[source] = null;
+    super();
+    this.channel = options.channel;
     this[connection]();
   }
 
   [connection]() {
-    const vm = this;
-
-    vm._onmessage(function ({
-      type,
-      channel
-    }) {
-      if (type === 'connection' && channel === vm.channel) {
-        vm[source] = this.source;
-      }
-    });
+    this._postMessage('connection', this.channel);
   }
 
-  _postMessage(type, data) {
-    const master = this[source];
-    if (!master) throw new Error('No Master Source, please connection first!');
-    master.postMessage({
+  _postMessage(type, channel, data) {
+    const slave = window.parent;
+    slave.postMessage({
       type,
-      channel: this.channel,
+      channel,
       data
-    }, master.origin);
+    }, slave.origin);
   }
 
 }
