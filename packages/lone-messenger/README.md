@@ -14,15 +14,14 @@ Create a Master `messenger`:
 import { Master } from 'lone-messenger'
 
 const master = new Master({
-  env: 'postMessage',
-  channel: 'logic'
+  env: 'postMessage'
 })
 
-master.onmessage('customType', function (data) {
+master.onmessage('customType', function (channel, data) {
   console.log(data)
 })
 
-master.send('customType', {name: 'Berwin'})
+master.send('customType', 'channel', {name: 'Berwin'})
 ```
 
 Create a Slave `messenger`:
@@ -39,15 +38,16 @@ slave.onmessage('customType', function (data) {
   console.log(data)
 })
 
-slave.send('customType', {name: 'Berwin'})
+slave.send('customType', 'channel', {name: 'Berwin'})
 ```
 
 ## Options
 
 * env - Switch PostMessage and NativeMessage, default is NativeMessage
 * $onmessage(type, fn)
-  * type String
+  * type [String]
   * fn(data) data type is Object
-* $send(type, data)
-  * type String
-  * data Object
+* $send(type, channel, data)
+  * type [String]
+  * channel [String]
+  * data [Object]

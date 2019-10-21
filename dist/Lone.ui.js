@@ -497,11 +497,13 @@ class PostMessenger extends _base_post_messenger__WEBPACK_IMPORTED_MODULE_0__["d
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _schedule__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./schedule */ "./packages/lone-ui/schedule.js");
-/* harmony import */ var _page__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./page */ "./packages/lone-ui/page.js");
+/* harmony import */ var _router__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./router */ "./packages/lone-ui/router.js");
 
 
 /* harmony default export */ __webpack_exports__["default"] = (function (options) {
-  console.log('ui-createPage', options, Object(_page__WEBPACK_IMPORTED_MODULE_1__["createPage"])());
+  return new _router__WEBPACK_IMPORTED_MODULE_1__["default"]({
+    routes: options.routes
+  });
 });
 
 /***/ }),
@@ -510,27 +512,33 @@ __webpack_require__.r(__webpack_exports__);
 /*!**********************************!*\
   !*** ./packages/lone-ui/page.js ***!
   \**********************************/
-/*! exports provided: createPage, currentPage */
+/*! exports provided: createPage, removePage */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createPage", function() { return createPage; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "currentPage", function() { return currentPage; });
-const pageStack = [];
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "removePage", function() { return removePage; });
 let pid = 0;
-function createPage() {
+function createPage(options) {
   const view = document.createElement('iframe');
-  view.id = pid++;
+  setAttr(view, options);
   setStyle(view);
   document.body.appendChild(view);
   insertPageJS(view);
   insertUserJS(view);
-  pageStack.push(view);
   return view;
 }
-function currentPage() {
-  return pageStack[pageStack.length - 1] || null;
+function removePage(page) {
+  document.body.removeChild(page);
+}
+
+function setAttr(view, attrs) {
+  view.id = pid++;
+
+  for (const [key, val] of Object.entries(attrs)) {
+    view.setAttribute(key, val);
+  }
 }
 
 function setStyle(view) {
@@ -539,7 +547,7 @@ function setStyle(view) {
   view.style.height = doc.clientHeight + 'px';
   view.style.position = 'fixed';
   view.style.border = 'none';
-  view.style.zIndex = pageStack.length;
+  view.style.zIndex = pid;
   view.style.backgroundColor = 'white';
 }
 
@@ -556,6 +564,105 @@ function insertJS(view, url) {
   script.src = url;
   view.contentDocument.body.appendChild(script);
 }
+
+/***/ }),
+
+/***/ "./packages/lone-ui/router.js":
+/*!************************************!*\
+  !*** ./packages/lone-ui/router.js ***!
+  \************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _page__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./page */ "./packages/lone-ui/page.js");
+/* harmony import */ var lone_util_url__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! lone-util/url */ "./packages/lone-util/url.js");
+
+
+const init = Symbol('init');
+const getRoute = Symbol('getRoute');
+
+class Router {
+  constructor(options) {
+    this.stack = [];
+    this.routes = options.routes;
+    this[init]();
+  }
+
+  [init]() {
+    this.navigateTo({
+      url: this.routes[0].path
+    });
+    setTimeout(_ => {
+      this.redirectTo({
+        url: this.routes[1].path
+      });
+    }, 2000);
+  }
+
+  [getRoute](url) {
+    const {
+      pathname
+    } = Object(lone_util_url__WEBPACK_IMPORTED_MODULE_1__["parse"])(url);
+    return this.routes.find(item => {
+      return item.path === pathname;
+    });
+  }
+
+  currentPage() {
+    return this.stack[this.stack.length - 1] || null;
+  }
+
+  currentPages() {
+    return this.stack;
+  }
+
+  navigateTo({
+    url,
+    success,
+    fail,
+    complete
+  }) {
+    try {
+      const route = this[getRoute](url);
+      const view = Object(_page__WEBPACK_IMPORTED_MODULE_0__["createPage"])(route);
+      this.stack.push(view);
+      success && success(view);
+    } catch (e) {
+      console.log(e);
+      fail && fail(e);
+    }
+
+    complete && complete();
+  }
+
+  redirectTo({
+    url,
+    success,
+    fail,
+    complete
+  }) {
+    try {
+      const oldView = this.stack.pop();
+      const route = this[getRoute](url);
+      Object(_page__WEBPACK_IMPORTED_MODULE_0__["removePage"])(oldView);
+      const view = Object(_page__WEBPACK_IMPORTED_MODULE_0__["createPage"])(route);
+      this.stack.push(view);
+      success && success(view);
+    } catch (e) {
+      console.log(e);
+      fail && fail(e);
+    }
+
+    complete && complete();
+  }
+
+  navigateBack() {}
+
+}
+
+/* harmony default export */ __webpack_exports__["default"] = (Router);
 
 /***/ }),
 
@@ -641,6 +748,36 @@ const isBoolean = b => toString.call(b) === '[object Boolean]';
 const isArray = a => toString.call(a) === '[object Array]';
 const isFunction = f => toString.call(f) === '[object Function]';
 function noop() {}
+
+/***/ }),
+
+/***/ "./packages/lone-util/url.js":
+/*!***********************************!*\
+  !*** ./packages/lone-util/url.js ***!
+  \***********************************/
+/*! exports provided: parse */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "parse", function() { return parse; });
+function parse(url) {
+  const a = document.createElement('a');
+  a.href = url;
+  return {
+    hash: a.hash,
+    host: a.host,
+    hostname: a.hostname,
+    href: a.href,
+    origin: a.origin,
+    password: a.password,
+    pathname: a.pathname,
+    port: a.port,
+    protocol: a.protocol,
+    search: a.search,
+    username: a.username
+  };
+}
 
 /***/ })
 

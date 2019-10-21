@@ -1,6 +1,8 @@
 import './schedule'
-import { createPage } from './page'
+import Router from './router'
 
 export default function (options) {
-  console.log('ui-createPage', options, createPage())
+  return new Router({
+    routes: options.routes
+  })
 }

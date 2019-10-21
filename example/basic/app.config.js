@@ -1,5 +1,6 @@
 Lone.ui({
-  pages: [
-    { path: '/', component: 'test' }
+  routes: [
+    { path: '/', component: 'test' },
+    { path: '/test', component: 'test' }
   ]
 })

@@ -1,19 +1,24 @@
-const pageStack = []
 let pid = 0
 
-export function createPage () {
+export function createPage (options) {
   const view = document.createElement('iframe')
-  view.id = pid++
+  setAttr(view, options)
   setStyle(view)
   document.body.appendChild(view)
   insertPageJS(view)
   insertUserJS(view)
-  pageStack.push(view)
   return view
 }
 
-export function currentPage () {
-  return pageStack[pageStack.length - 1] || null
+export function removePage (page) {
+  document.body.removeChild(page)
+}
+
+function setAttr (view, attrs) {
+  view.id = pid++
+  for (const [key, val] of Object.entries(attrs)) {
+    view.setAttribute(key, val)
+  }
 }
 
 function setStyle (view) {
@@ -22,7 +27,7 @@ function setStyle (view) {
   view.style.height = doc.clientHeight + 'px'
   view.style.position = 'fixed'
   view.style.border = 'none'
-  view.style.zIndex = pageStack.length
+  view.style.zIndex = pid
   view.style.backgroundColor = 'white'
 }
 
