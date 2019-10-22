@@ -14,9 +14,8 @@ export function removePage (page) {
   document.body.removeChild(page)
 }
 
-function setAttr (id, view, options) {
+function setAttr (id, view, attrs) {
   view.id = id
-  const attrs = Object.assign(options, { name: id })
   for (const [key, val] of Object.entries(attrs)) {
     view.setAttribute(key, val)
   }

@@ -48,26 +48,7 @@ Lone.logic('test', {
 Lone.logic('test2', {
   data: () => ({ n: 0 }),
   methods: {},
-  created () {
-    console.log('component test2: created~~~')
-  },
-  onLoad (query) {
-    console.log('component test2: onLoad~~~, query:', query)
-  },
   mounted () {
     this.navigateBack()
-    console.log('component test2: mounted~~~')
-  },
-  onReady () {
-    console.log('component test2: onReady~~~')
-  },
-  onUnload () {
-    console.log('component test2: onUnload~~~')
-  },
-  onShow () {
-    console.log('component test2: onShow~~~')
-  },
-  onHide () {
-    console.log('component test2: onHide~~~')
   }
 })
