@@ -1,6 +1,7 @@
 import { Slave } from 'lone-messenger'
 
 const pid = window.frameElement.id
+const component = window.frameElement.getAttribute('component')
 const slave = new Slave({ env: 'postMessage', channel: pid })
 
 slave.onmessage('ui:data', function ({ id, data }) {
@@ -8,7 +9,7 @@ slave.onmessage('ui:data', function ({ id, data }) {
 })
 
 setTimeout(function () {
-  slave.send('page:inited', 'logic', { name: 'test', id: pid + '_0' })
+  slave.send('page:inited', 'logic', { name: component, id: pid + '_0' })
 }, 1000)
 
 setTimeout(function () {

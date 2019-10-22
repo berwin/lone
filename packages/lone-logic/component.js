@@ -1,11 +1,13 @@
 import { initOptions, handleError, initData, getChannel } from './helper'
 import events from './events'
+import router from './router'
 import { slave } from './schedule'
 
 const componentStorage = new Map()
 const init = Symbol('lone-logic:init')
 
 @events
+@router
 class LogicComponent {
   constructor (id, options) {
     const vm = this

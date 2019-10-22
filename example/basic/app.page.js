@@ -24,6 +24,10 @@ Lone.page({
           <router-view class="view"></router-view>
         </div>
       `
+    },
+    {
+      name: 'test2',
+      template: '<div>test2</div>'
     }
   ]
 })

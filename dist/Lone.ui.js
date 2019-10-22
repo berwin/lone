@@ -500,10 +500,22 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _router__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./router */ "./packages/lone-ui/router.js");
 
 
+
+class LoneUI {
+  constructor(options) {
+    this.options = options;
+    this.router = new _router__WEBPACK_IMPORTED_MODULE_1__["default"]({
+      routes: this.options.routes
+    });
+    this.schedule = new _schedule__WEBPACK_IMPORTED_MODULE_0__["default"]({
+      router: this.router
+    });
+  }
+
+}
+
 /* harmony default export */ __webpack_exports__["default"] = (function (options) {
-  return new _router__WEBPACK_IMPORTED_MODULE_1__["default"]({
-    routes: options.routes
-  });
+  return new LoneUI(options);
 });
 
 /***/ }),
@@ -521,20 +533,23 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "removePage", function() { return removePage; });
 let pid = 0;
 function createPage(options) {
+  const id = pid++;
   const view = document.createElement('iframe');
-  setAttr(view, options);
+  setAttr(id, view, options);
   setStyle(view);
   document.body.appendChild(view);
-  insertPageJS(view);
-  insertUserJS(view);
+  insertJS(view);
   return view;
 }
 function removePage(page) {
   document.body.removeChild(page);
 }
 
-function setAttr(view, attrs) {
-  view.id = pid++;
+function setAttr(id, view, options) {
+  view.id = id;
+  const attrs = Object.assign(options, {
+    name: id
+  });
 
   for (const [key, val] of Object.entries(attrs)) {
     view.setAttribute(key, val);
@@ -551,18 +566,17 @@ function setStyle(view) {
   view.style.backgroundColor = 'white';
 }
 
-function insertPageJS(view) {
-  insertJS(view, "../../dist/lone.page.js"); // eslint-disable-line
+function insertJS(view) {
+  const scriptTag = [insertPageJS, insertUserJS].reduce((pre, gen) => pre + gen(), '');
+  view.contentDocument.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="X-UA-Compatible" content="ie=edge"><title>Document</title></head><body>' + scriptTag + '</body></html>'); // eslint-disable-line
 }
 
-function insertUserJS(view) {
-  insertJS(view, './app.page.js');
+function insertPageJS() {
+  return '<script src="' + "../../dist/lone.page.js" + '"></script>'; // eslint-disable-line
 }
 
-function insertJS(view, url) {
-  const script = document.createElement('script');
-  script.src = url;
-  view.contentDocument.body.appendChild(script);
+function insertUserJS() {
+  return '<script src="./app.page.js"></script>';
 }
 
 /***/ }),
@@ -591,14 +605,7 @@ class Router {
   }
 
   [init]() {
-    this.navigateTo({
-      url: this.routes[0].path
-    });
-    setTimeout(_ => {
-      this.redirectTo({
-        url: this.routes[1].path
-      });
-    }, 2000);
+    this.navigateTo(this.routes[0].path);
   }
 
   [getRoute](url) {
@@ -618,47 +625,37 @@ class Router {
     return this.stack;
   }
 
-  navigateTo({
-    url,
-    success,
-    fail,
-    complete
-  }) {
-    try {
-      const route = this[getRoute](url);
-      const view = Object(_page__WEBPACK_IMPORTED_MODULE_0__["createPage"])(route);
-      this.stack.push(view);
-      success && success(view);
-    } catch (e) {
-      console.log(e);
-      fail && fail(e);
-    }
-
-    complete && complete();
+  _push(url) {
+    const route = this[getRoute](url);
+    const view = Object(_page__WEBPACK_IMPORTED_MODULE_0__["createPage"])(route);
+    this.stack.push(view);
+    return view;
   }
 
-  redirectTo({
-    url,
-    success,
-    fail,
-    complete
-  }) {
-    try {
-      const oldView = this.stack.pop();
-      const route = this[getRoute](url);
-      Object(_page__WEBPACK_IMPORTED_MODULE_0__["removePage"])(oldView);
-      const view = Object(_page__WEBPACK_IMPORTED_MODULE_0__["createPage"])(route);
-      this.stack.push(view);
-      success && success(view);
-    } catch (e) {
-      console.log(e);
-      fail && fail(e);
-    }
-
-    complete && complete();
+  _pop() {
+    const oldView = this.stack.pop();
+    Object(_page__WEBPACK_IMPORTED_MODULE_0__["removePage"])(oldView);
   }
 
-  navigateBack() {}
+  navigateTo(url) {
+    this._push(url);
+  }
+
+  redirectTo(url) {
+    this._pop();
+
+    this._push(url);
+  } // 如果 delta 大于现有页面数，则返回到首页。
+
+
+  navigateBack(delta = 1) {
+    const len = this.stack.length;
+    if (delta >= len) delta = len - 1;
+
+    while (delta--) {
+      this._pop();
+    }
+  }
 
 }
 
@@ -670,59 +667,88 @@ class Router {
 /*!**************************************!*\
   !*** ./packages/lone-ui/schedule.js ***!
   \**************************************/
-/*! no exports provided */
+/*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var lone_messenger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lone-messenger */ "./packages/lone-messenger/index.js");
-/* harmony import */ var _page__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./page */ "./packages/lone-ui/page.js");
-
 
 const master = new lone_messenger__WEBPACK_IMPORTED_MODULE_0__["Master"]({
   env: 'postMessage'
 });
-const LOGIC_EVENTS = {
-  'logic:data': function (channel, {
-    id,
-    data
-  }) {
-    master.send('ui:data', channel, {
-      id,
-      data
-    });
-  }
-};
-const PAGE_EVENTS = {
-  'page:navigateTo': function () {
-    Object(_page__WEBPACK_IMPORTED_MODULE_1__["createPage"])();
-    console.log('ui-schedule: view:navigateTo');
-  },
-  'page:inited': function (channel, {
-    name,
-    id
-  }) {
-    master.send('ui:inited', channel, {
-      name,
-      id
-    });
-  },
-  'page:ready': function (channel, {
-    id
-  }) {
-    master.send('ui:ready', channel, {
-      id
-    });
-  }
-};
-listenEvents(master, LOGIC_EVENTS);
-listenEvents(master, PAGE_EVENTS);
 
-function listenEvents(messenger, events) {
-  for (const [event, fn] of Object.entries(events)) {
-    messenger.onmessage(event, fn);
+class Schedule {
+  constructor({
+    router
+  }) {
+    const vm = this;
+    vm.router = router;
+    vm.logicEvents = {
+      'logic:data': function (channel, {
+        id,
+        data
+      }) {
+        master.send('ui:data', channel, {
+          id,
+          data
+        });
+      },
+      'logic:navigateTo': function (channel, {
+        url
+      }) {
+        vm.router.navigateTo(url);
+      },
+      'logic:redirectTo': function (channel, {
+        url
+      }) {
+        vm.router.redirectTo(url);
+      },
+      'logic:navigateBack': function (channel, {
+        delta
+      }) {
+        vm.router.navigateBack(delta);
+      }
+    };
+    vm.pageEvents = {
+      'page:navigateTo': function () {
+        console.log('ui-schedule: view:navigateTo');
+      },
+      'page:inited': function (channel, {
+        name,
+        id
+      }) {
+        console.log(name, id);
+        master.send('ui:inited', channel, {
+          name,
+          id
+        });
+      },
+      'page:ready': function (channel, {
+        id
+      }) {
+        master.send('ui:ready', channel, {
+          id
+        });
+      }
+    };
+    vm.init();
   }
+
+  init() {
+    this.listenEvents(master, this.logicEvents);
+    this.listenEvents(master, this.pageEvents);
+  }
+
+  listenEvents(messenger, events) {
+    for (const [event, fn] of Object.entries(events)) {
+      messenger.onmessage(event, fn);
+    }
+  }
+
 }
+
+/* harmony default export */ __webpack_exports__["default"] = (Schedule);
 
 /***/ }),
 

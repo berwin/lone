@@ -12,15 +12,7 @@ class Router {
   }
 
   [init] () {
-    this.navigateTo({
-      url: this.routes[0].path
-    })
-
-    setTimeout(_ => {
-      this.redirectTo({
-        url: this.routes[1].path
-      })
-    }, 2000)
+    this.navigateTo(this.routes[0].path)
   }
 
   [getRoute] (url) {
@@ -38,35 +30,35 @@ class Router {
     return this.stack
   }
 
-  navigateTo ({ url, success, fail, complete }) {
-    try {
-      const route = this[getRoute](url)
-      const view = createPage(route)
-      this.stack.push(view)
-      success && success(view)
-    } catch (e) {
-      console.log(e)
-      fail && fail(e)
-    }
-    complete && complete()
+  _push (url) {
+    const route = this[getRoute](url)
+    const view = createPage(route)
+    this.stack.push(view)
+    return view
   }
 
-  redirectTo ({ url, success, fail, complete }) {
-    try {
-      const oldView = this.stack.pop()
-      const route = this[getRoute](url)
-      removePage(oldView)
-      const view = createPage(route)
-      this.stack.push(view)
-      success && success(view)
-    } catch (e) {
-      console.log(e)
-      fail && fail(e)
-    }
-    complete && complete()
+  _pop () {
+    const oldView = this.stack.pop()
+    removePage(oldView)
   }
 
-  navigateBack () {}
+  navigateTo (url) {
+    this._push(url)
+  }
+
+  redirectTo (url) {
+    this._pop()
+    this._push(url)
+  }
+
+  // 如果 delta 大于现有页面数，则返回到首页。
+  navigateBack (delta = 1) {
+    const len = this.stack.length
+    if (delta >= len) delta = (len - 1)
+    while (delta--) {
+      this._pop()
+    }
+  }
 }
 
 export default Router

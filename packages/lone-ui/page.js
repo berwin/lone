@@ -1,12 +1,12 @@
 let pid = 0
 
 export function createPage (options) {
+  const id = pid++
   const view = document.createElement('iframe')
-  setAttr(view, options)
+  setAttr(id, view, options)
   setStyle(view)
   document.body.appendChild(view)
-  insertPageJS(view)
-  insertUserJS(view)
+  insertJS(view)
   return view
 }
 
@@ -14,8 +14,9 @@ export function removePage (page) {
   document.body.removeChild(page)
 }
 
-function setAttr (view, attrs) {
-  view.id = pid++
+function setAttr (id, view, options) {
+  view.id = id
+  const attrs = Object.assign(options, { name: id })
   for (const [key, val] of Object.entries(attrs)) {
     view.setAttribute(key, val)
   }
@@ -31,16 +32,15 @@ function setStyle (view) {
   view.style.backgroundColor = 'white'
 }
 
-function insertPageJS (view) {
-  insertJS(view, __PAGEJS__) // eslint-disable-line
+function insertJS (view) {
+  const scriptTag = [insertPageJS, insertUserJS].reduce((pre, gen) => pre + gen(), '')
+  view.contentDocument.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="X-UA-Compatible" content="ie=edge"><title>Document</title></head><body>'+ scriptTag +'</body></html>') // eslint-disable-line
 }
 
-function insertUserJS (view) {
-  insertJS(view, './app.page.js')
+function insertPageJS () {
+  return '<script src="'+ __PAGEJS__ +'"></script>' // eslint-disable-line
 }
 
-function insertJS (view, url) {
-  const script = document.createElement('script')
-  script.src = url
-  view.contentDocument.body.appendChild(script)
+function insertUserJS () {
+  return '<script src="./app.page.js"></script>'
 }

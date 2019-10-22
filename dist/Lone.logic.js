@@ -110,8 +110,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "callHook", function() { return callHook; });
 /* harmony import */ var _helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./helper */ "./packages/lone-logic/helper.js");
 /* harmony import */ var _events__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./events */ "./packages/lone-logic/events.js");
-/* harmony import */ var _schedule__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./schedule */ "./packages/lone-logic/schedule.js");
+/* harmony import */ var _router__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./router */ "./packages/lone-logic/router.js");
+/* harmony import */ var _schedule__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./schedule */ "./packages/lone-logic/schedule.js");
 var _class;
+
 
 
 
@@ -119,7 +121,7 @@ var _class;
 const componentStorage = new Map();
 const init = Symbol('lone-logic:init');
 
-let LogicComponent = Object(_events__WEBPACK_IMPORTED_MODULE_1__["default"])(_class = class LogicComponent {
+let LogicComponent = Object(_events__WEBPACK_IMPORTED_MODULE_1__["default"])(_class = Object(_router__WEBPACK_IMPORTED_MODULE_2__["default"])(_class = class LogicComponent {
   constructor(id, options) {
     const vm = this;
     vm._id = id;
@@ -137,13 +139,13 @@ let LogicComponent = Object(_events__WEBPACK_IMPORTED_MODULE_1__["default"])(_cl
 
   setData(data) {
     const oldData = this.data;
-    _schedule__WEBPACK_IMPORTED_MODULE_2__["slave"].send('logic:data', Object(_helper__WEBPACK_IMPORTED_MODULE_0__["getChannel"])(this._id), {
+    _schedule__WEBPACK_IMPORTED_MODULE_3__["slave"].send('logic:data', Object(_helper__WEBPACK_IMPORTED_MODULE_0__["getChannel"])(this._id), {
       id: this._id,
       data: Object.assign(oldData, data)
     });
   }
 
-}) || _class;
+}) || _class) || _class;
 
 function Component(name, options) {
   componentStorage.set(name, options);
@@ -341,6 +343,45 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
+/***/ }),
+
+/***/ "./packages/lone-logic/router.js":
+/*!***************************************!*\
+  !*** ./packages/lone-logic/router.js ***!
+  \***************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return events; });
+/* harmony import */ var _schedule__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./schedule */ "./packages/lone-logic/schedule.js");
+
+function events(Lone) {
+  const proto = Lone.prototype;
+  proto.navigateTo = navigateTo;
+  proto.redirectTo = redirectTo;
+  proto.navigateBack = navigateBack;
+}
+
+function navigateTo(url) {
+  _schedule__WEBPACK_IMPORTED_MODULE_0__["slave"].send('logic:navigateTo', null, {
+    url
+  });
+}
+
+function redirectTo(url) {
+  _schedule__WEBPACK_IMPORTED_MODULE_0__["slave"].send('logic:redirectTo', null, {
+    url
+  });
+}
+
+function navigateBack(delta) {
+  _schedule__WEBPACK_IMPORTED_MODULE_0__["slave"].send('logic:navigateBack', null, {
+    delta
+  });
+}
 
 /***/ }),
 

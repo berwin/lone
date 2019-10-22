@@ -499,6 +499,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var lone_messenger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lone-messenger */ "./packages/lone-messenger/index.js");
 
 const pid = window.frameElement.id;
+const component = window.frameElement.getAttribute('component');
 const slave = new lone_messenger__WEBPACK_IMPORTED_MODULE_0__["Slave"]({
   env: 'postMessage',
   channel: pid
@@ -511,7 +512,7 @@ slave.onmessage('ui:data', function ({
 });
 setTimeout(function () {
   slave.send('page:inited', 'logic', {
-    name: 'test',
+    name: component,
     id: pid + '_0'
   });
 }, 1000);
