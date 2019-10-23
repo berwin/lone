@@ -487,6 +487,96 @@ class PostMessenger extends _base_post_messenger__WEBPACK_IMPORTED_MODULE_0__["d
 
 /***/ }),
 
+/***/ "./packages/lone-page/component/index.js":
+/*!***********************************************!*\
+  !*** ./packages/lone-page/component/index.js ***!
+  \***********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _init__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./init */ "./packages/lone-page/component/init.js");
+var _class;
+
+
+
+let Component = Object(_init__WEBPACK_IMPORTED_MODULE_0__["default"])(_class = class Component {
+  constructor(options) {
+    this.init(options);
+  }
+
+  static setGlobalOptions(options) {
+    this.options = options;
+  }
+
+}) || _class;
+
+/* harmony default export */ __webpack_exports__["default"] = (Component);
+
+/***/ }),
+
+/***/ "./packages/lone-page/component/init.js":
+/*!**********************************************!*\
+  !*** ./packages/lone-page/component/init.js ***!
+  \**********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return init; });
+/* harmony import */ var lone_messenger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lone-messenger */ "./packages/lone-messenger/index.js");
+
+let cid = 0;
+function init(Component) {
+  const proto = Component.prototype;
+
+  proto.init = function (options) {
+    const vm = this;
+    initOptions(vm, options, Component);
+    initMessenger(vm);
+    vm.callHook(vm, 'page:inited');
+    reaction(vm);
+    vm.callHook(vm, 'page:ready');
+  };
+
+  proto.callHook = function (vm, hook) {
+    vm.slave.send(hook, 'logic', {
+      name: vm.name,
+      id: vm.id
+    });
+  };
+}
+
+function initOptions(vm, options, Component) {
+  vm.options = options;
+  vm.cid = cid++;
+  vm.pid = Component.options.pid;
+  vm.id = vm.pid + '_' + vm.cid;
+  const config = Component.options.components.find(item => item.name === vm.options.name);
+  vm.name = config.name;
+  vm.template = config.template;
+}
+
+function initMessenger(vm) {
+  vm.slave = new lone_messenger__WEBPACK_IMPORTED_MODULE_0__["Slave"]({
+    env: 'postMessage',
+    channel: vm.pid
+  });
+}
+
+function reaction(vm) {
+  vm.slave.onmessage('ui:data', function ({
+    id,
+    data
+  }) {
+    console.log('ui:data - page:', id, data);
+  });
+}
+
+/***/ }),
+
 /***/ "./packages/lone-page/index.js":
 /*!*************************************!*\
   !*** ./packages/lone-page/index.js ***!
@@ -496,33 +586,19 @@ class PostMessenger extends _base_post_messenger__WEBPACK_IMPORTED_MODULE_0__["d
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var lone_messenger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lone-messenger */ "./packages/lone-messenger/index.js");
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./component */ "./packages/lone-page/component/index.js");
 
-const pid = window.frameElement.id;
-const component = window.frameElement.getAttribute('component');
-const slave = new lone_messenger__WEBPACK_IMPORTED_MODULE_0__["Slave"]({
-  env: 'postMessage',
-  channel: pid
-});
-slave.onmessage('ui:data', function ({
-  id,
-  data
-}) {
-  console.log('ui:data - page:', id, data);
-});
-setTimeout(function () {
-  slave.send('page:inited', 'logic', {
-    name: component,
-    id: pid + '_0'
-  });
-}, 1000);
-setTimeout(function () {
-  slave.send('page:ready', 'logic', {
-    id: pid + '_0'
-  });
-}, 2000);
 /* harmony default export */ __webpack_exports__["default"] = (function (options) {
-  console.log('lone-page:', options);
+  const pid = window.frameElement.id;
+  const path = window.frameElement.getAttribute('path');
+  const name = window.frameElement.getAttribute('component');
+  _component__WEBPACK_IMPORTED_MODULE_0__["default"].setGlobalOptions({ ...options,
+    pid,
+    path
+  });
+  return new _component__WEBPACK_IMPORTED_MODULE_0__["default"]({
+    name
+  });
 });
 
 /***/ }),

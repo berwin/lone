@@ -7,6 +7,10 @@ class Schedule {
     const vm = this
     vm.router = router
     vm.logicEvents = {
+      'logic:inited': function () {
+        // Default Route Page
+        vm.router.navigateTo(vm.router.routes[0].path)
+      },
       'logic:data': function (channel, { id, data }) {
         master.send('ui:data', channel, { id, data })
       },
@@ -25,7 +29,6 @@ class Schedule {
         console.log('ui-schedule: view:navigateTo')
       },
       'page:inited': function (channel, { name, id }) {
-        console.log(name, id)
         master.send('ui:inited', channel, { name, id })
       },
       'page:ready': function (channel, { id }) {

@@ -1,21 +1,9 @@
-import { Slave } from 'lone-messenger'
-
-const pid = window.frameElement.id
-const component = window.frameElement.getAttribute('component')
-const slave = new Slave({ env: 'postMessage', channel: pid })
-
-slave.onmessage('ui:data', function ({ id, data }) {
-  console.log('ui:data - page:', id, data)
-})
-
-setTimeout(function () {
-  slave.send('page:inited', 'logic', { name: component, id: pid + '_0' })
-}, 1000)
-
-setTimeout(function () {
-  slave.send('page:ready', 'logic', { id: pid + '_0' })
-}, 2000)
+import Component from './component'
 
 export default function (options) {
-  console.log('lone-page:', options)
+  const pid = window.frameElement.id
+  const path = window.frameElement.getAttribute('path')
+  const name = window.frameElement.getAttribute('component')
+  Component.setGlobalOptions({ ...options, pid, path })
+  return new Component({ name })
 }

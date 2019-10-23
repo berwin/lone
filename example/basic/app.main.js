@@ -28,7 +28,7 @@ Lone.logic('test', {
         n: 2
       })
     }, 1000)
-    this.navigateTo('/test')
+    // this.navigateTo('/test')
     console.log('app.main.js: mounted~~~')
   },
   onReady () {

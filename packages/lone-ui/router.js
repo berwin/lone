@@ -1,18 +1,12 @@
 import { createPage, removePage } from './page'
 import { parse } from 'lone-util/url'
 
-const init = Symbol('init')
 const getRoute = Symbol('getRoute')
 
 class Router {
   constructor (options) {
     this.stack = []
     this.routes = options.routes
-    this[init]()
-  }
-
-  [init] () {
-    this.navigateTo(this.routes[0].path)
   }
 
   [getRoute] (url) {

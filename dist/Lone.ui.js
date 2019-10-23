@@ -591,18 +591,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var lone_util_url__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! lone-util/url */ "./packages/lone-util/url.js");
 
 
-const init = Symbol('init');
 const getRoute = Symbol('getRoute');
 
 class Router {
   constructor(options) {
     this.stack = [];
     this.routes = options.routes;
-    this[init]();
-  }
-
-  [init]() {
-    this.navigateTo(this.routes[0].path);
   }
 
   [getRoute](url) {
@@ -682,6 +676,10 @@ class Schedule {
     const vm = this;
     vm.router = router;
     vm.logicEvents = {
+      'logic:inited': function () {
+        // Default Route Page
+        vm.router.navigateTo(vm.router.routes[0].path);
+      },
       'logic:data': function (channel, {
         id,
         data
@@ -715,7 +713,6 @@ class Schedule {
         name,
         id
       }) {
-        console.log(name, id);
         master.send('ui:inited', channel, {
           name,
           id
