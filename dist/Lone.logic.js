@@ -845,7 +845,7 @@ const LIFECYCLE_HOOKS = ['beforeCreate', 'created', 'beforeMount', 'mounted', 'b
 /*!*************************************!*\
   !*** ./packages/lone-util/index.js ***!
   \*************************************/
-/*! exports provided: isString, isObject, isBoolean, isArray, isFunction, noop */
+/*! exports provided: isString, isObject, isBoolean, isArray, isFunction, noop, camelize, no, cached, extend, makeMap, isBuiltInTag, warn, tip, isNonPhrasingTag */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -856,6 +856,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isArray", function() { return isArray; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isFunction", function() { return isFunction; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "noop", function() { return noop; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "camelize", function() { return camelize; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "no", function() { return no; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "cached", function() { return cached; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "extend", function() { return extend; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "makeMap", function() { return makeMap; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isBuiltInTag", function() { return isBuiltInTag; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "warn", function() { return warn; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "tip", function() { return tip; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isNonPhrasingTag", function() { return isNonPhrasingTag; });
 const toString = Object.prototype.toString;
 const isString = s => toString.call(s) === '[object String]';
 const isObject = o => toString.call(o) === '[object Object]';
@@ -863,6 +872,64 @@ const isBoolean = b => toString.call(b) === '[object Boolean]';
 const isArray = a => toString.call(a) === '[object Array]';
 const isFunction = f => toString.call(f) === '[object Function]';
 function noop() {}
+/**
+ * Camelize a hyphen-delimited string.
+ */
+
+const camelizeRE = /-(\w)/g;
+const camelize = cached(str => {
+  return str.replace(camelizeRE, (_, c) => c ? c.toUpperCase() : '');
+});
+/**
+ * Always return false.
+ */
+
+const no = _ => false;
+/**
+ * Create a cached version of a pure function.
+ */
+
+function cached(fn) {
+  const cache = Object.create(null);
+  return function cachedFn(str) {
+    const hit = cache[str];
+    return hit || (cache[str] = fn(str));
+  };
+}
+/**
+ * Mix properties into target object.
+ */
+
+function extend(to, _from) {
+  for (const key in _from) {
+    to[key] = _from[key];
+  }
+
+  return to;
+}
+/**
+ * Make a map and return a function for checking if a key
+ * is in that map.
+ */
+
+function makeMap(str, expectsLowerCase) {
+  const map = Object.create(null);
+  const list = str.split(',');
+
+  for (let i = 0; i < list.length; i++) {
+    map[list[i]] = true;
+  }
+
+  return expectsLowerCase ? val => map[val.toLowerCase()] : val => map[val];
+}
+/**
+ * Check if a tag is a built-in tag.
+ */
+
+const isBuiltInTag = makeMap('slot,component', true);
+const warn = noop;
+const tip = noop;
+const isNonPhrasingTag = makeMap('address,article,aside,base,blockquote,body,caption,col,colgroup,dd,' + 'details,dialog,div,dl,dt,fieldset,figcaption,figure,footer,form,' + 'h1,h2,h3,h4,h5,h6,head,header,hgroup,hr,html,legend,li,menuitem,meta,' + 'optgroup,option,param,rp,rt,source,style,summary,tbody,td,tfoot,th,thead,' + 'title,tr,track');
 
 /***/ })
 
