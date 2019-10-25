@@ -607,7 +607,7 @@ __webpack_require__.r(__webpack_exports__);
 /*!*************************************!*\
   !*** ./packages/lone-util/index.js ***!
   \*************************************/
-/*! exports provided: isString, isObject, isBoolean, isArray, isFunction, noop, camelize, no, cached, extend, makeMap, isBuiltInTag, warn, tip, isNonPhrasingTag */
+/*! exports provided: isString, isObject, isBoolean, isArray, isFunction, noop, camelize, no, cached, extend, makeMap, isBuiltInTag, warn, tip, isUnaryTag, canBeLeftOpenTag, isNonPhrasingTag, genStaticKeys */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -626,7 +626,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isBuiltInTag", function() { return isBuiltInTag; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "warn", function() { return warn; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "tip", function() { return tip; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isUnaryTag", function() { return isUnaryTag; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "canBeLeftOpenTag", function() { return canBeLeftOpenTag; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isNonPhrasingTag", function() { return isNonPhrasingTag; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "genStaticKeys", function() { return genStaticKeys; });
 const toString = Object.prototype.toString;
 const isString = s => toString.call(s) === '[object String]';
 const isObject = o => toString.call(o) === '[object Object]';
@@ -691,7 +694,22 @@ function makeMap(str, expectsLowerCase) {
 const isBuiltInTag = makeMap('slot,component', true);
 const warn = noop;
 const tip = noop;
+const isUnaryTag = makeMap('area,base,br,col,embed,frame,hr,img,input,isindex,keygen,' + 'link,meta,param,source,track,wbr'); // Elements that you can, intentionally, leave open
+// (and which close themselves)
+
+const canBeLeftOpenTag = makeMap('colgroup,dd,dt,li,options,p,td,tfoot,th,thead,tr,source'); // HTML5 tags https://html.spec.whatwg.org/multipage/indices.html#elements-3
+// Phrasing Content https://html.spec.whatwg.org/multipage/dom.html#phrasing-content
+
 const isNonPhrasingTag = makeMap('address,article,aside,base,blockquote,body,caption,col,colgroup,dd,' + 'details,dialog,div,dl,dt,fieldset,figcaption,figure,footer,form,' + 'h1,h2,h3,h4,h5,h6,head,header,hgroup,hr,html,legend,li,menuitem,meta,' + 'optgroup,option,param,rp,rt,source,style,summary,tbody,td,tfoot,th,thead,' + 'title,tr,track');
+/**
+ * Generate a static keys string from compiler modules.
+ */
+
+function genStaticKeys(modules) {
+  return modules.reduce((keys, m) => {
+    return keys.concat(m.staticKeys || []);
+  }, []).join(',');
+}
 
 /***/ })
 
