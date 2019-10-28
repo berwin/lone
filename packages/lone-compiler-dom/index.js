@@ -1,5 +1,3 @@
-/* @flow */
-
 import { baseOptions } from './options'
 import { createCompiler } from 'lone-compiler-core'
 

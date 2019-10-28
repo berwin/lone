@@ -1,8 +1,8 @@
 /* @flow */
 
-import config from 'core/config'
-import { addHandler, addProp, getBindingAttr } from 'compiler/helpers'
-import { genComponentModel, genAssignmentCode } from 'compiler/directives/model'
+import { isReservedTag } from 'lone-util/web/element'
+import { addHandler, addProp, getBindingAttr } from 'lone-compiler-core/helpers'
+import { genComponentModel, genAssignmentCode } from 'lone-compiler-core/directives/model'
 
 let warn
 
@@ -41,7 +41,7 @@ export default function model (el, dir, _warn) {
     genRadioModel(el, value, modifiers)
   } else if (tag === 'input' || tag === 'textarea') {
     genDefaultModel(el, value, modifiers)
-  } else if (!config.isReservedTag(tag)) {
+  } else if (!isReservedTag(tag)) {
     genComponentModel(el, value, modifiers)
     // component v-model doesn't need extra runtime
     return false

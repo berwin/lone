@@ -6,7 +6,7 @@ import {
   getAndRemoveAttr,
   getBindingAttr,
   baseWarn
-} from 'compiler/helpers'
+} from 'lone-compiler-core/helpers'
 
 function transformNode (el, options) {
   const warn = options.warn || baseWarn

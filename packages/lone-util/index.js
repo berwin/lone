@@ -43,6 +43,19 @@ export function extend (to, _from) {
 }
 
 /**
+ * Merge an Array of Objects into a single Object.
+ */
+export function toObject (arr) {
+  const res = {}
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i]) {
+      extend(res, arr[i])
+    }
+  }
+  return res
+}
+
+/**
  * Make a map and return a function for checking if a key
  * is in that map.
  */
@@ -93,4 +106,8 @@ export function genStaticKeys (modules) {
   return modules.reduce((keys, m) => {
     return keys.concat(m.staticKeys || [])
   }, []).join(',')
+}
+
+export function isDef (v) {
+  return v !== undefined && v !== null
 }

@@ -7,6 +7,7 @@
   },
   "license": "ISC",
   "dependencies": {
+    "lone-compiler-dom": "^0.0.0",
     "lone-messenger": "^0.0.0"
   }
 }

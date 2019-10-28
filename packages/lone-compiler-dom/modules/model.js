@@ -13,14 +13,14 @@
 import {
   getBindingAttr,
   getAndRemoveAttr
-} from 'compiler/helpers'
+} from 'lone-compiler-core/helpers'
 
 import {
   processFor,
   processElement,
   addIfCondition,
   createASTElement
-} from 'compiler/parser/index'
+} from 'lone-compiler-core/parser/index'
 
 function preTransformNode (el, options) {
   if (el.tag === 'input') {

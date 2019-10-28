@@ -1,6 +1,6 @@
 /* @flow */
 
-import { addProp } from 'compiler/helpers'
+import { addProp } from 'lone-compiler-core/helpers'
 
 export default function text (el, dir) {
   if (dir.value) {

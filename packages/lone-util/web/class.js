@@ -1,6 +1,6 @@
 /* @flow */
 
-import { isDef, isObject } from 'shared/util'
+import { isDef, isObject } from '../index'
 
 export function genClassForVnode (vnode) {
   let data = vnode.data

@@ -23,6 +23,7 @@ module.exports = {
         test: /\.(js)$/,
         loader: 'eslint-loader',
         enforce: 'pre',
+        exclude: /node_modules/,
         options: {
           formatter: require('eslint-friendly-formatter')
         }
@@ -41,6 +42,7 @@ module.exports = {
       {
         test: /\.js$/,
         loader: resolve('scripts/replace-loader.js'),
+        exclude: /node_modules/,
         options: {
           __PAGEJS__: '"../../dist/lone.page.js"'
         }

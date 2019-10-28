@@ -845,7 +845,7 @@ const LIFECYCLE_HOOKS = ['beforeCreate', 'created', 'beforeMount', 'mounted', 'b
 /*!*************************************!*\
   !*** ./packages/lone-util/index.js ***!
   \*************************************/
-/*! exports provided: isString, isObject, isBoolean, isArray, isFunction, noop, camelize, no, cached, extend, makeMap, isBuiltInTag, warn, tip, isUnaryTag, canBeLeftOpenTag, isNonPhrasingTag, genStaticKeys */
+/*! exports provided: isString, isObject, isBoolean, isArray, isFunction, noop, camelize, no, cached, extend, toObject, makeMap, isBuiltInTag, warn, tip, isUnaryTag, canBeLeftOpenTag, isNonPhrasingTag, genStaticKeys, isDef */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -860,6 +860,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "no", function() { return no; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "cached", function() { return cached; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "extend", function() { return extend; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toObject", function() { return toObject; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "makeMap", function() { return makeMap; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isBuiltInTag", function() { return isBuiltInTag; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "warn", function() { return warn; });
@@ -868,6 +869,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "canBeLeftOpenTag", function() { return canBeLeftOpenTag; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isNonPhrasingTag", function() { return isNonPhrasingTag; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "genStaticKeys", function() { return genStaticKeys; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isDef", function() { return isDef; });
 const toString = Object.prototype.toString;
 const isString = s => toString.call(s) === '[object String]';
 const isObject = o => toString.call(o) === '[object Object]';
@@ -911,6 +913,21 @@ function extend(to, _from) {
   return to;
 }
 /**
+ * Merge an Array of Objects into a single Object.
+ */
+
+function toObject(arr) {
+  const res = {};
+
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i]) {
+      extend(res, arr[i]);
+    }
+  }
+
+  return res;
+}
+/**
  * Make a map and return a function for checking if a key
  * is in that map.
  */
@@ -947,6 +964,9 @@ function genStaticKeys(modules) {
   return modules.reduce((keys, m) => {
     return keys.concat(m.staticKeys || []);
   }, []).join(',');
+}
+function isDef(v) {
+  return v !== undefined && v !== null;
 }
 
 /***/ })

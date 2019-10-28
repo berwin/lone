@@ -1,6 +1,6 @@
 /* @flow */
 
-import { inBrowser } from 'core/util/index'
+import { inBrowser } from '../env'
 
 // check whether current browser encodes a char inside attribute values
 function shouldDecode (content, encoded) {

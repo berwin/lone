@@ -1,6 +1,4 @@
-/* @flow */
-
-import { warn } from 'core/util/index'
+import { warn } from '../index'
 
 export * from './attrs'
 export * from './class'
