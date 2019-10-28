@@ -27,11 +27,6 @@ import {
   deactivateChildComponent
 } from '../instance/lifecycle'
 
-import {
-  isRecyclableComponent,
-  renderRecyclableComponentTemplate
-} from 'weex/runtime/recycle-list/render-component-template'
-
 // inline hooks to be invoked on component VNodes during patch
 const componentVNodeHooks = {
   init (vnode, hydrating) {

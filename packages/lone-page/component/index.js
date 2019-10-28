@@ -1,5 +1,7 @@
+import { installRenderHelpers } from 'lone-virtualdom/render-helpers'
 import init from './init'
 
+@installRenderHelpers
 @init
 class Component {
   constructor (options) {

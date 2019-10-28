@@ -3943,12 +3943,14 @@ class PostMessenger extends _base_post_messenger__WEBPACK_IMPORTED_MODULE_0__["d
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _init__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./init */ "./packages/lone-page/component/init.js");
+/* harmony import */ var lone_virtualdom_render_helpers__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lone-virtualdom/render-helpers */ "./packages/lone-virtualdom/render-helpers/index.js");
+/* harmony import */ var _init__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./init */ "./packages/lone-page/component/init.js");
 var _class;
 
 
 
-let Component = Object(_init__WEBPACK_IMPORTED_MODULE_0__["default"])(_class = class Component {
+
+let Component = Object(lone_virtualdom_render_helpers__WEBPACK_IMPORTED_MODULE_0__["installRenderHelpers"])(_class = Object(_init__WEBPACK_IMPORTED_MODULE_1__["default"])(_class = class Component {
   constructor(options) {
     this.init(options);
   }
@@ -3957,7 +3959,7 @@ let Component = Object(_init__WEBPACK_IMPORTED_MODULE_0__["default"])(_class = c
     this.options = options;
   }
 
-}) || _class;
+}) || _class) || _class;
 
 /* harmony default export */ __webpack_exports__["default"] = (Component);
 
@@ -4620,6 +4622,1776 @@ function getStyle(vnode, checkChild) {
   }
 
   return res;
+}
+
+/***/ }),
+
+/***/ "./packages/lone-virtualdom/create-component.js":
+/*!******************************************************!*\
+  !*** ./packages/lone-virtualdom/create-component.js ***!
+  \******************************************************/
+/*! exports provided: createComponent, createComponentInstanceForVnode */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createComponent", function() { return createComponent; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createComponentInstanceForVnode", function() { return createComponentInstanceForVnode; });
+/* harmony import */ var _vnode__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./vnode */ "./packages/lone-virtualdom/vnode.js");
+!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/instance/init'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/observer/scheduler'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+/* harmony import */ var _create_functional_component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./create-functional-component */ "./packages/lone-virtualdom/create-functional-component.js");
+!(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+/* harmony import */ var _helpers_index__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./helpers/index */ "./packages/lone-virtualdom/helpers/index.js");
+!(function webpackMissingModule() { var e = new Error("Cannot find module '../instance/lifecycle'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+/* @flow */
+
+
+
+
+
+
+ // inline hooks to be invoked on component VNodes during patch
+
+const componentVNodeHooks = {
+  init(vnode, hydrating) {
+    if (vnode.componentInstance && !vnode.componentInstance._isDestroyed && vnode.data.keepAlive) {
+      // kept-alive components, treat as a patch
+      const mountedNode = vnode; // work around flow
+
+      componentVNodeHooks.prepatch(mountedNode, mountedNode);
+    } else {
+      const child = vnode.componentInstance = createComponentInstanceForVnode(vnode, !(function webpackMissingModule() { var e = new Error("Cannot find module '../instance/lifecycle'"); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+      child.$mount(hydrating ? vnode.elm : undefined, hydrating);
+    }
+  },
+
+  prepatch(oldVnode, vnode) {
+    const options = vnode.componentOptions;
+    const child = vnode.componentInstance = oldVnode.componentInstance;
+    !(function webpackMissingModule() { var e = new Error("Cannot find module '../instance/lifecycle'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(child, options.propsData, // updated props
+    options.listeners, // updated listeners
+    vnode, // new parent vnode
+    options.children // new children
+    );
+  },
+
+  insert(vnode) {
+    const {
+      context,
+      componentInstance
+    } = vnode;
+
+    if (!componentInstance._isMounted) {
+      componentInstance._isMounted = true;
+      !(function webpackMissingModule() { var e = new Error("Cannot find module '../instance/lifecycle'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(componentInstance, 'mounted');
+    }
+
+    if (vnode.data.keepAlive) {
+      if (context._isMounted) {
+        // vue-router#1212
+        // During updates, a kept-alive component's child components may
+        // change, so directly walking the tree here may call activated hooks
+        // on incorrect children. Instead we push them into a queue which will
+        // be processed after the whole patch process ended.
+        !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/observer/scheduler'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(componentInstance);
+      } else {
+        !(function webpackMissingModule() { var e = new Error("Cannot find module '../instance/lifecycle'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(componentInstance, true
+        /* direct */
+        );
+      }
+    }
+  },
+
+  destroy(vnode) {
+    const {
+      componentInstance
+    } = vnode;
+
+    if (!componentInstance._isDestroyed) {
+      if (!vnode.data.keepAlive) {
+        componentInstance.$destroy();
+      } else {
+        !(function webpackMissingModule() { var e = new Error("Cannot find module '../instance/lifecycle'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(componentInstance, true
+        /* direct */
+        );
+      }
+    }
+  }
+
+};
+const hooksToMerge = Object.keys(componentVNodeHooks);
+function createComponent(Ctor, data, context, children, tag) {
+  if (!(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(Ctor)) {
+    return;
+  }
+
+  const baseCtor = context.$options._base; // plain options object: turn it into a constructor
+
+  if (!(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(Ctor)) {
+    Ctor = baseCtor.extend(Ctor);
+  } // if at this stage it's not a constructor or an async component factory,
+  // reject.
+
+
+  if (typeof Ctor !== 'function') {
+    if (true) {
+      !(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(`Invalid Component definition: ${String(Ctor)}`, context);
+    }
+
+    return;
+  } // async component
+
+
+  let asyncFactory;
+
+  if (!(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(Ctor.cid)) {
+    asyncFactory = Ctor;
+    Ctor = Object(_helpers_index__WEBPACK_IMPORTED_MODULE_3__["resolveAsyncComponent"])(asyncFactory, baseCtor);
+
+    if (Ctor === undefined) {
+      // return a placeholder node for async component, which is rendered
+      // as a comment node but preserves all the raw information for the node.
+      // the information will be used for async server-rendering and hydration.
+      return Object(_helpers_index__WEBPACK_IMPORTED_MODULE_3__["createAsyncPlaceholder"])(asyncFactory, data, context, children, tag);
+    }
+  }
+
+  data = data || {}; // resolve constructor options in case global mixins are applied after
+  // component constructor creation
+
+  !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/instance/init'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(Ctor); // transform component v-model data into props & events
+
+  if (!(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(data.model)) {
+    transformModel(Ctor.options, data);
+  } // extract props
+
+
+  const propsData = Object(_helpers_index__WEBPACK_IMPORTED_MODULE_3__["extractPropsFromVNodeData"])(data, Ctor, tag); // functional component
+
+  if (!(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(Ctor.options.functional)) {
+    return Object(_create_functional_component__WEBPACK_IMPORTED_MODULE_2__["createFunctionalComponent"])(Ctor, propsData, data, context, children);
+  } // extract listeners, since these needs to be treated as
+  // child component listeners instead of DOM listeners
+
+
+  const listeners = data.on; // replace with listeners with .native modifier
+  // so it gets processed during parent component patch.
+
+  data.on = data.nativeOn;
+
+  if (!(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(Ctor.options.abstract)) {
+    // abstract components do not keep anything
+    // other than props & listeners & slot
+    // work around flow
+    const slot = data.slot;
+    data = {};
+
+    if (slot) {
+      data.slot = slot;
+    }
+  } // install component management hooks onto the placeholder node
+
+
+  installComponentHooks(data); // return a placeholder vnode
+
+  const name = Ctor.options.name || tag;
+  const vnode = new _vnode__WEBPACK_IMPORTED_MODULE_0__["default"](`vue-component-${Ctor.cid}${name ? `-${name}` : ''}`, data, undefined, undefined, undefined, context, {
+    Ctor,
+    propsData,
+    listeners,
+    tag,
+    children
+  }, asyncFactory);
+  return vnode;
+}
+function createComponentInstanceForVnode(vnode, // we know it's MountedComponentVNode but flow doesn't
+parent) // activeInstance in lifecycle state
+{
+  const options = {
+    _isComponent: true,
+    _parentVnode: vnode,
+    parent
+  }; // check inline-template render functions
+
+  const inlineTemplate = vnode.data.inlineTemplate;
+
+  if (!(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(inlineTemplate)) {
+    options.render = inlineTemplate.render;
+    options.staticRenderFns = inlineTemplate.staticRenderFns;
+  }
+
+  return new vnode.componentOptions.Ctor(options);
+}
+
+function installComponentHooks(data) {
+  const hooks = data.hook || (data.hook = {});
+
+  for (let i = 0; i < hooksToMerge.length; i++) {
+    const key = hooksToMerge[i];
+    const existing = hooks[key];
+    const toMerge = componentVNodeHooks[key];
+
+    if (existing !== toMerge && !(existing && existing._merged)) {
+      hooks[key] = existing ? mergeHook(toMerge, existing) : toMerge;
+    }
+  }
+}
+
+function mergeHook(f1, f2) {
+  const merged = (a, b) => {
+    // flow complains about extra args which is why we use any
+    f1(a, b);
+    f2(a, b);
+  };
+
+  merged._merged = true;
+  return merged;
+} // transform component v-model info (value and callback) into
+// prop and event handler respectively.
+
+
+function transformModel(options, data) {
+  const prop = options.model && options.model.prop || 'value';
+  const event = options.model && options.model.event || 'input';
+  (data.attrs || (data.attrs = {}))[prop] = data.model.value;
+  const on = data.on || (data.on = {});
+  const existing = on[event];
+  const callback = data.model.callback;
+
+  if (!(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(existing)) {
+    if (Array.isArray(existing) ? existing.indexOf(callback) === -1 : existing !== callback) {
+      on[event] = [callback].concat(existing);
+    }
+  } else {
+    on[event] = callback;
+  }
+}
+
+/***/ }),
+
+/***/ "./packages/lone-virtualdom/create-element.js":
+/*!****************************************************!*\
+  !*** ./packages/lone-virtualdom/create-element.js ***!
+  \****************************************************/
+/*! exports provided: createElement, _createElement */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createElement", function() { return createElement; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_createElement", function() { return _createElement; });
+!(function webpackMissingModule() { var e = new Error("Cannot find module '../config'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+/* harmony import */ var _vnode__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./vnode */ "./packages/lone-virtualdom/vnode.js");
+/* harmony import */ var _create_component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./create-component */ "./packages/lone-virtualdom/create-component.js");
+!(function webpackMissingModule() { var e = new Error("Cannot find module '../observer/traverse'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+!(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+/* harmony import */ var _helpers_index__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./helpers/index */ "./packages/lone-virtualdom/helpers/index.js");
+/* @flow */
+
+
+
+
+
+
+const SIMPLE_NORMALIZE = 1;
+const ALWAYS_NORMALIZE = 2; // wrapper function for providing a more flexible interface
+// without getting yelled at by flow
+
+function createElement(context, tag, data, children, normalizationType, alwaysNormalize) {
+  if (Array.isArray(data) || !(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(data)) {
+    normalizationType = children;
+    children = data;
+    data = undefined;
+  }
+
+  if (!(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(alwaysNormalize)) {
+    normalizationType = ALWAYS_NORMALIZE;
+  }
+
+  return _createElement(context, tag, data, children, normalizationType);
+}
+function _createElement(context, tag, data, children, normalizationType) {
+  if (!(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(data) && !(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(data.__ob__)) {
+     true && !(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(`Avoid using observed data object as vnode data: ${JSON.stringify(data)}\n` + 'Always create fresh vnode data objects in each render!', context);
+    return Object(_vnode__WEBPACK_IMPORTED_MODULE_1__["createEmptyVNode"])();
+  } // object syntax in v-bind
+
+
+  if (!(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(data) && !(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(data.is)) {
+    tag = data.is;
+  }
+
+  if (!tag) {
+    // in case of component :is set to falsy value
+    return Object(_vnode__WEBPACK_IMPORTED_MODULE_1__["createEmptyVNode"])();
+  } // warn against non-primitive key
+
+
+  if ( true && !(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(data) && !(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(data.key) && !!(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(data.key)) {
+    if (!('@binding' in data.key)) {
+      !(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())('Avoid using non-primitive value as key, ' + 'use string/number value instead.', context);
+    }
+  } // support single function children as default scoped slot
+
+
+  if (Array.isArray(children) && typeof children[0] === 'function') {
+    data = data || {};
+    data.scopedSlots = {
+      default: children[0]
+    };
+    children.length = 0;
+  }
+
+  if (normalizationType === ALWAYS_NORMALIZE) {
+    children = Object(_helpers_index__WEBPACK_IMPORTED_MODULE_3__["normalizeChildren"])(children);
+  } else if (normalizationType === SIMPLE_NORMALIZE) {
+    children = Object(_helpers_index__WEBPACK_IMPORTED_MODULE_3__["simpleNormalizeChildren"])(children);
+  }
+
+  let vnode, ns;
+
+  if (typeof tag === 'string') {
+    let Ctor;
+    ns = context.$vnode && context.$vnode.ns || !(function webpackMissingModule() { var e = new Error("Cannot find module '../config'"); e.code = 'MODULE_NOT_FOUND'; throw e; }()).getTagNamespace(tag);
+
+    if (!(function webpackMissingModule() { var e = new Error("Cannot find module '../config'"); e.code = 'MODULE_NOT_FOUND'; throw e; }()).isReservedTag(tag)) {
+      // platform built-in elements
+      if ( true && !(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(data) && !(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(data.nativeOn)) {
+        !(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(`The .native modifier for v-on is only valid on components but it was used on <${tag}>.`, context);
+      }
+
+      vnode = new _vnode__WEBPACK_IMPORTED_MODULE_1__["default"](!(function webpackMissingModule() { var e = new Error("Cannot find module '../config'"); e.code = 'MODULE_NOT_FOUND'; throw e; }()).parsePlatformTagName(tag), data, children, undefined, undefined, context);
+    } else if ((!data || !data.pre) && !(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(Ctor = !(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(context.$options, 'components', tag))) {
+      // component
+      vnode = Object(_create_component__WEBPACK_IMPORTED_MODULE_2__["createComponent"])(Ctor, data, context, children, tag);
+    } else {
+      // unknown or unlisted namespaced elements
+      // check at runtime because it may get assigned a namespace when its
+      // parent normalizes children
+      vnode = new _vnode__WEBPACK_IMPORTED_MODULE_1__["default"](tag, data, children, undefined, undefined, context);
+    }
+  } else {
+    // direct component options / constructor
+    vnode = Object(_create_component__WEBPACK_IMPORTED_MODULE_2__["createComponent"])(tag, data, context, children);
+  }
+
+  if (Array.isArray(vnode)) {
+    return vnode;
+  } else if (!(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(vnode)) {
+    if (!(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(ns)) applyNS(vnode, ns);
+    if (!(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(data)) registerDeepBindings(data);
+    return vnode;
+  } else {
+    return Object(_vnode__WEBPACK_IMPORTED_MODULE_1__["createEmptyVNode"])();
+  }
+}
+
+function applyNS(vnode, ns, force) {
+  vnode.ns = ns;
+
+  if (vnode.tag === 'foreignObject') {
+    // use default namespace inside foreignObject
+    ns = undefined;
+    force = true;
+  }
+
+  if (!(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(vnode.children)) {
+    for (let i = 0, l = vnode.children.length; i < l; i++) {
+      const child = vnode.children[i];
+
+      if (!(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(child.tag) && (!(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(child.ns) || !(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(force) && child.tag !== 'svg')) {
+        applyNS(child, ns, force);
+      }
+    }
+  }
+} // ref #5318
+// necessary to ensure parent re-render when deep bindings like :style and
+// :class are used on slot nodes
+
+
+function registerDeepBindings(data) {
+  if (!(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(data.style)) {
+    !(function webpackMissingModule() { var e = new Error("Cannot find module '../observer/traverse'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(data.style);
+  }
+
+  if (!(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(data.class)) {
+    !(function webpackMissingModule() { var e = new Error("Cannot find module '../observer/traverse'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(data.class);
+  }
+}
+
+/***/ }),
+
+/***/ "./packages/lone-virtualdom/create-functional-component.js":
+/*!*****************************************************************!*\
+  !*** ./packages/lone-virtualdom/create-functional-component.js ***!
+  \*****************************************************************/
+/*! exports provided: FunctionalRenderContext, createFunctionalComponent */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FunctionalRenderContext", function() { return FunctionalRenderContext; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createFunctionalComponent", function() { return createFunctionalComponent; });
+/* harmony import */ var _vnode__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./vnode */ "./packages/lone-virtualdom/vnode.js");
+/* harmony import */ var _create_element__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./create-element */ "./packages/lone-virtualdom/create-element.js");
+!(function webpackMissingModule() { var e = new Error("Cannot find module '../instance/inject'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+/* harmony import */ var _helpers_normalize_children__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./helpers/normalize-children */ "./packages/lone-virtualdom/helpers/normalize-children.js");
+!(function webpackMissingModule() { var e = new Error("Cannot find module '../instance/render-helpers/resolve-slots'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+/* harmony import */ var _helpers_normalize_scoped_slots__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./helpers/normalize-scoped-slots */ "./packages/lone-virtualdom/helpers/normalize-scoped-slots.js");
+!(function webpackMissingModule() { var e = new Error("Cannot find module '../instance/render-helpers/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+!(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+/* @flow */
+
+
+
+
+
+
+
+
+function FunctionalRenderContext(data, props, children, parent, Ctor) {
+  const options = Ctor.options; // ensure the createElement function in functional components
+  // gets a unique context - this is necessary for correct named slot check
+
+  let contextVm;
+
+  if (!(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(parent, '_uid')) {
+    contextVm = Object.create(parent); // $flow-disable-line
+
+    contextVm._original = parent;
+  } else {
+    // the context vm passed in is a functional context as well.
+    // in this case we want to make sure we are able to get a hold to the
+    // real context instance.
+    contextVm = parent; // $flow-disable-line
+
+    parent = parent._original;
+  }
+
+  const isCompiled = !(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(options._compiled);
+  const needNormalization = !isCompiled;
+  this.data = data;
+  this.props = props;
+  this.children = children;
+  this.parent = parent;
+  this.listeners = data.on || !(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+  this.injections = !(function webpackMissingModule() { var e = new Error("Cannot find module '../instance/inject'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(options.inject, parent);
+
+  this.slots = () => {
+    if (!this.$slots) {
+      Object(_helpers_normalize_scoped_slots__WEBPACK_IMPORTED_MODULE_4__["normalizeScopedSlots"])(data.scopedSlots, this.$slots = !(function webpackMissingModule() { var e = new Error("Cannot find module '../instance/render-helpers/resolve-slots'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(children, parent));
+    }
+
+    return this.$slots;
+  };
+
+  Object.defineProperty(this, 'scopedSlots', {
+    enumerable: true,
+
+    get() {
+      return Object(_helpers_normalize_scoped_slots__WEBPACK_IMPORTED_MODULE_4__["normalizeScopedSlots"])(data.scopedSlots, this.slots());
+    }
+
+  }); // support for compiled functional template
+
+  if (isCompiled) {
+    // exposing $options for renderStatic()
+    this.$options = options; // pre-resolve slots for renderSlot()
+
+    this.$slots = this.slots();
+    this.$scopedSlots = Object(_helpers_normalize_scoped_slots__WEBPACK_IMPORTED_MODULE_4__["normalizeScopedSlots"])(data.scopedSlots, this.$slots);
+  }
+
+  if (options._scopeId) {
+    this._c = (a, b, c, d) => {
+      const vnode = Object(_create_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])(contextVm, a, b, c, d, needNormalization);
+
+      if (vnode && !Array.isArray(vnode)) {
+        vnode.fnScopeId = options._scopeId;
+        vnode.fnContext = parent;
+      }
+
+      return vnode;
+    };
+  } else {
+    this._c = (a, b, c, d) => Object(_create_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])(contextVm, a, b, c, d, needNormalization);
+  }
+}
+!(function webpackMissingModule() { var e = new Error("Cannot find module '../instance/render-helpers/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(FunctionalRenderContext.prototype);
+function createFunctionalComponent(Ctor, propsData, data, contextVm, children) {
+  const options = Ctor.options;
+  const props = {};
+  const propOptions = options.props;
+
+  if (!(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(propOptions)) {
+    for (const key in propOptions) {
+      props[key] = !(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(key, propOptions, propsData || !(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+    }
+  } else {
+    if (!(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(data.attrs)) mergeProps(props, data.attrs);
+    if (!(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(data.props)) mergeProps(props, data.props);
+  }
+
+  const renderContext = new FunctionalRenderContext(data, props, children, contextVm, Ctor);
+  const vnode = options.render.call(null, renderContext._c, renderContext);
+
+  if (vnode instanceof _vnode__WEBPACK_IMPORTED_MODULE_0__["default"]) {
+    return cloneAndMarkFunctionalResult(vnode, data, renderContext.parent, options, renderContext);
+  } else if (Array.isArray(vnode)) {
+    const vnodes = Object(_helpers_normalize_children__WEBPACK_IMPORTED_MODULE_3__["normalizeChildren"])(vnode) || [];
+    const res = new Array(vnodes.length);
+
+    for (let i = 0; i < vnodes.length; i++) {
+      res[i] = cloneAndMarkFunctionalResult(vnodes[i], data, renderContext.parent, options, renderContext);
+    }
+
+    return res;
+  }
+}
+
+function cloneAndMarkFunctionalResult(vnode, data, contextVm, options, renderContext) {
+  // #7817 clone node before setting fnContext, otherwise if the node is reused
+  // (e.g. it was from a cached normal slot) the fnContext causes named slots
+  // that should not be matched to match.
+  const clone = Object(_vnode__WEBPACK_IMPORTED_MODULE_0__["cloneVNode"])(vnode);
+  clone.fnContext = contextVm;
+  clone.fnOptions = options;
+
+  if (true) {
+    (clone.devtoolsMeta = clone.devtoolsMeta || {}).renderContext = renderContext;
+  }
+
+  if (data.slot) {
+    (clone.data || (clone.data = {})).slot = data.slot;
+  }
+
+  return clone;
+}
+
+function mergeProps(to, from) {
+  for (const key in from) {
+    to[!(function webpackMissingModule() { var e = new Error("Cannot find module '../util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(key)] = from[key];
+  }
+}
+
+/***/ }),
+
+/***/ "./packages/lone-virtualdom/helpers/extract-props.js":
+/*!***********************************************************!*\
+  !*** ./packages/lone-virtualdom/helpers/extract-props.js ***!
+  \***********************************************************/
+/*! exports provided: extractPropsFromVNodeData */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "extractPropsFromVNodeData", function() { return extractPropsFromVNodeData; });
+!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+
+function extractPropsFromVNodeData(data, Ctor, tag) {
+  // we are only extracting raw values here.
+  // validation and default values are handled in the child
+  // component itself.
+  const propOptions = Ctor.options.props;
+
+  if (!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(propOptions)) {
+    return;
+  }
+
+  const res = {};
+  const {
+    attrs,
+    props
+  } = data;
+
+  if (!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(attrs) || !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(props)) {
+    for (const key in propOptions) {
+      const altKey = !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(key);
+
+      if (true) {
+        const keyInLowerCase = key.toLowerCase();
+
+        if (key !== keyInLowerCase && attrs && !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(attrs, keyInLowerCase)) {
+          !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(`Prop "${keyInLowerCase}" is passed to component ` + `${!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(tag || Ctor)}, but the declared prop name is` + ` "${key}". ` + 'Note that HTML attributes are case-insensitive and camelCased ' + 'props need to use their kebab-case equivalents when using in-DOM ' + `templates. You should probably use "${altKey}" instead of "${key}".`);
+        }
+      }
+
+      checkProp(res, props, key, altKey, true) || checkProp(res, attrs, key, altKey, false);
+    }
+  }
+
+  return res;
+}
+
+function checkProp(res, hash, key, altKey, preserve) {
+  if (!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(hash)) {
+    if (!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(hash, key)) {
+      res[key] = hash[key];
+
+      if (!preserve) {
+        delete hash[key];
+      }
+
+      return true;
+    } else if (!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(hash, altKey)) {
+      res[key] = hash[altKey];
+
+      if (!preserve) {
+        delete hash[altKey];
+      }
+
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/***/ }),
+
+/***/ "./packages/lone-virtualdom/helpers/get-first-component-child.js":
+/*!***********************************************************************!*\
+  !*** ./packages/lone-virtualdom/helpers/get-first-component-child.js ***!
+  \***********************************************************************/
+/*! exports provided: getFirstComponentChild */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getFirstComponentChild", function() { return getFirstComponentChild; });
+!(function webpackMissingModule() { var e = new Error("Cannot find module 'shared/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+/* harmony import */ var _is_async_placeholder__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./is-async-placeholder */ "./packages/lone-virtualdom/helpers/is-async-placeholder.js");
+/* @flow */
+
+
+function getFirstComponentChild(children) {
+  if (Array.isArray(children)) {
+    for (let i = 0; i < children.length; i++) {
+      const c = children[i];
+
+      if (!(function webpackMissingModule() { var e = new Error("Cannot find module 'shared/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(c) && (!(function webpackMissingModule() { var e = new Error("Cannot find module 'shared/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(c.componentOptions) || Object(_is_async_placeholder__WEBPACK_IMPORTED_MODULE_1__["isAsyncPlaceholder"])(c))) {
+        return c;
+      }
+    }
+  }
+}
+
+/***/ }),
+
+/***/ "./packages/lone-virtualdom/helpers/index.js":
+/*!***************************************************!*\
+  !*** ./packages/lone-virtualdom/helpers/index.js ***!
+  \***************************************************/
+/*! exports provided: mergeVNodeHook, extractPropsFromVNodeData, createFnInvoker, updateListeners, simpleNormalizeChildren, normalizeChildren, createAsyncPlaceholder, resolveAsyncComponent, getFirstComponentChild, isAsyncPlaceholder */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _merge_hook__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./merge-hook */ "./packages/lone-virtualdom/helpers/merge-hook.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "mergeVNodeHook", function() { return _merge_hook__WEBPACK_IMPORTED_MODULE_0__["mergeVNodeHook"]; });
+
+/* harmony import */ var _extract_props__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./extract-props */ "./packages/lone-virtualdom/helpers/extract-props.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "extractPropsFromVNodeData", function() { return _extract_props__WEBPACK_IMPORTED_MODULE_1__["extractPropsFromVNodeData"]; });
+
+/* harmony import */ var _update_listeners__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./update-listeners */ "./packages/lone-virtualdom/helpers/update-listeners.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "createFnInvoker", function() { return _update_listeners__WEBPACK_IMPORTED_MODULE_2__["createFnInvoker"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "updateListeners", function() { return _update_listeners__WEBPACK_IMPORTED_MODULE_2__["updateListeners"]; });
+
+/* harmony import */ var _normalize_children__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./normalize-children */ "./packages/lone-virtualdom/helpers/normalize-children.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "simpleNormalizeChildren", function() { return _normalize_children__WEBPACK_IMPORTED_MODULE_3__["simpleNormalizeChildren"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "normalizeChildren", function() { return _normalize_children__WEBPACK_IMPORTED_MODULE_3__["normalizeChildren"]; });
+
+/* harmony import */ var _resolve_async_component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./resolve-async-component */ "./packages/lone-virtualdom/helpers/resolve-async-component.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "createAsyncPlaceholder", function() { return _resolve_async_component__WEBPACK_IMPORTED_MODULE_4__["createAsyncPlaceholder"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "resolveAsyncComponent", function() { return _resolve_async_component__WEBPACK_IMPORTED_MODULE_4__["resolveAsyncComponent"]; });
+
+/* harmony import */ var _get_first_component_child__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./get-first-component-child */ "./packages/lone-virtualdom/helpers/get-first-component-child.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "getFirstComponentChild", function() { return _get_first_component_child__WEBPACK_IMPORTED_MODULE_5__["getFirstComponentChild"]; });
+
+/* harmony import */ var _is_async_placeholder__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./is-async-placeholder */ "./packages/lone-virtualdom/helpers/is-async-placeholder.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "isAsyncPlaceholder", function() { return _is_async_placeholder__WEBPACK_IMPORTED_MODULE_6__["isAsyncPlaceholder"]; });
+
+/* @flow */
+
+
+
+
+
+
+
+
+/***/ }),
+
+/***/ "./packages/lone-virtualdom/helpers/is-async-placeholder.js":
+/*!******************************************************************!*\
+  !*** ./packages/lone-virtualdom/helpers/is-async-placeholder.js ***!
+  \******************************************************************/
+/*! exports provided: isAsyncPlaceholder */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isAsyncPlaceholder", function() { return isAsyncPlaceholder; });
+function isAsyncPlaceholder(node) {
+  return node.isComment && node.asyncFactory;
+}
+
+/***/ }),
+
+/***/ "./packages/lone-virtualdom/helpers/merge-hook.js":
+/*!********************************************************!*\
+  !*** ./packages/lone-virtualdom/helpers/merge-hook.js ***!
+  \********************************************************/
+/*! exports provided: mergeVNodeHook */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "mergeVNodeHook", function() { return mergeVNodeHook; });
+/* harmony import */ var _vnode__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../vnode */ "./packages/lone-virtualdom/vnode.js");
+/* harmony import */ var _update_listeners__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./update-listeners */ "./packages/lone-virtualdom/helpers/update-listeners.js");
+!(function webpackMissingModule() { var e = new Error("Cannot find module 'shared/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+
+
+
+function mergeVNodeHook(def, hookKey, hook) {
+  if (def instanceof _vnode__WEBPACK_IMPORTED_MODULE_0__["default"]) {
+    def = def.data.hook || (def.data.hook = {});
+  }
+
+  let invoker;
+  const oldHook = def[hookKey];
+
+  function wrappedHook() {
+    hook.apply(this, arguments); // important: remove merged hook to ensure it's called only once
+    // and prevent memory leak
+
+    !(function webpackMissingModule() { var e = new Error("Cannot find module 'shared/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(invoker.fns, wrappedHook);
+  }
+
+  if (!(function webpackMissingModule() { var e = new Error("Cannot find module 'shared/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(oldHook)) {
+    // no existing hook
+    invoker = Object(_update_listeners__WEBPACK_IMPORTED_MODULE_1__["createFnInvoker"])([wrappedHook]);
+  } else {
+    /* istanbul ignore if */
+    if (!(function webpackMissingModule() { var e = new Error("Cannot find module 'shared/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(oldHook.fns) && !(function webpackMissingModule() { var e = new Error("Cannot find module 'shared/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(oldHook.merged)) {
+      // already a merged invoker
+      invoker = oldHook;
+      invoker.fns.push(wrappedHook);
+    } else {
+      // existing plain hook
+      invoker = Object(_update_listeners__WEBPACK_IMPORTED_MODULE_1__["createFnInvoker"])([oldHook, wrappedHook]);
+    }
+  }
+
+  invoker.merged = true;
+  def[hookKey] = invoker;
+}
+
+/***/ }),
+
+/***/ "./packages/lone-virtualdom/helpers/normalize-children.js":
+/*!****************************************************************!*\
+  !*** ./packages/lone-virtualdom/helpers/normalize-children.js ***!
+  \****************************************************************/
+/*! exports provided: simpleNormalizeChildren, normalizeChildren */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "simpleNormalizeChildren", function() { return simpleNormalizeChildren; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "normalizeChildren", function() { return normalizeChildren; });
+!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/vdom/vnode'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+!(function webpackMissingModule() { var e = new Error("Cannot find module 'shared/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+/* @flow */
+
+ // The template compiler attempts to minimize the need for normalization by
+// statically analyzing the template at compile time.
+//
+// For plain HTML markup, normalization can be completely skipped because the
+// generated render function is guaranteed to return Array<VNode>. There are
+// two cases where extra normalization is needed:
+// 1. When the children contains components - because a functional component
+// may return an Array instead of a single root. In this case, just a simple
+// normalization is needed - if any child is an Array, we flatten the whole
+// thing with Array.prototype.concat. It is guaranteed to be only 1-level deep
+// because functional components already normalize their own children.
+
+function simpleNormalizeChildren(children) {
+  for (let i = 0; i < children.length; i++) {
+    if (Array.isArray(children[i])) {
+      return Array.prototype.concat.apply([], children);
+    }
+  }
+
+  return children;
+} // 2. When the children contains constructs that always generated nested Arrays,
+// e.g. <template>, <slot>, v-for, or when the children is provided by user
+// with hand-written render functions / JSX. In such cases a full normalization
+// is needed to cater to all possible types of children values.
+
+function normalizeChildren(children) {
+  return !(function webpackMissingModule() { var e = new Error("Cannot find module 'shared/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(children) ? [!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/vdom/vnode'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(children)] : Array.isArray(children) ? normalizeArrayChildren(children) : undefined;
+}
+
+function isTextNode(node) {
+  return !(function webpackMissingModule() { var e = new Error("Cannot find module 'shared/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(node) && !(function webpackMissingModule() { var e = new Error("Cannot find module 'shared/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(node.text) && !(function webpackMissingModule() { var e = new Error("Cannot find module 'shared/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(node.isComment);
+}
+
+function normalizeArrayChildren(children, nestedIndex) {
+  const res = [];
+  let i, c, lastIndex, last;
+
+  for (i = 0; i < children.length; i++) {
+    c = children[i];
+    if (!(function webpackMissingModule() { var e = new Error("Cannot find module 'shared/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(c) || typeof c === 'boolean') continue;
+    lastIndex = res.length - 1;
+    last = res[lastIndex]; //  nested
+
+    if (Array.isArray(c)) {
+      if (c.length > 0) {
+        c = normalizeArrayChildren(c, `${nestedIndex || ''}_${i}`); // merge adjacent text nodes
+
+        if (isTextNode(c[0]) && isTextNode(last)) {
+          res[lastIndex] = !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/vdom/vnode'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(last.text + c[0].text);
+          c.shift();
+        }
+
+        res.push.apply(res, c);
+      }
+    } else if (!(function webpackMissingModule() { var e = new Error("Cannot find module 'shared/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(c)) {
+      if (isTextNode(last)) {
+        // merge adjacent text nodes
+        // this is necessary for SSR hydration because text nodes are
+        // essentially merged when rendered to HTML strings
+        res[lastIndex] = !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/vdom/vnode'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(last.text + c);
+      } else if (c !== '') {
+        // convert primitive to vnode
+        res.push(!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/vdom/vnode'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(c));
+      }
+    } else {
+      if (isTextNode(c) && isTextNode(last)) {
+        // merge adjacent text nodes
+        res[lastIndex] = !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/vdom/vnode'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(last.text + c.text);
+      } else {
+        // default key for nested array children (likely generated by v-for)
+        if (!(function webpackMissingModule() { var e = new Error("Cannot find module 'shared/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(children._isVList) && !(function webpackMissingModule() { var e = new Error("Cannot find module 'shared/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(c.tag) && !(function webpackMissingModule() { var e = new Error("Cannot find module 'shared/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(c.key) && !(function webpackMissingModule() { var e = new Error("Cannot find module 'shared/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(nestedIndex)) {
+          c.key = `__vlist${nestedIndex}_${i}__`;
+        }
+
+        res.push(c);
+      }
+    }
+  }
+
+  return res;
+}
+
+/***/ }),
+
+/***/ "./packages/lone-virtualdom/helpers/normalize-scoped-slots.js":
+/*!********************************************************************!*\
+  !*** ./packages/lone-virtualdom/helpers/normalize-scoped-slots.js ***!
+  \********************************************************************/
+/*! exports provided: normalizeScopedSlots */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "normalizeScopedSlots", function() { return normalizeScopedSlots; });
+!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util/lang'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/vdom/helpers/normalize-children'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+!(function webpackMissingModule() { var e = new Error("Cannot find module 'shared/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+/* @flow */
+
+
+
+function normalizeScopedSlots(slots, normalSlots, prevSlots) {
+  let res;
+  const hasNormalSlots = Object.keys(normalSlots).length > 0;
+  const isStable = slots ? !!slots.$stable : !hasNormalSlots;
+  const key = slots && slots.$key;
+
+  if (!slots) {
+    res = {};
+  } else if (slots._normalized) {
+    // fast path 1: child component re-render only, parent did not change
+    return slots._normalized;
+  } else if (isStable && prevSlots && prevSlots !== !(function webpackMissingModule() { var e = new Error("Cannot find module 'shared/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }()) && key === prevSlots.$key && !hasNormalSlots && !prevSlots.$hasNormal) {
+    // fast path 2: stable scoped slots w/ no normal slots to proxy,
+    // only need to normalize once
+    return prevSlots;
+  } else {
+    res = {};
+
+    for (const key in slots) {
+      if (slots[key] && key[0] !== '$') {
+        res[key] = normalizeScopedSlot(normalSlots, key, slots[key]);
+      }
+    }
+  } // expose normal slots on scopedSlots
+
+
+  for (const key in normalSlots) {
+    if (!(key in res)) {
+      res[key] = proxyNormalSlot(normalSlots, key);
+    }
+  } // avoriaz seems to mock a non-extensible $scopedSlots object
+  // and when that is passed down this would cause an error
+
+
+  if (slots && Object.isExtensible(slots)) {
+    slots._normalized = res;
+  }
+
+  !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util/lang'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(res, '$stable', isStable);
+  !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util/lang'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(res, '$key', key);
+  !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util/lang'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(res, '$hasNormal', hasNormalSlots);
+  return res;
+}
+
+function normalizeScopedSlot(normalSlots, key, fn) {
+  const normalized = function () {
+    let res = arguments.length ? fn.apply(null, arguments) : fn({});
+    res = res && typeof res === 'object' && !Array.isArray(res) ? [res] // single vnode
+    : !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/vdom/helpers/normalize-children'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(res);
+    return res && (res.length === 0 || res.length === 1 && res[0].isComment // #9658
+    ) ? undefined : res;
+  }; // this is a slot using the new v-slot syntax without scope. although it is
+  // compiled as a scoped slot, render fn users would expect it to be present
+  // on this.$slots because the usage is semantically a normal slot.
+
+
+  if (fn.proxy) {
+    Object.defineProperty(normalSlots, key, {
+      get: normalized,
+      enumerable: true,
+      configurable: true
+    });
+  }
+
+  return normalized;
+}
+
+function proxyNormalSlot(slots, key) {
+  return () => slots[key];
+}
+
+/***/ }),
+
+/***/ "./packages/lone-virtualdom/helpers/resolve-async-component.js":
+/*!*********************************************************************!*\
+  !*** ./packages/lone-virtualdom/helpers/resolve-async-component.js ***!
+  \*********************************************************************/
+/*! exports provided: createAsyncPlaceholder, resolveAsyncComponent */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createAsyncPlaceholder", function() { return createAsyncPlaceholder; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "resolveAsyncComponent", function() { return resolveAsyncComponent; });
+!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/vdom/vnode'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/instance/render'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+
+
+
+
+function ensureCtor(comp, base) {
+  if (comp.__esModule || !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }()) && comp[Symbol.toStringTag] === 'Module') {
+    comp = comp.default;
+  }
+
+  return !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(comp) ? base.extend(comp) : comp;
+}
+
+function createAsyncPlaceholder(factory, data, context, children, tag) {
+  const node = !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/vdom/vnode'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())();
+  node.asyncFactory = factory;
+  node.asyncMeta = {
+    data,
+    context,
+    children,
+    tag
+  };
+  return node;
+}
+function resolveAsyncComponent(factory, baseCtor) {
+  if (!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(factory.error) && !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(factory.errorComp)) {
+    return factory.errorComp;
+  }
+
+  if (!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(factory.resolved)) {
+    return factory.resolved;
+  }
+
+  const owner = !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/instance/render'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+
+  if (owner && !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(factory.owners) && factory.owners.indexOf(owner) === -1) {
+    // already pending
+    factory.owners.push(owner);
+  }
+
+  if (!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(factory.loading) && !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(factory.loadingComp)) {
+    return factory.loadingComp;
+  }
+
+  if (owner && !!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(factory.owners)) {
+    const owners = factory.owners = [owner];
+    let sync = true;
+    let timerLoading = null;
+    let timerTimeout = null;
+    owner.$on('hook:destroyed', () => !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(owners, owner));
+
+    const forceRender = renderCompleted => {
+      for (let i = 0, l = owners.length; i < l; i++) {
+        owners[i].$forceUpdate();
+      }
+
+      if (renderCompleted) {
+        owners.length = 0;
+
+        if (timerLoading !== null) {
+          clearTimeout(timerLoading);
+          timerLoading = null;
+        }
+
+        if (timerTimeout !== null) {
+          clearTimeout(timerTimeout);
+          timerTimeout = null;
+        }
+      }
+    };
+
+    const resolve = !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(res => {
+      // cache resolved
+      factory.resolved = ensureCtor(res, baseCtor); // invoke callbacks only if this is not a synchronous resolve
+      // (async resolves are shimmed as synchronous during SSR)
+
+      if (!sync) {
+        forceRender(true);
+      } else {
+        owners.length = 0;
+      }
+    });
+    const reject = !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(reason => {
+       true && !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(`Failed to resolve async component: ${String(factory)}` + (reason ? `\nReason: ${reason}` : ''));
+
+      if (!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(factory.errorComp)) {
+        factory.error = true;
+        forceRender(true);
+      }
+    });
+    const res = factory(resolve, reject);
+
+    if (!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(res)) {
+      if (!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(res)) {
+        // () => Promise
+        if (!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(factory.resolved)) {
+          res.then(resolve, reject);
+        }
+      } else if (!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(res.component)) {
+        res.component.then(resolve, reject);
+
+        if (!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(res.error)) {
+          factory.errorComp = ensureCtor(res.error, baseCtor);
+        }
+
+        if (!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(res.loading)) {
+          factory.loadingComp = ensureCtor(res.loading, baseCtor);
+
+          if (res.delay === 0) {
+            factory.loading = true;
+          } else {
+            timerLoading = setTimeout(() => {
+              timerLoading = null;
+
+              if (!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(factory.resolved) && !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(factory.error)) {
+                factory.loading = true;
+                forceRender(false);
+              }
+            }, res.delay || 200);
+          }
+        }
+
+        if (!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(res.timeout)) {
+          timerTimeout = setTimeout(() => {
+            timerTimeout = null;
+
+            if (!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(factory.resolved)) {
+              reject( true ? `timeout (${res.timeout}ms)` : undefined);
+            }
+          }, res.timeout);
+        }
+      }
+    }
+
+    sync = false; // return in case resolved synchronously
+
+    return factory.loading ? factory.loadingComp : factory.resolved;
+  }
+}
+
+/***/ }),
+
+/***/ "./packages/lone-virtualdom/helpers/update-listeners.js":
+/*!**************************************************************!*\
+  !*** ./packages/lone-virtualdom/helpers/update-listeners.js ***!
+  \**************************************************************/
+/*! exports provided: createFnInvoker, updateListeners */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createFnInvoker", function() { return createFnInvoker; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "updateListeners", function() { return updateListeners; });
+!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+!(function webpackMissingModule() { var e = new Error("Cannot find module 'shared/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+
+
+const normalizeEvent = !(function webpackMissingModule() { var e = new Error("Cannot find module 'shared/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(name => {
+  const passive = name.charAt(0) === '&';
+  name = passive ? name.slice(1) : name;
+  const once = name.charAt(0) === '~'; // Prefixed last, checked first
+
+  name = once ? name.slice(1) : name;
+  const capture = name.charAt(0) === '!';
+  name = capture ? name.slice(1) : name;
+  return {
+    name,
+    once,
+    capture,
+    passive
+  };
+});
+function createFnInvoker(fns, vm) {
+  function invoker() {
+    const fns = invoker.fns;
+
+    if (Array.isArray(fns)) {
+      const cloned = fns.slice();
+
+      for (let i = 0; i < cloned.length; i++) {
+        !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(cloned[i], null, arguments, vm, 'v-on handler');
+      }
+    } else {
+      // return handler return value for single handlers
+      return !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(fns, null, arguments, vm, 'v-on handler');
+    }
+  }
+
+  invoker.fns = fns;
+  return invoker;
+}
+function updateListeners(on, oldOn, add, remove, createOnceHandler, vm) {
+  let name, cur, old, event;
+
+  for (name in on) {
+    old = oldOn[name];
+    event = normalizeEvent(name);
+
+    if (!(function webpackMissingModule() { var e = new Error("Cannot find module 'shared/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(cur)) {
+       true && !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(`Invalid handler for event "${event.name}": got ` + String(cur), vm);
+    } else if (!(function webpackMissingModule() { var e = new Error("Cannot find module 'shared/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(old)) {
+      if (!(function webpackMissingModule() { var e = new Error("Cannot find module 'shared/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(cur.fns)) {
+        cur = on[name] = createFnInvoker(cur, vm);
+      }
+
+      if (!(function webpackMissingModule() { var e = new Error("Cannot find module 'shared/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(event.once)) {
+        cur = on[name] = createOnceHandler(event.name, cur, event.capture);
+      }
+
+      add(event.name, cur, event.capture, event.passive, event.params);
+    } else if (cur !== old) {
+      old.fns = cur;
+      on[name] = old;
+    }
+  }
+
+  for (name in oldOn) {
+    if (!(function webpackMissingModule() { var e = new Error("Cannot find module 'shared/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(on[name])) {
+      event = normalizeEvent(name);
+      remove(event.name, oldOn[name], event.capture);
+    }
+  }
+}
+
+/***/ }),
+
+/***/ "./packages/lone-virtualdom/render-helpers/bind-dynamic-keys.js":
+/*!**********************************************************************!*\
+  !*** ./packages/lone-virtualdom/render-helpers/bind-dynamic-keys.js ***!
+  \**********************************************************************/
+/*! exports provided: bindDynamicKeys, prependModifier */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "bindDynamicKeys", function() { return bindDynamicKeys; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "prependModifier", function() { return prependModifier; });
+!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util/debug'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+// helper to process dynamic keys for dynamic arguments in v-bind and v-on.
+// For example, the following template:
+//
+// <div id="foo" :[key]="value">
+//
+// compiles to the following:
+//
+// _c('div', { attrs: bindDynamicKeys({ "id": "app" }, [key, value]) })
+
+function bindDynamicKeys(baseObj, values) {
+  for (let i = 0; i < values.length; i += 2) {
+    const key = values[i];
+
+    if (typeof key === 'string' && key) {
+      baseObj[values[i]] = values[i + 1];
+    } else if ( true && key !== '' && key !== null) {
+      // null is a special value for explicitly removing a binding
+      !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util/debug'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(`Invalid value for dynamic directive argument (expected string or null): ${key}`, this);
+    }
+  }
+
+  return baseObj;
+} // helper to dynamically append modifier runtime markers to event names.
+// ensure only append when value is already string, otherwise it will be cast
+// to string and cause the type check to miss.
+
+function prependModifier(value, symbol) {
+  return typeof value === 'string' ? symbol + value : value;
+}
+
+/***/ }),
+
+/***/ "./packages/lone-virtualdom/render-helpers/bind-object-listeners.js":
+/*!**************************************************************************!*\
+  !*** ./packages/lone-virtualdom/render-helpers/bind-object-listeners.js ***!
+  \**************************************************************************/
+/*! exports provided: bindObjectListeners */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "bindObjectListeners", function() { return bindObjectListeners; });
+!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+
+function bindObjectListeners(data, value) {
+  if (value) {
+    if (!!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(value)) {
+       true && !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())('v-on without argument expects an Object value', this);
+    } else {
+      const on = data.on = data.on ? !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())({}, data.on) : {};
+
+      for (const key in value) {
+        const existing = on[key];
+        const ours = value[key];
+        on[key] = existing ? [].concat(existing, ours) : ours;
+      }
+    }
+  }
+
+  return data;
+}
+
+/***/ }),
+
+/***/ "./packages/lone-virtualdom/render-helpers/bind-object-props.js":
+/*!**********************************************************************!*\
+  !*** ./packages/lone-virtualdom/render-helpers/bind-object-props.js ***!
+  \**********************************************************************/
+/*! exports provided: bindObjectProps */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "bindObjectProps", function() { return bindObjectProps; });
+!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/config'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+/* @flow */
+
+
+/**
+ * Runtime helper for merging v-bind="object" into a VNode's data.
+ */
+
+function bindObjectProps(data, tag, value, asProp, isSync) {
+  if (value) {
+    if (!!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(value)) {
+       true && !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())('v-bind without argument expects an Object or Array value', this);
+    } else {
+      if (Array.isArray(value)) {
+        value = !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(value);
+      }
+
+      let hash;
+
+      for (const key in value) {
+        if (key === 'class' || key === 'style' || !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(key)) {
+          hash = data;
+        } else {
+          const type = data.attrs && data.attrs.type;
+          hash = asProp || !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/config'"); e.code = 'MODULE_NOT_FOUND'; throw e; }()).mustUseProp(tag, type, key) ? data.domProps || (data.domProps = {}) : data.attrs || (data.attrs = {});
+        }
+
+        const camelizedKey = !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(key);
+        const hyphenatedKey = !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(key);
+
+        if (!(camelizedKey in hash) && !(hyphenatedKey in hash)) {
+          hash[key] = value[key];
+
+          if (isSync) {
+            const on = data.on || (data.on = {});
+
+            on[`update:${key}`] = function ($event) {
+              value[key] = $event;
+            };
+          }
+        }
+      }
+    }
+  }
+
+  return data;
+}
+
+/***/ }),
+
+/***/ "./packages/lone-virtualdom/render-helpers/check-keycodes.js":
+/*!*******************************************************************!*\
+  !*** ./packages/lone-virtualdom/render-helpers/check-keycodes.js ***!
+  \*******************************************************************/
+/*! exports provided: checkKeyCodes */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "checkKeyCodes", function() { return checkKeyCodes; });
+!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/config'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+!(function webpackMissingModule() { var e = new Error("Cannot find module 'shared/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+/* @flow */
+
+
+
+function isKeyNotMatch(expect, actual) {
+  if (Array.isArray(expect)) {
+    return expect.indexOf(actual) === -1;
+  } else {
+    return expect !== actual;
+  }
+}
+/**
+ * Runtime helper for checking keyCodes from config.
+ * exposed as Vue.prototype._k
+ * passing in eventKeyName as last argument separately for backwards compat
+ */
+
+
+function checkKeyCodes(eventKeyCode, key, builtInKeyCode, eventKeyName, builtInKeyName) {
+  const mappedKeyCode = !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/config'"); e.code = 'MODULE_NOT_FOUND'; throw e; }()).keyCodes[key] || builtInKeyCode;
+
+  if (builtInKeyName && eventKeyName && !!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/config'"); e.code = 'MODULE_NOT_FOUND'; throw e; }()).keyCodes[key]) {
+    return isKeyNotMatch(builtInKeyName, eventKeyName);
+  } else if (mappedKeyCode) {
+    return isKeyNotMatch(mappedKeyCode, eventKeyCode);
+  } else if (eventKeyName) {
+    return !(function webpackMissingModule() { var e = new Error("Cannot find module 'shared/util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(eventKeyName) !== key;
+  }
+}
+
+/***/ }),
+
+/***/ "./packages/lone-virtualdom/render-helpers/index.js":
+/*!**********************************************************!*\
+  !*** ./packages/lone-virtualdom/render-helpers/index.js ***!
+  \**********************************************************/
+/*! exports provided: installRenderHelpers */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "installRenderHelpers", function() { return installRenderHelpers; });
+!(function webpackMissingModule() { var e = new Error("Cannot find module 'lone-util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+/* harmony import */ var _create_element__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../create-element */ "./packages/lone-virtualdom/create-element.js");
+/* harmony import */ var _vnode__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../vnode */ "./packages/lone-virtualdom/vnode.js");
+/* harmony import */ var _render_list__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./render-list */ "./packages/lone-virtualdom/render-helpers/render-list.js");
+/* harmony import */ var _render_slot__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./render-slot */ "./packages/lone-virtualdom/render-helpers/render-slot.js");
+/* harmony import */ var _resolve_filter__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./resolve-filter */ "./packages/lone-virtualdom/render-helpers/resolve-filter.js");
+/* harmony import */ var _check_keycodes__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./check-keycodes */ "./packages/lone-virtualdom/render-helpers/check-keycodes.js");
+/* harmony import */ var _bind_object_props__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./bind-object-props */ "./packages/lone-virtualdom/render-helpers/bind-object-props.js");
+/* harmony import */ var _render_static__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./render-static */ "./packages/lone-virtualdom/render-helpers/render-static.js");
+/* harmony import */ var _bind_object_listeners__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./bind-object-listeners */ "./packages/lone-virtualdom/render-helpers/bind-object-listeners.js");
+/* harmony import */ var _resolve_scoped_slots__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./resolve-scoped-slots */ "./packages/lone-virtualdom/render-helpers/resolve-scoped-slots.js");
+/* harmony import */ var _bind_dynamic_keys__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./bind-dynamic-keys */ "./packages/lone-virtualdom/render-helpers/bind-dynamic-keys.js");
+/* @flow */
+
+
+
+
+
+
+
+
+
+
+
+
+function installRenderHelpers(target) {
+  const proto = target.prototype; // bind the createElement fn to this instance
+  // so that we get proper render context inside it.
+  // args order: tag, data, children, normalizationType, alwaysNormalize
+  // internal version is used by render functions compiled from templates
+
+  proto._c = function (a, b, c, d) {
+    return Object(_create_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])(this, a, b, c, d, false);
+  }; // normalization is always applied for the public version, used in
+  // user-written render functions.
+
+
+  proto.$createElement = function (a, b, c, d) {
+    return Object(_create_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])(this, a, b, c, d, true);
+  };
+
+  proto._o = _render_static__WEBPACK_IMPORTED_MODULE_8__["markOnce"];
+  proto._n = !(function webpackMissingModule() { var e = new Error("Cannot find module 'lone-util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+  proto._s = !(function webpackMissingModule() { var e = new Error("Cannot find module 'lone-util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+  proto._l = _render_list__WEBPACK_IMPORTED_MODULE_3__["renderList"];
+  proto._t = _render_slot__WEBPACK_IMPORTED_MODULE_4__["renderSlot"];
+  proto._q = !(function webpackMissingModule() { var e = new Error("Cannot find module 'lone-util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+  proto._i = !(function webpackMissingModule() { var e = new Error("Cannot find module 'lone-util'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+  proto._m = _render_static__WEBPACK_IMPORTED_MODULE_8__["renderStatic"];
+  proto._f = _resolve_filter__WEBPACK_IMPORTED_MODULE_5__["resolveFilter"];
+  proto._k = _check_keycodes__WEBPACK_IMPORTED_MODULE_6__["checkKeyCodes"];
+  proto._b = _bind_object_props__WEBPACK_IMPORTED_MODULE_7__["bindObjectProps"];
+  proto._v = _vnode__WEBPACK_IMPORTED_MODULE_2__["createTextVNode"];
+  proto._e = _vnode__WEBPACK_IMPORTED_MODULE_2__["createEmptyVNode"];
+  proto._u = _resolve_scoped_slots__WEBPACK_IMPORTED_MODULE_10__["resolveScopedSlots"];
+  proto._g = _bind_object_listeners__WEBPACK_IMPORTED_MODULE_9__["bindObjectListeners"];
+  proto._d = _bind_dynamic_keys__WEBPACK_IMPORTED_MODULE_11__["bindDynamicKeys"];
+  proto._p = _bind_dynamic_keys__WEBPACK_IMPORTED_MODULE_11__["prependModifier"];
+}
+
+/***/ }),
+
+/***/ "./packages/lone-virtualdom/render-helpers/render-list.js":
+/*!****************************************************************!*\
+  !*** ./packages/lone-virtualdom/render-helpers/render-list.js ***!
+  \****************************************************************/
+/*! exports provided: renderList */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "renderList", function() { return renderList; });
+!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+/* @flow */
+
+/**
+ * Runtime helper for rendering v-for lists.
+ */
+
+function renderList(val, render) {
+  let ret, i, l, keys, key;
+
+  if (Array.isArray(val) || typeof val === 'string') {
+    ret = new Array(val.length);
+
+    for (i = 0, l = val.length; i < l; i++) {
+      ret[i] = render(val[i], i);
+    }
+  } else if (typeof val === 'number') {
+    ret = new Array(val);
+
+    for (i = 0; i < val; i++) {
+      ret[i] = render(i + 1, i);
+    }
+  } else if (!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(val)) {
+    if (!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }()) && val[Symbol.iterator]) {
+      ret = [];
+      const iterator = val[Symbol.iterator]();
+      let result = iterator.next();
+
+      while (!result.done) {
+        ret.push(render(result.value, ret.length));
+        result = iterator.next();
+      }
+    } else {
+      keys = Object.keys(val);
+      ret = new Array(keys.length);
+
+      for (i = 0, l = keys.length; i < l; i++) {
+        key = keys[i];
+        ret[i] = render(val[key], key, i);
+      }
+    }
+  }
+
+  if (!!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(ret)) {
+    ret = [];
+  }
+
+  ret._isVList = true;
+  return ret;
+}
+
+/***/ }),
+
+/***/ "./packages/lone-virtualdom/render-helpers/render-slot.js":
+/*!****************************************************************!*\
+  !*** ./packages/lone-virtualdom/render-helpers/render-slot.js ***!
+  \****************************************************************/
+/*! exports provided: renderSlot */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "renderSlot", function() { return renderSlot; });
+!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+/* @flow */
+
+/**
+ * Runtime helper for rendering <slot>
+ */
+
+function renderSlot(name, fallback, props, bindObject) {
+  const scopedSlotFn = this.$scopedSlots[name];
+  let nodes;
+
+  if (scopedSlotFn) {
+    // scoped slot
+    props = props || {};
+
+    if (bindObject) {
+      if ( true && !!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(bindObject)) {
+        !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())('slot v-bind without argument expects an Object', this);
+      }
+
+      props = !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())({}, bindObject), props);
+    }
+
+    nodes = scopedSlotFn(props) || fallback;
+  } else {
+    nodes = this.$slots[name] || fallback;
+  }
+
+  const target = props && props.slot;
+
+  if (target) {
+    return this.$createElement('template', {
+      slot: target
+    }, nodes);
+  } else {
+    return nodes;
+  }
+}
+
+/***/ }),
+
+/***/ "./packages/lone-virtualdom/render-helpers/render-static.js":
+/*!******************************************************************!*\
+  !*** ./packages/lone-virtualdom/render-helpers/render-static.js ***!
+  \******************************************************************/
+/*! exports provided: renderStatic, markOnce */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "renderStatic", function() { return renderStatic; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "markOnce", function() { return markOnce; });
+/* @flow */
+
+/**
+ * Runtime helper for rendering static trees.
+ */
+function renderStatic(index, isInFor) {
+  const cached = this._staticTrees || (this._staticTrees = []);
+  let tree = cached[index]; // if has already-rendered static tree and not inside v-for,
+  // we can reuse the same tree.
+
+  if (tree && !isInFor) {
+    return tree;
+  } // otherwise, render a fresh tree.
+
+
+  tree = cached[index] = this.$options.staticRenderFns[index].call(this._renderProxy, null, this // for render fns generated for functional component templates
+  );
+  markStatic(tree, `__static__${index}`, false);
+  return tree;
+}
+/**
+ * Runtime helper for v-once.
+ * Effectively it means marking the node as static with a unique key.
+ */
+
+function markOnce(tree, index, key) {
+  markStatic(tree, `__once__${index}${key ? `_${key}` : ''}`, true);
+  return tree;
+}
+
+function markStatic(tree, key, isOnce) {
+  if (Array.isArray(tree)) {
+    for (let i = 0; i < tree.length; i++) {
+      if (tree[i] && typeof tree[i] !== 'string') {
+        markStaticNode(tree[i], `${key}_${i}`, isOnce);
+      }
+    }
+  } else {
+    markStaticNode(tree, key, isOnce);
+  }
+}
+
+function markStaticNode(node, key, isOnce) {
+  node.isStatic = true;
+  node.key = key;
+  node.isOnce = isOnce;
+}
+
+/***/ }),
+
+/***/ "./packages/lone-virtualdom/render-helpers/resolve-filter.js":
+/*!*******************************************************************!*\
+  !*** ./packages/lone-virtualdom/render-helpers/resolve-filter.js ***!
+  \*******************************************************************/
+/*! exports provided: resolveFilter */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "resolveFilter", function() { return resolveFilter; });
+!(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+/* @flow */
+
+/**
+ * Runtime helper for resolving filters
+ */
+
+function resolveFilter(id) {
+  return !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())(this.$options, 'filters', id, true) || !(function webpackMissingModule() { var e = new Error("Cannot find module 'core/util/index'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+}
+
+/***/ }),
+
+/***/ "./packages/lone-virtualdom/render-helpers/resolve-scoped-slots.js":
+/*!*************************************************************************!*\
+  !*** ./packages/lone-virtualdom/render-helpers/resolve-scoped-slots.js ***!
+  \*************************************************************************/
+/*! exports provided: resolveScopedSlots */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "resolveScopedSlots", function() { return resolveScopedSlots; });
+/* @flow */
+function resolveScopedSlots(fns, // see flow/vnode
+res, // the following are added in 2.6
+hasDynamicKeys, contentHashKey) {
+  res = res || {
+    $stable: !hasDynamicKeys
+  };
+
+  for (let i = 0; i < fns.length; i++) {
+    const slot = fns[i];
+
+    if (Array.isArray(slot)) {
+      resolveScopedSlots(slot, res, hasDynamicKeys);
+    } else if (slot) {
+      // marker for reverse proxying v-slot without scope on this.$slots
+      if (slot.proxy) {
+        slot.fn.proxy = true;
+      }
+
+      res[slot.key] = slot.fn;
+    }
+  }
+
+  if (contentHashKey) {
+    res.$key = contentHashKey;
+  }
+
+  return res;
+}
+
+/***/ }),
+
+/***/ "./packages/lone-virtualdom/vnode.js":
+/*!*******************************************!*\
+  !*** ./packages/lone-virtualdom/vnode.js ***!
+  \*******************************************/
+/*! exports provided: default, createEmptyVNode, createTextVNode, cloneVNode */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return VNode; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createEmptyVNode", function() { return createEmptyVNode; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createTextVNode", function() { return createTextVNode; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "cloneVNode", function() { return cloneVNode; });
+/* @flow */
+class VNode {
+  constructor(tag, data, children, text, elm, context, componentOptions, asyncFactory) {
+    this.tag = tag;
+    this.data = data;
+    this.children = children;
+    this.text = text;
+    this.elm = elm;
+    this.ns = undefined;
+    this.context = context;
+    this.fnContext = undefined;
+    this.fnOptions = undefined;
+    this.fnScopeId = undefined;
+    this.key = data && data.key;
+    this.componentOptions = componentOptions;
+    this.componentInstance = undefined;
+    this.parent = undefined;
+    this.raw = false;
+    this.isStatic = false;
+    this.isRootInsert = true;
+    this.isComment = false;
+    this.isCloned = false;
+    this.isOnce = false;
+    this.asyncFactory = asyncFactory;
+    this.asyncMeta = undefined;
+    this.isAsyncPlaceholder = false;
+  } // DEPRECATED: alias for componentInstance for backwards compat.
+
+  /* istanbul ignore next */
+
+
+  get child() {
+    return this.componentInstance;
+  }
+
+}
+const createEmptyVNode = (text = '') => {
+  const node = new VNode();
+  node.text = text;
+  node.isComment = true;
+  return node;
+};
+function createTextVNode(val) {
+  return new VNode(undefined, undefined, undefined, String(val));
+} // optimized shallow clone
+// used for static nodes and slot nodes because they may be reused across
+// multiple renders, cloning them avoids errors when DOM manipulations rely
+// on their elm reference.
+
+function cloneVNode(vnode) {
+  const cloned = new VNode(vnode.tag, vnode.data, // #7975
+  // clone children array to avoid mutating original in case of cloning
+  // a child.
+  vnode.children && vnode.children.slice(), vnode.text, vnode.elm, vnode.context, vnode.componentOptions, vnode.asyncFactory);
+  cloned.ns = vnode.ns;
+  cloned.isStatic = vnode.isStatic;
+  cloned.key = vnode.key;
+  cloned.isComment = vnode.isComment;
+  cloned.fnContext = vnode.fnContext;
+  cloned.fnOptions = vnode.fnOptions;
+  cloned.fnScopeId = vnode.fnScopeId;
+  cloned.asyncMeta = vnode.asyncMeta;
+  cloned.isCloned = true;
+  return cloned;
 }
 
 /***/ })
