@@ -9,7 +9,7 @@ Lone.page({
             <li>Navigator To /é#%25ñ</li>
           </ul>
           <button id="navigate-btn">On Success</button>
-          <pre id="counter">{{ n }}</pre>
+          <h2>N:{{ n }}</h2>
           <router-view class="view"></router-view>
         </div>
       `
