@@ -3857,12 +3857,11 @@ function init(Component) {
     const vm = this;
     const render = this.options.render;
     let vnode;
-    console.log(render);
 
     try {
       vnode = render.call(this);
     } catch (e) {
-      console.log(e);
+      console.error(e);
       vnode = vm._vnode;
     }
 
@@ -3920,8 +3919,6 @@ function reaction(vm) {
       const key = keys[i];
       Object(lone_util__WEBPACK_IMPORTED_MODULE_3__["proxy"])(vm, '_data', key);
     }
-
-    console.log('ui:data - page:', id, data);
 
     const vnode = vm._render();
 

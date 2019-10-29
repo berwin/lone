@@ -21,11 +21,10 @@ export default function init (Component) {
     const vm = this
     const render = this.options.render
     let vnode
-    console.log(render)
     try {
       vnode = render.call(this)
     } catch (e) {
-      console.log(e)
+      console.error(e)
       vnode = vm._vnode
     }
     return vnode
@@ -70,7 +69,6 @@ function reaction (vm) {
       const key = keys[i]
       proxy(vm, '_data', key)
     }
-    console.log('ui:data - page:', id, data)
     const vnode = vm._render()
     vm._update(vnode)
   })
