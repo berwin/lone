@@ -32,8 +32,19 @@ function setStyle (view) {
 }
 
 function insertJS (view) {
-  const scriptTag = [insertPageJS, insertUserJS].reduce((pre, gen) => pre + gen(), '')
-  view.contentDocument.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="X-UA-Compatible" content="ie=edge"><title>Document</title></head><body>'+ scriptTag +'</body></html>') // eslint-disable-line
+  const scriptTag = [insertContainer, insertPageJS, insertUserJS].reduce((pre, gen) => pre + gen(), '')
+  view.contentDocument.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Document</title>
+      </head>
+      <body>${scriptTag}</body>
+    </html>
+  `)
 }
 
 function insertPageJS () {
@@ -42,4 +53,8 @@ function insertPageJS () {
 
 function insertUserJS () {
   return '<script src="./app.page.js"></script>'
+}
+
+function insertContainer () {
+  return '<div id="app"></div>'
 }

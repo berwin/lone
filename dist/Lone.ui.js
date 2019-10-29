@@ -564,8 +564,19 @@ function setStyle(view) {
 }
 
 function insertJS(view) {
-  const scriptTag = [insertPageJS, insertUserJS].reduce((pre, gen) => pre + gen(), '');
-  view.contentDocument.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="X-UA-Compatible" content="ie=edge"><title>Document</title></head><body>' + scriptTag + '</body></html>'); // eslint-disable-line
+  const scriptTag = [insertContainer, insertPageJS, insertUserJS].reduce((pre, gen) => pre + gen(), '');
+  view.contentDocument.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Document</title>
+      </head>
+      <body>${scriptTag}</body>
+    </html>
+  `);
 }
 
 function insertPageJS() {
@@ -574,6 +585,10 @@ function insertPageJS() {
 
 function insertUserJS() {
   return '<script src="./app.page.js"></script>';
+}
+
+function insertContainer() {
+  return '<div id="app"></div>';
 }
 
 /***/ }),
@@ -750,7 +765,7 @@ class Schedule {
 /*!*************************************!*\
   !*** ./packages/lone-util/index.js ***!
   \*************************************/
-/*! exports provided: isString, isObject, isBoolean, isArray, isFunction, noop, camelize, no, cached, extend, toObject, makeMap, isBuiltInTag, warn, tip, isUnaryTag, canBeLeftOpenTag, isNonPhrasingTag, genStaticKeys, isDef */
+/*! exports provided: isString, isObject, isBoolean, isArray, isFunction, noop, toString, isPlainObject, camelize, no, cached, extend, toObject, makeMap, isBuiltInTag, warn, tip, isUnaryTag, canBeLeftOpenTag, isNonPhrasingTag, genStaticKeys, isDef, def, hyphenate, emptyObject, proxy */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -761,6 +776,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isArray", function() { return isArray; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isFunction", function() { return isFunction; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "noop", function() { return noop; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toString", function() { return toString; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isPlainObject", function() { return isPlainObject; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "camelize", function() { return camelize; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "no", function() { return no; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "cached", function() { return cached; });
@@ -775,13 +792,32 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isNonPhrasingTag", function() { return isNonPhrasingTag; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "genStaticKeys", function() { return genStaticKeys; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isDef", function() { return isDef; });
-const toString = Object.prototype.toString;
-const isString = s => toString.call(s) === '[object String]';
-const isObject = o => toString.call(o) === '[object Object]';
-const isBoolean = b => toString.call(b) === '[object Boolean]';
-const isArray = a => toString.call(a) === '[object Array]';
-const isFunction = f => toString.call(f) === '[object Function]';
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "def", function() { return def; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "hyphenate", function() { return hyphenate; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "emptyObject", function() { return emptyObject; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "proxy", function() { return proxy; });
+const _toString = Object.prototype.toString;
+const isString = s => _toString.call(s) === '[object String]';
+const isObject = o => _toString.call(o) === '[object Object]';
+const isBoolean = b => _toString.call(b) === '[object Boolean]';
+const isArray = a => _toString.call(a) === '[object Array]';
+const isFunction = f => _toString.call(f) === '[object Function]';
 function noop() {}
+/**
+ * Convert a value to a string that is actually rendered.
+ */
+
+function toString(val) {
+  return val == null ? '' : Array.isArray(val) || isPlainObject(val) && val.toString === _toString ? JSON.stringify(val, null, 2) : String(val);
+}
+/**
+ * Strict object type check. Only returns true
+ * for plain JavaScript objects.
+ */
+
+function isPlainObject(obj) {
+  return _toString.call(obj) === '[object Object]';
+}
 /**
  * Camelize a hyphen-delimited string.
  */
@@ -872,6 +908,44 @@ function genStaticKeys(modules) {
 }
 function isDef(v) {
   return v !== undefined && v !== null;
+}
+/**
+ * Define a property.
+ */
+
+function def(obj, key, val, enumerable) {
+  Object.defineProperty(obj, key, {
+    value: val,
+    enumerable: !!enumerable,
+    writable: true,
+    configurable: true
+  });
+}
+/**
+ * Hyphenate a camelCase string.
+ */
+
+const hyphenateRE = /\B([A-Z])/g;
+const hyphenate = cached(str => {
+  return str.replace(hyphenateRE, '-$1').toLowerCase();
+});
+const emptyObject = Object.freeze({});
+const sharedPropertyDefinition = {
+  enumerable: true,
+  configurable: true,
+  get: noop,
+  set: noop
+};
+function proxy(target, sourceKey, key) {
+  sharedPropertyDefinition.get = function proxyGetter() {
+    return this[sourceKey][key];
+  };
+
+  sharedPropertyDefinition.set = function proxySetter(val) {
+    this[sourceKey][key] = val;
+  };
+
+  Object.defineProperty(target, key, sharedPropertyDefinition);
 }
 
 /***/ }),

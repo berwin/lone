@@ -1,5 +1,7 @@
 import { Slave } from 'lone-messenger'
 import { compileToFunctions } from 'lone-compiler-dom'
+import { patch } from 'lone-virtualdom'
+import { proxy } from 'lone-util'
 
 let cid = 0
 
@@ -19,13 +21,20 @@ export default function init (Component) {
     const vm = this
     const render = this.options.render
     let vnode
+    console.log(render)
     try {
-      console.log(render)
-      vnode = render()
+      vnode = render.call(this)
     } catch (e) {
+      console.log(e)
       vnode = vm._vnode
     }
     return vnode
+  }
+
+  proto._update = function (vnode) {
+    const oldVnode = this._vnode || document.getElementById('app')
+    this._vnode = vnode
+    patch(oldVnode, this._vnode)
   }
 
   proto.callHook = function (vm, hook) {
@@ -54,7 +63,15 @@ function initRender (vm) {
 
 function reaction (vm) {
   vm.slave.onmessage('ui:data', function ({ id, data }) {
+    vm._data = data
+    const keys = Object.keys(data)
+    let i = keys.length
+    while (i--) {
+      const key = keys[i]
+      proxy(vm, '_data', key)
+    }
     console.log('ui:data - page:', id, data)
-    console.log(vm._render())
+    const vnode = vm._render()
+    vm._update(vnode)
   })
 }

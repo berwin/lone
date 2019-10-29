@@ -9,6 +9,7 @@
   "dependencies": {
     "lone-compiler-dom": "^0.0.0",
     "lone-messenger": "^0.0.0",
+    "lone-util": "^0.0.0",
     "lone-virtualdom": "^0.0.0"
   }
 }

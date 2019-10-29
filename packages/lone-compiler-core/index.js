@@ -1,5 +1,4 @@
 import { parse } from './parser/index'
-import { optimize } from './optimizer'
 import { generate } from './codegen/index'
 import { createCompilerCreator } from './create-compiler'
 
@@ -8,7 +7,6 @@ import { createCompilerCreator } from './create-compiler'
 // Here we just export a default compiler using the default parts.
 export const createCompiler = createCompilerCreator(function baseCompile (template, options) {
   const ast = parse(template.trim(), options)
-  optimize(ast, options)
   const code = generate(ast, options)
   return {
     ast,

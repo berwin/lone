@@ -1,12 +1,31 @@
-const toString = Object.prototype.toString
+const _toString = Object.prototype.toString
 
-export const isString = s => toString.call(s) === '[object String]'
-export const isObject = o => toString.call(o) === '[object Object]'
-export const isBoolean = b => toString.call(b) === '[object Boolean]'
-export const isArray = a => toString.call(a) === '[object Array]'
-export const isFunction = f => toString.call(f) === '[object Function]'
+export const isString = s => _toString.call(s) === '[object String]'
+export const isObject = o => _toString.call(o) === '[object Object]'
+export const isBoolean = b => _toString.call(b) === '[object Boolean]'
+export const isArray = a => _toString.call(a) === '[object Array]'
+export const isFunction = f => _toString.call(f) === '[object Function]'
 
 export function noop () {}
+
+/**
+ * Convert a value to a string that is actually rendered.
+ */
+export function toString (val) {
+  return val == null
+    ? ''
+    : Array.isArray(val) || (isPlainObject(val) && val.toString === _toString)
+      ? JSON.stringify(val, null, 2)
+      : String(val)
+}
+
+/**
+ * Strict object type check. Only returns true
+ * for plain JavaScript objects.
+ */
+export function isPlainObject (obj) {
+  return _toString.call(obj) === '[object Object]'
+}
 
 /**
  * Camelize a hyphen-delimited string.
@@ -110,4 +129,43 @@ export function genStaticKeys (modules) {
 
 export function isDef (v) {
   return v !== undefined && v !== null
+}
+
+/**
+ * Define a property.
+ */
+export function def (obj, key, val, enumerable) {
+  Object.defineProperty(obj, key, {
+    value: val,
+    enumerable: !!enumerable,
+    writable: true,
+    configurable: true
+  })
+}
+
+/**
+ * Hyphenate a camelCase string.
+ */
+const hyphenateRE = /\B([A-Z])/g
+export const hyphenate = cached((str) => {
+  return str.replace(hyphenateRE, '-$1').toLowerCase()
+})
+
+export const emptyObject = Object.freeze({})
+
+const sharedPropertyDefinition = {
+  enumerable: true,
+  configurable: true,
+  get: noop,
+  set: noop
+}
+
+export function proxy (target, sourceKey, key) {
+  sharedPropertyDefinition.get = function proxyGetter () {
+    return this[sourceKey][key]
+  }
+  sharedPropertyDefinition.set = function proxySetter (val) {
+    this[sourceKey][key] = val
+  }
+  Object.defineProperty(target, key, sharedPropertyDefinition)
 }
