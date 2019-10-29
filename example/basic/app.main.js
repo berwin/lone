@@ -27,8 +27,13 @@ Lone.logic('test', {
       vm.setData({
         n: 2
       })
+      setTimeout(_ => {
+        vm.navigateTo('/test')
+        setTimeout(_ => {
+          vm.navigateBack()
+        }, 2000)
+      }, 2000)
     }, 1000)
-    // this.navigateTo('/test')
     console.log('app.main.js: mounted~~~')
   },
   onReady () {
@@ -48,7 +53,5 @@ Lone.logic('test', {
 Lone.logic('test2', {
   data: () => ({ n: 0 }),
   methods: {},
-  mounted () {
-    this.navigateBack()
-  }
+  mounted () {}
 })

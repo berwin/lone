@@ -4,7 +4,7 @@ Lone.page({
       name: 'test',
       template: `
         <div id="app">
-          <h1>Basic</h1>
+          <h1>Page 1</h1>
           <ul>
             <li>Navigator To /é#%25ñ</li>
           </ul>
@@ -16,7 +16,7 @@ Lone.page({
     },
     {
       name: 'test2',
-      template: '<div>test2</div>'
+      template: '<h1>Page 2</h1>'
     }
   ]
 })
