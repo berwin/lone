@@ -3141,43 +3141,28 @@ const {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var lone_compiler_core_parser_text_parser__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lone-compiler-core/parser/text-parser */ "./packages/lone-compiler-core/parser/text-parser.js");
-/* harmony import */ var lone_compiler_core_helpers__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! lone-compiler-core/helpers */ "./packages/lone-compiler-core/helpers.js");
-/* @flow */
+/* harmony import */ var lone_compiler_core_helpers__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lone-compiler-core/helpers */ "./packages/lone-compiler-core/helpers.js");
 
 
-
-function transformNode(el, options) {
-  const warn = options.warn || lone_compiler_core_helpers__WEBPACK_IMPORTED_MODULE_1__["baseWarn"];
-  const staticClass = Object(lone_compiler_core_helpers__WEBPACK_IMPORTED_MODULE_1__["getAndRemoveAttr"])(el, 'class');
-
-  if ( true && staticClass) {
-    const expression = Object(lone_compiler_core_parser_text_parser__WEBPACK_IMPORTED_MODULE_0__["parseText"])(staticClass, options.delimiters);
-
-    if (expression) {
-      warn(`class="${staticClass}": ` + 'Interpolation inside attributes has been removed. ' + 'Use v-bind or the colon shorthand instead. For example, ' + 'instead of <div class="{{ val }}">, use <div :class="val">.');
-    }
-  }
-
-  if (staticClass) {
-    el.staticClass = JSON.stringify(staticClass);
-  }
-
-  const classBinding = Object(lone_compiler_core_helpers__WEBPACK_IMPORTED_MODULE_1__["getBindingAttr"])(el, 'class', false
+function transformNode(el) {
+  const classBinding = Object(lone_compiler_core_helpers__WEBPACK_IMPORTED_MODULE_0__["getBindingAttr"])(el, 'class', false
   /* getStatic */
   );
 
   if (classBinding) {
     el.classBinding = classBinding;
   }
+
+  const staticClass = Object(lone_compiler_core_helpers__WEBPACK_IMPORTED_MODULE_0__["getAndRemoveAttr"])(el, 'class');
+
+  if (staticClass) {
+    const kclass = staticClass.trim().split(' ').map(name => `'${name}':true`).join(',');
+    el.classBinding = el.classBinding ? el.classBinding.substring(0, el.classBinding.length - 1) + kclass + '}' : `{${kclass}}`;
+  }
 }
 
 function genData(el) {
   let data = '';
-
-  if (el.staticClass) {
-    data += `staticClass:${el.staticClass},`;
-  }
 
   if (el.classBinding) {
     data += `class:${el.classBinding},`;
@@ -3187,7 +3172,6 @@ function genData(el) {
 }
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  staticKeys: ['staticClass'],
   transformNode,
   genData
 });
@@ -5578,7 +5562,7 @@ exports.default = vnode;
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "installRenderHelpers", function() { return installRenderHelpers; });
-/* harmony import */ var lone_util__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lone-util */ "./packages/lone-util/index.js");
+/* harmony import */ var lone_util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lone-util */ "./packages/lone-util/index.js");
 /* harmony import */ var _index__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./index */ "./packages/lone-virtualdom/index.js");
 
 
@@ -5589,7 +5573,7 @@ function installRenderHelpers(target) {
 
 
   proto._c = _index__WEBPACK_IMPORTED_MODULE_1__["h"];
-  proto._s = lone_util__WEBPACK_IMPORTED_MODULE_2__["toString"]; // target._o = markOnce
+  proto._s = lone_util__WEBPACK_IMPORTED_MODULE_0__["toString"]; // target._o = markOnce
   // target._l = renderList
   // target._t = renderSlot
   // target._m = renderStatic

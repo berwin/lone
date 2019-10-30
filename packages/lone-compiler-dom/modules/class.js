@@ -1,40 +1,24 @@
-/* @flow */
-
-import { parseText } from 'lone-compiler-core/parser/text-parser'
 import {
   getAndRemoveAttr,
-  getBindingAttr,
-  baseWarn
+  getBindingAttr
 } from 'lone-compiler-core/helpers'
 
-function transformNode (el, options) {
-  const warn = options.warn || baseWarn
-  const staticClass = getAndRemoveAttr(el, 'class')
-  if (process.env.NODE_ENV !== 'production' && staticClass) {
-    const expression = parseText(staticClass, options.delimiters)
-    if (expression) {
-      warn(
-        `class="${staticClass}": ` +
-        'Interpolation inside attributes has been removed. ' +
-        'Use v-bind or the colon shorthand instead. For example, ' +
-        'instead of <div class="{{ val }}">, use <div :class="val">.'
-      )
-    }
-  }
-  if (staticClass) {
-    el.staticClass = JSON.stringify(staticClass)
-  }
+function transformNode (el) {
   const classBinding = getBindingAttr(el, 'class', false /* getStatic */)
   if (classBinding) {
     el.classBinding = classBinding
+  }
+  const staticClass = getAndRemoveAttr(el, 'class')
+  if (staticClass) {
+    const kclass = staticClass.trim().split(' ').map(name => `'${name}':true`).join(',')
+    el.classBinding = el.classBinding
+      ? el.classBinding.substring(0, el.classBinding.length - 1) + kclass + '}'
+      : `{${kclass}}`
   }
 }
 
 function genData (el) {
   let data = ''
-  if (el.staticClass) {
-    data += `staticClass:${el.staticClass},`
-  }
   if (el.classBinding) {
     data += `class:${el.classBinding},`
   }
@@ -42,7 +26,6 @@ function genData (el) {
 }
 
 export default {
-  staticKeys: ['staticClass'],
   transformNode,
   genData
 }
