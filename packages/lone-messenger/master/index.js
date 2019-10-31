@@ -2,21 +2,24 @@ import BaseMessenger from '../base/messenger'
 
 import Native from './native-messenger'
 import Post from './post-messenger'
+import WebWorker from './worker-messenger'
 
 const connection = Symbol('messenger:master#connection')
 
 export default class Master extends BaseMessenger {
   constructor (options) {
     super()
-    this.env = options.env
+    this.options = options
     this.native = new Native()
     this.post = new Post()
+    this.worker = new WebWorker()
     this[connection]()
     this.listen()
   }
 
   [connection] () {
-    if (this._isNative()) this.native.connection()
+    if (this.options.env === 'native') this.native.connection()
+    if (this.options.env === 'worker') this.worker.connection(this.options.worker)
     this.post.connection()
   }
 
@@ -32,18 +35,15 @@ export default class Master extends BaseMessenger {
   }
 
   _onmessage (fn) {
-    if (this._isNative()) this.native.onmessage(fn)
+    if (this.options.env === 'native') this.native.onmessage(fn)
     this.post.onmessage(fn)
   }
 
   _postMessage (type, channel, data) {
-    if (channel === 'logic' && this._isNative()) {
-      return this.native.send(type, channel, data)
+    if (channel === 'logic') {
+      if (this.options.env === 'native') return this.native.send(type, data)
+      if (this.options.env === 'worker') return this.worker.send(type, data)
     }
     return this.post.send(type, channel, data)
-  }
-
-  _isNative () {
-    return this.env !== 'postMessage'
   }
 }

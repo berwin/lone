@@ -588,6 +588,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _base_messenger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../base/messenger */ "./packages/lone-messenger/base/messenger.js");
 /* harmony import */ var _native_messenger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./native-messenger */ "./packages/lone-messenger/master/native-messenger.js");
 /* harmony import */ var _post_messenger__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./post-messenger */ "./packages/lone-messenger/master/post-messenger.js");
+/* harmony import */ var _worker_messenger__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./worker-messenger */ "./packages/lone-messenger/master/worker-messenger.js");
+
 
 
 
@@ -595,15 +597,17 @@ const connection = Symbol('messenger:master#connection');
 class Master extends _base_messenger__WEBPACK_IMPORTED_MODULE_0__["default"] {
   constructor(options) {
     super();
-    this.env = options.env;
+    this.options = options;
     this.native = new _native_messenger__WEBPACK_IMPORTED_MODULE_1__["default"]();
     this.post = new _post_messenger__WEBPACK_IMPORTED_MODULE_2__["default"]();
+    this.worker = new _worker_messenger__WEBPACK_IMPORTED_MODULE_3__["default"]();
     this[connection]();
     this.listen();
   }
 
   [connection]() {
-    if (this._isNative()) this.native.connection();
+    if (this.options.env === 'native') this.native.connection();
+    if (this.options.env === 'worker') this.worker.connection(this.options.worker);
     this.post.connection();
   }
 
@@ -620,20 +624,17 @@ class Master extends _base_messenger__WEBPACK_IMPORTED_MODULE_0__["default"] {
   }
 
   _onmessage(fn) {
-    if (this._isNative()) this.native.onmessage(fn);
+    if (this.options.env === 'native') this.native.onmessage(fn);
     this.post.onmessage(fn);
   }
 
   _postMessage(type, channel, data) {
-    if (channel === 'logic' && this._isNative()) {
-      return this.native.send(type, channel, data);
+    if (channel === 'logic') {
+      if (this.options.env === 'native') return this.native.send(type, data);
+      if (this.options.env === 'worker') return this.worker.send(type, data);
     }
 
     return this.post.send(type, channel, data);
-  }
-
-  _isNative() {
-    return this.env !== 'postMessage';
   }
 
 }
@@ -657,7 +658,7 @@ class NativeMessenger {
     window.senative.call('frontPageReady', '', function (code, msg, data) {});
   }
 
-  send(type, channel, data) {
+  send(type, data) {
     if (!Object(lone_util__WEBPACK_IMPORTED_MODULE_0__["isObject"])(data)) throw new TypeError('data must be plain object.');
     const bag = JSON.stringify({
       type,
@@ -726,6 +727,39 @@ class PostMessenger {
 }
 
 /* harmony default export */ __webpack_exports__["default"] = (PostMessenger);
+
+/***/ }),
+
+/***/ "./packages/lone-messenger/master/worker-messenger.js":
+/*!************************************************************!*\
+  !*** ./packages/lone-messenger/master/worker-messenger.js ***!
+  \************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+class WorkerMessenger {
+  connection(source) {
+    this.source = source;
+  }
+
+  onmessage(fn) {
+    this.source.onmessage = function (evt) {
+      fn.call(evt, evt.data);
+    };
+  }
+
+  send(type, data) {
+    this.source.postMessage({
+      type,
+      data
+    });
+  }
+
+}
+
+/* harmony default export */ __webpack_exports__["default"] = (WorkerMessenger);
 
 /***/ }),
 
