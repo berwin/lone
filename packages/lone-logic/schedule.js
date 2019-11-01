@@ -3,7 +3,7 @@ import { callHook, createComponentInstance } from './component'
 import { getChannel } from './helper'
 
 export const instanceStorage = new Map()
-export const slave = new Slave({ env: 'postMessage', channel: 'logic' })
+export const slave = new Slave({ env: 'worker', channel: 'logic' })
 
 const MESSENGER_EVENTS_UI = {
   'ui:inited': function ({ name, id }) {

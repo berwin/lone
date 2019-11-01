@@ -1,3 +1,5 @@
+importScripts('../../dist/lone.logic.js')
+
 Lone.logic('test', {
   data: () => ({ n: 0 }),
   methods: {

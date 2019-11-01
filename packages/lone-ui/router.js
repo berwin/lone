@@ -7,6 +7,7 @@ class Router {
   constructor (options) {
     this.stack = []
     this.routes = options.routes
+    this.entry = options.entry
   }
 
   [getRoute] (url) {
@@ -26,7 +27,7 @@ class Router {
 
   _push (url) {
     const route = this[getRoute](url)
-    const view = createPage(route)
+    const view = createPage(route, this.entry)
     this.stack.push(view)
     return view
   }

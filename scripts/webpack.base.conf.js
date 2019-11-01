@@ -14,8 +14,7 @@ module.exports = {
     path: resolve('dist'),
     filename: 'Lone.[name].js',
     library: ['Lone', '[name]'],
-    libraryExport: 'default',
-    libraryTarget: 'umd'
+    libraryExport: 'default'
   },
   module: {
     rules: [

@@ -1,18 +1,21 @@
 import { Master } from 'lone-messenger'
 
-const master = new Master({ env: 'postMessage' })
-
 class Schedule {
-  constructor ({ router }) {
+  constructor ({ router, entry }) {
     const vm = this
     vm.router = router
+    vm.entry = entry
+    this.master = new Master({
+      env: 'worker',
+      worker: new Worker(vm.entry.logic)
+    })
     vm.logicEvents = {
       'logic:inited': function () {
         // Default Route Page
         vm.router.navigateTo(vm.router.routes[0].path)
       },
       'logic:data': function (channel, { id, data }) {
-        master.send('ui:data', channel, { id, data })
+        vm.master.send('ui:data', channel, { id, data })
       },
       'logic:navigateTo': function (channel, { url }) {
         vm.router.navigateTo(url)
@@ -29,18 +32,18 @@ class Schedule {
         console.log('ui-schedule: view:navigateTo')
       },
       'page:inited': function (channel, { name, id }) {
-        master.send('ui:inited', channel, { name, id })
+        vm.master.send('ui:inited', channel, { name, id })
       },
       'page:ready': function (channel, { id }) {
-        master.send('ui:ready', channel, { id })
+        vm.master.send('ui:ready', channel, { id })
       }
     }
     vm.init()
   }
 
   init () {
-    this.listenEvents(master, this.logicEvents)
-    this.listenEvents(master, this.pageEvents)
+    this.listenEvents(this.master, this.logicEvents)
+    this.listenEvents(this.master, this.pageEvents)
   }
 
   listenEvents (messenger, events) {

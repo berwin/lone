@@ -5,10 +5,12 @@ class LoneUI {
   constructor (options) {
     this.options = options
     this.router = new Router({
-      routes: this.options.routes
+      routes: this.options.routes,
+      entry: this.options.entry
     })
     this.schedule = new Schedule({
-      router: this.router
+      router: this.router,
+      entry: this.options.entry
     })
   }
 }

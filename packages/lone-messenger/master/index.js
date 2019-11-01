@@ -36,6 +36,7 @@ export default class Master extends BaseMessenger {
 
   _onmessage (fn) {
     if (this.options.env === 'native') this.native.onmessage(fn)
+    if (this.options.env === 'worker') this.worker.onmessage(fn)
     this.post.onmessage(fn)
   }
 

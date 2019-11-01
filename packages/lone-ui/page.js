@@ -1,12 +1,12 @@
 let pid = 0
 
-export function createPage (options) {
+export function createPage (options, entry) {
   const id = pid++
   const view = document.createElement('iframe')
   setAttr(id, view, options)
   setStyle(view)
   document.body.appendChild(view)
-  insertJS(view)
+  insertJS(view, entry)
   return view
 }
 
@@ -31,8 +31,8 @@ function setStyle (view) {
   view.style.backgroundColor = 'white'
 }
 
-function insertJS (view) {
-  const scriptTag = [insertContainer, insertPageJS, insertUserJS].reduce((pre, gen) => pre + gen(), '')
+function insertJS (view, entry) {
+  const scriptTag = [insertContainer, insertPageJS, insertUserJS].reduce((pre, gen) => pre + gen(entry), '')
   view.contentDocument.write(`
     <!DOCTYPE html>
     <html>
@@ -51,8 +51,8 @@ function insertPageJS () {
   return '<script src="'+ __PAGEJS__ +'"></script>' // eslint-disable-line
 }
 
-function insertUserJS () {
-  return '<script src="./app.page.js"></script>'
+function insertUserJS (entry) {
+  return '<script src="' + entry.page + '"></script>'
 }
 
 function insertContainer () {

@@ -1,14 +1,5 @@
-(function webpackUniversalModuleDefinition(root, factory) {
-	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory();
-	else if(typeof define === 'function' && define.amd)
-		define([], factory);
-	else if(typeof exports === 'object')
-		exports["ui"] = factory();
-	else
-		root["Lone"] = root["Lone"] || {}, root["Lone"]["ui"] = factory();
-})(window, function() {
-return /******/ (function(modules) { // webpackBootstrap
+var Lone = typeof Lone === "object" ? Lone : {}; Lone["ui"] =
+/******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
 /******/
@@ -285,6 +276,7 @@ class Master extends _base_messenger__WEBPACK_IMPORTED_MODULE_0__["default"] {
 
   _onmessage(fn) {
     if (this.options.env === 'native') this.native.onmessage(fn);
+    if (this.options.env === 'worker') this.worker.onmessage(fn);
     this.post.onmessage(fn);
   }
 
@@ -434,12 +426,19 @@ class WorkerMessenger {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _native_messenger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./native-messenger */ "./packages/lone-messenger/slave/native-messenger.js");
 /* harmony import */ var _post_messenger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./post-messenger */ "./packages/lone-messenger/slave/post-messenger.js");
+/* harmony import */ var _worker_messenger__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./worker-messenger */ "./packages/lone-messenger/slave/worker-messenger.js");
 
 
+
+const slaveMap = {
+  postMessage: _post_messenger__WEBPACK_IMPORTED_MODULE_1__["default"],
+  native: _native_messenger__WEBPACK_IMPORTED_MODULE_0__["default"],
+  worker: _worker_messenger__WEBPACK_IMPORTED_MODULE_2__["default"]
+};
 /* harmony default export */ __webpack_exports__["default"] = (new Proxy(class Slave {}, {
   construct(trapTarget, argumentList) {
     const options = argumentList[0];
-    return Reflect.construct(options.env && options.env === 'postMessage' ? _post_messenger__WEBPACK_IMPORTED_MODULE_1__["default"] : _native_messenger__WEBPACK_IMPORTED_MODULE_0__["default"], argumentList);
+    return Reflect.construct(slaveMap[options.env], argumentList);
   }
 
 }));
@@ -461,11 +460,6 @@ __webpack_require__.r(__webpack_exports__);
 
 
 class NativeMessenger extends _base_native_messenger__WEBPACK_IMPORTED_MODULE_0__["default"] {
-  constructor(options) {
-    super();
-    this.channel = options.channel;
-  }
-
   _postMessage(type, channel, data) {
     if (!Object(lone_util__WEBPACK_IMPORTED_MODULE_1__["isObject"])(data)) throw new TypeError('data must be plain object.');
     const bag = JSON.stringify({
@@ -521,6 +515,44 @@ class PostMessenger extends _base_post_messenger__WEBPACK_IMPORTED_MODULE_0__["d
 
 /***/ }),
 
+/***/ "./packages/lone-messenger/slave/worker-messenger.js":
+/*!***********************************************************!*\
+  !*** ./packages/lone-messenger/slave/worker-messenger.js ***!
+  \***********************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _base_messenger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../base/messenger */ "./packages/lone-messenger/base/messenger.js");
+
+
+class WorkerMessenger extends _base_messenger__WEBPACK_IMPORTED_MODULE_0__["default"] {
+  constructor() {
+    super();
+    this.listen();
+  }
+
+  _postMessage(type, channel, data) {
+    self.postMessage({
+      type,
+      channel,
+      data
+    });
+  }
+
+  _onmessage(fn) {
+    self.onmessage = function (evt) {
+      fn.call(evt, evt.data);
+    };
+  }
+
+}
+
+/* harmony default export */ __webpack_exports__["default"] = (WorkerMessenger);
+
+/***/ }),
+
 /***/ "./packages/lone-ui/index.js":
 /*!***********************************!*\
   !*** ./packages/lone-ui/index.js ***!
@@ -539,10 +571,12 @@ class LoneUI {
   constructor(options) {
     this.options = options;
     this.router = new _router__WEBPACK_IMPORTED_MODULE_1__["default"]({
-      routes: this.options.routes
+      routes: this.options.routes,
+      entry: this.options.entry
     });
     this.schedule = new _schedule__WEBPACK_IMPORTED_MODULE_0__["default"]({
-      router: this.router
+      router: this.router,
+      entry: this.options.entry
     });
   }
 
@@ -566,13 +600,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createPage", function() { return createPage; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "removePage", function() { return removePage; });
 let pid = 0;
-function createPage(options) {
+function createPage(options, entry) {
   const id = pid++;
   const view = document.createElement('iframe');
   setAttr(id, view, options);
   setStyle(view);
   document.body.appendChild(view);
-  insertJS(view);
+  insertJS(view, entry);
   return view;
 }
 function removePage(page) {
@@ -597,8 +631,8 @@ function setStyle(view) {
   view.style.backgroundColor = 'white';
 }
 
-function insertJS(view) {
-  const scriptTag = [insertContainer, insertPageJS, insertUserJS].reduce((pre, gen) => pre + gen(), '');
+function insertJS(view, entry) {
+  const scriptTag = [insertContainer, insertPageJS, insertUserJS].reduce((pre, gen) => pre + gen(entry), '');
   view.contentDocument.write(`
     <!DOCTYPE html>
     <html>
@@ -617,8 +651,8 @@ function insertPageJS() {
   return '<script src="' + "../../dist/lone.page.js" + '"></script>'; // eslint-disable-line
 }
 
-function insertUserJS() {
-  return '<script src="./app.page.js"></script>';
+function insertUserJS(entry) {
+  return '<script src="' + entry.page + '"></script>';
 }
 
 function insertContainer() {
@@ -646,6 +680,7 @@ class Router {
   constructor(options) {
     this.stack = [];
     this.routes = options.routes;
+    this.entry = options.entry;
   }
 
   [getRoute](url) {
@@ -667,7 +702,7 @@ class Router {
 
   _push(url) {
     const route = this[getRoute](url);
-    const view = Object(_page__WEBPACK_IMPORTED_MODULE_0__["createPage"])(route);
+    const view = Object(_page__WEBPACK_IMPORTED_MODULE_0__["createPage"])(route, this.entry);
     this.stack.push(view);
     return view;
   }
@@ -714,16 +749,19 @@ class Router {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var lone_messenger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lone-messenger */ "./packages/lone-messenger/index.js");
 
-const master = new lone_messenger__WEBPACK_IMPORTED_MODULE_0__["Master"]({
-  env: 'postMessage'
-});
 
 class Schedule {
   constructor({
-    router
+    router,
+    entry
   }) {
     const vm = this;
     vm.router = router;
+    vm.entry = entry;
+    this.master = new lone_messenger__WEBPACK_IMPORTED_MODULE_0__["Master"]({
+      env: 'worker',
+      worker: new Worker(vm.entry.logic)
+    });
     vm.logicEvents = {
       'logic:inited': function () {
         // Default Route Page
@@ -733,7 +771,7 @@ class Schedule {
         id,
         data
       }) {
-        master.send('ui:data', channel, {
+        vm.master.send('ui:data', channel, {
           id,
           data
         });
@@ -762,7 +800,7 @@ class Schedule {
         name,
         id
       }) {
-        master.send('ui:inited', channel, {
+        vm.master.send('ui:inited', channel, {
           name,
           id
         });
@@ -770,7 +808,7 @@ class Schedule {
       'page:ready': function (channel, {
         id
       }) {
-        master.send('ui:ready', channel, {
+        vm.master.send('ui:ready', channel, {
           id
         });
       }
@@ -779,8 +817,8 @@ class Schedule {
   }
 
   init() {
-    this.listenEvents(master, this.logicEvents);
-    this.listenEvents(master, this.pageEvents);
+    this.listenEvents(this.master, this.logicEvents);
+    this.listenEvents(this.master, this.pageEvents);
   }
 
   listenEvents(messenger, events) {
@@ -1015,5 +1053,4 @@ function parse(url) {
 /***/ })
 
 /******/ })["default"];
-});
 //# sourceMappingURL=Lone.ui.js.map
