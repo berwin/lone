@@ -31,6 +31,30 @@ npm install && lerna bootstrap
 
 与`dev`类似，但不会持续观察文件系统的变化，并且构建出的文件是经过压缩的。
 
+### Demo演示
+
+使用 `http-server` 或 Chrome 扩展 `Web Server for Chrome` 浏览Demo。
+
+### `http-server`
+
+在项目根目录执行以下命令：
+
+```
+http-server
+```
+
+然后访问：[http://127.0.0.1:8080/example/basic/](http://127.0.0.1:8080/example/basic/)
+
+端口号可以自行设置。
+
+### Chrome 浏览器插件 `Web Server for Chrome`
+
+插件按照完毕后，可以将目录设置为项目根目录。
+
+然后访问：[http://127.0.0.1:8887/example/basic/](http://127.0.0.1:8887/example/basic/)
+
+端口号可以自行设置。
+
 ## 项目架构
 
 * `lone-compiler-core` - 与平台无关的编译器核心逻辑，
