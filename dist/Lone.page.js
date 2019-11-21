@@ -3294,6 +3294,14 @@ __webpack_require__.r(__webpack_exports__);
 
 function transformNode(el, options) {
   const warn = options.warn || lone_compiler_core_helpers__WEBPACK_IMPORTED_MODULE_2__["baseWarn"];
+  const styleBinding = Object(lone_compiler_core_helpers__WEBPACK_IMPORTED_MODULE_2__["getBindingAttr"])(el, 'style', false
+  /* getStatic */
+  );
+
+  if (styleBinding) {
+    el.styleBinding = styleBinding;
+  }
+
   const staticStyle = Object(lone_compiler_core_helpers__WEBPACK_IMPORTED_MODULE_2__["getAndRemoveAttr"])(el, 'style');
 
   if (staticStyle) {
@@ -3306,24 +3314,12 @@ function transformNode(el, options) {
       }
     }
 
-    el.staticStyle = JSON.stringify(Object(lone_util_web_style__WEBPACK_IMPORTED_MODULE_1__["parseStyleText"])(staticStyle));
-  }
-
-  const styleBinding = Object(lone_compiler_core_helpers__WEBPACK_IMPORTED_MODULE_2__["getBindingAttr"])(el, 'style', false
-  /* getStatic */
-  );
-
-  if (styleBinding) {
-    el.styleBinding = styleBinding;
+    el.styleBinding = el.styleBinding ? el.styleBinding.substring(0, el.styleBinding.length - 1) + ',' + JSON.stringify(Object(lone_util_web_style__WEBPACK_IMPORTED_MODULE_1__["parseStyleText"])(staticStyle)).substring(1) : JSON.stringify(Object(lone_util_web_style__WEBPACK_IMPORTED_MODULE_1__["parseStyleText"])(staticStyle));
   }
 }
 
 function genData(el) {
   let data = '';
-
-  if (el.staticStyle) {
-    data += `staticStyle:${el.staticStyle},`;
-  }
 
   if (el.styleBinding) {
     data += `style:(${el.styleBinding}),`;
@@ -4622,17 +4618,20 @@ function getStyle(vnode, checkChild) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "patch", function() { return patch; });
 /* harmony import */ var snabbdom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! snabbdom */ "./packages/lone-virtualdom/node_modules/snabbdom/es/snabbdom.js");
-/* harmony import */ var snabbdom_modules_class__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! snabbdom/modules/class */ "./packages/lone-virtualdom/node_modules/snabbdom/modules/class.js");
-/* harmony import */ var snabbdom_modules_class__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(snabbdom_modules_class__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var snabbdom_modules_props__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! snabbdom/modules/props */ "./packages/lone-virtualdom/node_modules/snabbdom/modules/props.js");
-/* harmony import */ var snabbdom_modules_props__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(snabbdom_modules_props__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var snabbdom_modules_style__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! snabbdom/modules/style */ "./packages/lone-virtualdom/node_modules/snabbdom/modules/style.js");
-/* harmony import */ var snabbdom_modules_style__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(snabbdom_modules_style__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var snabbdom_modules_eventlisteners__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! snabbdom/modules/eventlisteners */ "./packages/lone-virtualdom/node_modules/snabbdom/modules/eventlisteners.js");
-/* harmony import */ var snabbdom_modules_eventlisteners__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(snabbdom_modules_eventlisteners__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var snabbdom_h__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! snabbdom/h */ "./packages/lone-virtualdom/node_modules/snabbdom/h.js");
-/* harmony import */ var snabbdom_h__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(snabbdom_h__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony reexport (default from non-harmony) */ __webpack_require__.d(__webpack_exports__, "h", function() { return snabbdom_h__WEBPACK_IMPORTED_MODULE_5___default.a; });
+/* harmony import */ var snabbdom_modules_attributes__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! snabbdom/modules/attributes */ "./packages/lone-virtualdom/node_modules/snabbdom/modules/attributes.js");
+/* harmony import */ var snabbdom_modules_attributes__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(snabbdom_modules_attributes__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var snabbdom_modules_class__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! snabbdom/modules/class */ "./packages/lone-virtualdom/node_modules/snabbdom/modules/class.js");
+/* harmony import */ var snabbdom_modules_class__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(snabbdom_modules_class__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var snabbdom_modules_props__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! snabbdom/modules/props */ "./packages/lone-virtualdom/node_modules/snabbdom/modules/props.js");
+/* harmony import */ var snabbdom_modules_props__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(snabbdom_modules_props__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var snabbdom_modules_style__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! snabbdom/modules/style */ "./packages/lone-virtualdom/node_modules/snabbdom/modules/style.js");
+/* harmony import */ var snabbdom_modules_style__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(snabbdom_modules_style__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var snabbdom_modules_eventlisteners__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! snabbdom/modules/eventlisteners */ "./packages/lone-virtualdom/node_modules/snabbdom/modules/eventlisteners.js");
+/* harmony import */ var snabbdom_modules_eventlisteners__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(snabbdom_modules_eventlisteners__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var snabbdom_h__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! snabbdom/h */ "./packages/lone-virtualdom/node_modules/snabbdom/h.js");
+/* harmony import */ var snabbdom_h__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(snabbdom_h__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony reexport (default from non-harmony) */ __webpack_require__.d(__webpack_exports__, "h", function() { return snabbdom_h__WEBPACK_IMPORTED_MODULE_6___default.a; });
+
 
  // makes it easy to toggle classes
 
@@ -4642,7 +4641,7 @@ __webpack_require__.r(__webpack_exports__);
 
  // attaches event listeners
 
-const patch = Object(snabbdom__WEBPACK_IMPORTED_MODULE_0__["init"])([snabbdom_modules_class__WEBPACK_IMPORTED_MODULE_1___default.a, snabbdom_modules_props__WEBPACK_IMPORTED_MODULE_2___default.a, snabbdom_modules_style__WEBPACK_IMPORTED_MODULE_3___default.a, snabbdom_modules_eventlisteners__WEBPACK_IMPORTED_MODULE_4___default.a]);
+const patch = Object(snabbdom__WEBPACK_IMPORTED_MODULE_0__["init"])([snabbdom_modules_attributes__WEBPACK_IMPORTED_MODULE_1___default.a, snabbdom_modules_class__WEBPACK_IMPORTED_MODULE_2___default.a, snabbdom_modules_props__WEBPACK_IMPORTED_MODULE_3___default.a, snabbdom_modules_style__WEBPACK_IMPORTED_MODULE_4___default.a, snabbdom_modules_eventlisteners__WEBPACK_IMPORTED_MODULE_5___default.a]);
 
 
 /***/ }),
@@ -5308,6 +5307,72 @@ function primitive(s) {
 }
 exports.primitive = primitive;
 //# sourceMappingURL=is.js.map
+
+/***/ }),
+
+/***/ "./packages/lone-virtualdom/node_modules/snabbdom/modules/attributes.js":
+/*!******************************************************************************!*\
+  !*** ./packages/lone-virtualdom/node_modules/snabbdom/modules/attributes.js ***!
+  \******************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var xlinkNS = 'http://www.w3.org/1999/xlink';
+var xmlNS = 'http://www.w3.org/XML/1998/namespace';
+var colonChar = 58;
+var xChar = 120;
+function updateAttrs(oldVnode, vnode) {
+    var key, elm = vnode.elm, oldAttrs = oldVnode.data.attrs, attrs = vnode.data.attrs;
+    if (!oldAttrs && !attrs)
+        return;
+    if (oldAttrs === attrs)
+        return;
+    oldAttrs = oldAttrs || {};
+    attrs = attrs || {};
+    // update modified attributes, add new attributes
+    for (key in attrs) {
+        var cur = attrs[key];
+        var old = oldAttrs[key];
+        if (old !== cur) {
+            if (cur === true) {
+                elm.setAttribute(key, "");
+            }
+            else if (cur === false) {
+                elm.removeAttribute(key);
+            }
+            else {
+                if (key.charCodeAt(0) !== xChar) {
+                    elm.setAttribute(key, cur);
+                }
+                else if (key.charCodeAt(3) === colonChar) {
+                    // Assume xml namespace
+                    elm.setAttributeNS(xmlNS, key, cur);
+                }
+                else if (key.charCodeAt(5) === colonChar) {
+                    // Assume xlink namespace
+                    elm.setAttributeNS(xlinkNS, key, cur);
+                }
+                else {
+                    elm.setAttribute(key, cur);
+                }
+            }
+        }
+    }
+    // remove removed attributes
+    // use `in` operator since the previous `for` iteration uses it (.i.e. add even attributes with undefined value)
+    // the other option is to remove all attributes with value == undefined
+    for (key in oldAttrs) {
+        if (!(key in attrs)) {
+            elm.removeAttribute(key);
+        }
+    }
+}
+exports.attributesModule = { create: updateAttrs, update: updateAttrs };
+exports.default = exports.attributesModule;
+//# sourceMappingURL=attributes.js.map
 
 /***/ }),
 

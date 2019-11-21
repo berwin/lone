@@ -8,9 +8,8 @@ Lone.page({
           <ul>
             <li>Navigator To /é#%25ñ</li>
           </ul>
-          <button id="navigate-btn">On Success</button>
-          <h2>N:{{ n }}</h2>
-          <router-view class="view"></router-view>
+          <button id="navigate-btn" style="color:red;">On Success</button>
+          <h2 :id="n" :style="{backgroundColor: 'red'}" style="color:blue;">N:{{ n }}</h2>
         </div>
       `
     },

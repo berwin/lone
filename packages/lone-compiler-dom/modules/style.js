@@ -10,6 +10,11 @@ import {
 
 function transformNode (el, options) {
   const warn = options.warn || baseWarn
+  const styleBinding = getBindingAttr(el, 'style', false /* getStatic */)
+  if (styleBinding) {
+    el.styleBinding = styleBinding
+  }
+
   const staticStyle = getAndRemoveAttr(el, 'style')
   if (staticStyle) {
     /* istanbul ignore if */
@@ -24,20 +29,14 @@ function transformNode (el, options) {
         )
       }
     }
-    el.staticStyle = JSON.stringify(parseStyleText(staticStyle))
-  }
-
-  const styleBinding = getBindingAttr(el, 'style', false /* getStatic */)
-  if (styleBinding) {
-    el.styleBinding = styleBinding
+    el.styleBinding = el.styleBinding
+      ? el.styleBinding.substring(0, el.styleBinding.length - 1) + ',' + JSON.stringify(parseStyleText(staticStyle)).substring(1)
+      : JSON.stringify(parseStyleText(staticStyle))
   }
 }
 
 function genData (el) {
   let data = ''
-  if (el.staticStyle) {
-    data += `staticStyle:${el.staticStyle},`
-  }
   if (el.styleBinding) {
     data += `style:(${el.styleBinding}),`
   }
