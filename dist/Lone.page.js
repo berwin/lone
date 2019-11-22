@@ -408,7 +408,7 @@ function genIf(el, state, altGen, altEmpty) {
 
 function genIfConditions(conditions, state, altGen, altEmpty) {
   if (!conditions.length) {
-    return altEmpty || '_e()';
+    return altEmpty;
   }
 
   const condition = conditions.shift();
@@ -5695,6 +5695,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "installRenderHelpers", function() { return installRenderHelpers; });
 /* harmony import */ var lone_util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lone-util */ "./packages/lone-util/index.js");
 /* harmony import */ var _index__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./index */ "./packages/lone-virtualdom/index.js");
+/* harmony import */ var _render_list__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./render-list */ "./packages/lone-virtualdom/render-list.js");
+
 
 
 function installRenderHelpers(target) {
@@ -5704,8 +5706,8 @@ function installRenderHelpers(target) {
 
 
   proto._c = _index__WEBPACK_IMPORTED_MODULE_1__["h"];
-  proto._s = lone_util__WEBPACK_IMPORTED_MODULE_0__["toString"]; // target._o = markOnce
-  // target._l = renderList
+  proto._s = lone_util__WEBPACK_IMPORTED_MODULE_0__["toString"];
+  proto._l = _render_list__WEBPACK_IMPORTED_MODULE_2__["renderList"]; // target._o = markOnce
   // target._t = renderSlot
   // target._m = renderStatic
   // target._f = resolveFilter
@@ -5715,6 +5717,57 @@ function installRenderHelpers(target) {
   // target._e = createEmptyVNode
   // target._u = resolveScopedSlots
   // target._g = bindObjectListeners
+}
+
+/***/ }),
+
+/***/ "./packages/lone-virtualdom/render-list.js":
+/*!*************************************************!*\
+  !*** ./packages/lone-virtualdom/render-list.js ***!
+  \*************************************************/
+/*! exports provided: renderList */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "renderList", function() { return renderList; });
+/* harmony import */ var lone_util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lone-util */ "./packages/lone-util/index.js");
+/* @flow */
+
+/**
+ * Runtime helper for rendering v-for lists.
+ */
+
+function renderList(val, render) {
+  let ret, i, l, keys, key;
+
+  if (Array.isArray(val) || typeof val === 'string') {
+    ret = new Array(val.length);
+
+    for (i = 0, l = val.length; i < l; i++) {
+      ret[i] = render(val[i], i);
+    }
+  } else if (typeof val === 'number') {
+    ret = new Array(val);
+
+    for (i = 0; i < val; i++) {
+      ret[i] = render(i + 1, i);
+    }
+  } else if (Object(lone_util__WEBPACK_IMPORTED_MODULE_0__["isObject"])(val)) {
+    keys = Object.keys(val);
+    ret = new Array(keys.length);
+
+    for (i = 0, l = keys.length; i < l; i++) {
+      key = keys[i];
+      ret[i] = render(val[key], key, i);
+    }
+  }
+
+  if (Object(lone_util__WEBPACK_IMPORTED_MODULE_0__["isDef"])(ret)) {
+    ret._isVList = true;
+  }
+
+  return ret;
 }
 
 /***/ })

@@ -1,5 +1,6 @@
 import { toString } from 'lone-util'
 import { h } from './index'
+import { renderList } from './render-list'
 
 export function installRenderHelpers (target) {
   const proto = target.prototype
@@ -8,9 +9,9 @@ export function installRenderHelpers (target) {
   // create Element Vnode
   proto._c = h
   proto._s = toString
+  proto._l = renderList
 
   // target._o = markOnce
-  // target._l = renderList
   // target._t = renderSlot
   // target._m = renderStatic
   // target._f = resolveFilter

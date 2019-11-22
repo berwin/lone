@@ -1,7 +1,7 @@
 importScripts('../../dist/lone.logic.js')
 
 Lone.logic('test', {
-  data: () => ({ n: 0 }),
+  data: () => ({ n: 0, list: [1,2,3,4,5] }),
   methods: {
     navigateAndIncrement () {
       const increment = () => this.n++

@@ -108,7 +108,7 @@ export function genIf (el, state, altGen, altEmpty) {
 
 function genIfConditions (conditions, state, altGen, altEmpty) {
   if (!conditions.length) {
-    return altEmpty || '_e()'
+    return altEmpty
   }
 
   const condition = conditions.shift()
