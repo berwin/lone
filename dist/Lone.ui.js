@@ -767,14 +767,11 @@ class Schedule {
         // Default Route Page
         vm.router.navigateTo(vm.router.routes[0].path);
       },
-      'logic:data': function (channel, {
-        id,
-        data
-      }) {
-        vm.master.send('ui:data', channel, {
-          id,
-          data
-        });
+      'component:inited': function (channel, data) {
+        vm.master.send('component:inited', channel, data);
+      },
+      'component:data': function (channel, data) {
+        vm.master.send('component:data', channel, data);
       },
       'logic:navigateTo': function (channel, {
         url
@@ -811,6 +808,9 @@ class Schedule {
         vm.master.send('ui:ready', channel, {
           id
         });
+      },
+      'page:triggerEvent': function (channel, data) {
+        vm.master.send('ui:triggerEvent', channel, data);
       }
     };
     vm.init();

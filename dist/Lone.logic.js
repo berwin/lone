@@ -126,14 +126,12 @@ let LogicComponent = Object(_events__WEBPACK_IMPORTED_MODULE_1__["default"])(_cl
     callHook(vm, 'beforeCreate');
     Object(_helper__WEBPACK_IMPORTED_MODULE_0__["initData"])(vm);
     callHook(vm, 'created');
+    Object(_helper__WEBPACK_IMPORTED_MODULE_0__["sendInitCommandToPageComponent"])(vm);
   }
 
   setData(data) {
     const oldData = this.data;
-    _schedule__WEBPACK_IMPORTED_MODULE_3__["slave"].send('logic:data', Object(_helper__WEBPACK_IMPORTED_MODULE_0__["getChannel"])(this._id), {
-      id: this._id,
-      data: Object.assign(oldData, data)
-    });
+    _schedule__WEBPACK_IMPORTED_MODULE_3__["slave"].send('component:data', this._id, Object.assign(oldData, data));
   }
 
 }) || _class) || _class;
@@ -272,7 +270,7 @@ function emit(event) {
 /*!***************************************!*\
   !*** ./packages/lone-logic/helper.js ***!
   \***************************************/
-/*! exports provided: initOptions, handleError, initData, getChannel */
+/*! exports provided: initOptions, handleError, initData, sendInitCommandToPageComponent, triggerEvent */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -280,9 +278,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "initOptions", function() { return initOptions; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "handleError", function() { return handleError; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "initData", function() { return initData; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getChannel", function() { return getChannel; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "sendInitCommandToPageComponent", function() { return sendInitCommandToPageComponent; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "triggerEvent", function() { return triggerEvent; });
 /* harmony import */ var lone_util_constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lone-util/constants */ "./packages/lone-util/constants.js");
 /* harmony import */ var lone_util__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! lone-util */ "./packages/lone-util/index.js");
+/* harmony import */ var _schedule__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./schedule */ "./packages/lone-logic/schedule.js");
+
 
 
 function initOptions(options) {
@@ -298,7 +299,9 @@ function normalizeHooks(options) {
   }
 }
 
-function handleError() {}
+function handleError(err, vm, info) {
+  console.error(`[warn]: ${`Error in ${info}: "${err.toString()}"`}`);
+}
 function initData(vm) {
   const data = vm.$options.data;
   vm.data = Object(lone_util__WEBPACK_IMPORTED_MODULE_1__["isFunction"])(data) ? getData(data, vm) : data;
@@ -313,8 +316,21 @@ function getData(data, vm) {
   }
 }
 
-function getChannel(componentId) {
-  return componentId.split('_')[0];
+function sendInitCommandToPageComponent(vm) {
+  const reservedWords = [...lone_util_constants__WEBPACK_IMPORTED_MODULE_0__["LIFECYCLE_HOOKS"], 'data', 'methods'];
+  _schedule__WEBPACK_IMPORTED_MODULE_2__["slave"].send('component:inited', vm._id, {
+    data: vm.data,
+    methods: [...Object.keys(vm.$options).filter(key => !reservedWords.includes(key)), ...Object.keys(vm.$options.methods)]
+  });
+}
+function triggerEvent(vm, method, event) {
+  const handler = vm.$options[method] || vm.$options.methods[method];
+
+  try {
+    handler.call(vm, event);
+  } catch (e) {
+    handleError(e, vm, `"${method}" event handler`);
+  }
 }
 
 /***/ }),
@@ -405,10 +421,6 @@ const MESSENGER_EVENTS_UI = {
   }) {
     const vm = Object(_component__WEBPACK_IMPORTED_MODULE_1__["createComponentInstance"])(name, id);
     instanceStorage.set(id, vm);
-    slave.send('logic:data', Object(_helper__WEBPACK_IMPORTED_MODULE_2__["getChannel"])(id), {
-      id,
-      data: vm.data
-    });
   },
   'ui:ready': function ({
     id
@@ -416,6 +428,14 @@ const MESSENGER_EVENTS_UI = {
     const vm = instanceStorage.get(id);
     Object(_component__WEBPACK_IMPORTED_MODULE_1__["callHook"])(vm, 'onReady');
     Object(_component__WEBPACK_IMPORTED_MODULE_1__["callHook"])(vm, 'mounted');
+  },
+  'ui:triggerEvent': function ({
+    id,
+    method,
+    event
+  }) {
+    const vm = instanceStorage.get(id);
+    Object(_helper__WEBPACK_IMPORTED_MODULE_2__["triggerEvent"])(vm, method, event);
   }
 };
 

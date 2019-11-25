@@ -3836,6 +3836,51 @@ class WorkerMessenger extends _base_messenger__WEBPACK_IMPORTED_MODULE_0__["defa
 
 /***/ }),
 
+/***/ "./packages/lone-page/component/eventListener.js":
+/*!*******************************************************!*\
+  !*** ./packages/lone-page/component/eventListener.js ***!
+  \*******************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return initEventListener; });
+/* harmony import */ var lone_util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lone-util */ "./packages/lone-util/index.js");
+
+function initEventListener(vm, methods) {
+  vm._eventListener = Object.create(null);
+  let i = methods.length;
+
+  while (i--) {
+    vm._eventListener[methods[i]] = function (method) {
+      return function (event) {
+        vm.slave.send('page:triggerEvent', 'logic', {
+          id: vm.id,
+          event: getEvent(event),
+          method
+        });
+      };
+    }(methods[i]);
+
+    Object(lone_util__WEBPACK_IMPORTED_MODULE_0__["proxy"])(vm, '_eventListener', methods[i]);
+  }
+}
+
+function getEvent(event) {
+  return {
+    type: event.type,
+    timeStamp: event.timeStamp,
+    target: {},
+    detail: {
+      x: event.x,
+      y: event.y
+    }
+  };
+}
+
+/***/ }),
+
 /***/ "./packages/lone-page/component/index.js":
 /*!***********************************************!*\
   !*** ./packages/lone-page/component/index.js ***!
@@ -3881,6 +3926,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var lone_compiler_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! lone-compiler-dom */ "./packages/lone-compiler-dom/index.js");
 /* harmony import */ var lone_virtualdom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lone-virtualdom */ "./packages/lone-virtualdom/index.js");
 /* harmony import */ var lone_util__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lone-util */ "./packages/lone-util/index.js");
+/* harmony import */ var _eventListener__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./eventListener */ "./packages/lone-page/component/eventListener.js");
+
 
 
 
@@ -3897,6 +3944,22 @@ function init(Component) {
     vm.callHook(vm, 'page:inited');
     reaction(vm);
     vm.callHook(vm, 'page:ready');
+  };
+
+  proto._setData = function (data) {
+    const vm = this;
+    vm._data = data;
+    const keys = Object.keys(data);
+    let i = keys.length;
+
+    while (i--) {
+      const key = keys[i];
+      Object(lone_util__WEBPACK_IMPORTED_MODULE_3__["proxy"])(vm, '_data', key);
+    }
+
+    const vnode = vm._render();
+
+    vm._update(vnode);
   };
 
   proto._render = function () {
@@ -3941,7 +4004,15 @@ function initOptions(vm, options, Component) {
 function initMessenger(vm) {
   vm.slave = new lone_messenger__WEBPACK_IMPORTED_MODULE_0__["Slave"]({
     env: 'postMessage',
-    channel: vm.pid
+    channel: vm.id
+  });
+  vm.slave.onmessage('component:inited', function ({
+    data: initData,
+    methods
+  }) {
+    Object(_eventListener__WEBPACK_IMPORTED_MODULE_4__["default"])(vm, methods);
+
+    vm._setData(initData);
   });
 }
 
@@ -3953,22 +4024,8 @@ function initRender(vm) {
 }
 
 function reaction(vm) {
-  vm.slave.onmessage('ui:data', function ({
-    id,
-    data
-  }) {
-    vm._data = data;
-    const keys = Object.keys(data);
-    let i = keys.length;
-
-    while (i--) {
-      const key = keys[i];
-      Object(lone_util__WEBPACK_IMPORTED_MODULE_3__["proxy"])(vm, '_data', key);
-    }
-
-    const vnode = vm._render();
-
-    vm._update(vnode);
+  vm.slave.onmessage('component:data', function (data) {
+    vm._setData(data);
   });
 }
 

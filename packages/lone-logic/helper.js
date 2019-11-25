@@ -1,5 +1,6 @@
 import { LIFECYCLE_HOOKS } from 'lone-util/constants'
 import { isArray, isFunction } from 'lone-util'
+import { slave } from './schedule'
 
 export function initOptions (options) {
   normalizeHooks(options)
@@ -16,7 +17,9 @@ function normalizeHooks (options) {
   }
 }
 
-export function handleError () {}
+export function handleError (err, vm, info) {
+  console.error(`[warn]: ${`Error in ${info}: "${err.toString()}"`}`)
+}
 
 export function initData (vm) {
   const data = vm.$options.data
@@ -34,6 +37,19 @@ function getData (data, vm) {
   }
 }
 
-export function getChannel (componentId) {
-  return componentId.split('_')[0]
+export function sendInitCommandToPageComponent (vm) {
+  const reservedWords = [...LIFECYCLE_HOOKS, 'data', 'methods']
+  slave.send('component:inited', vm._id, {
+    data: vm.data,
+    methods: [...Object.keys(vm.$options).filter(key => !reservedWords.includes(key)), ...Object.keys(vm.$options.methods)]
+  })
+}
+
+export function triggerEvent (vm, method, event) {
+  const handler = vm.$options[method] || vm.$options.methods[method]
+  try {
+    handler.call(vm, event)
+  } catch (e) {
+    handleError(e, vm, `"${method}" event handler`)
+  }
 }

@@ -1,4 +1,4 @@
-import { initOptions, handleError, initData, getChannel } from './helper'
+import { initOptions, handleError, initData, sendInitCommandToPageComponent } from './helper'
 import events from './events'
 import router from './router'
 import { slave } from './schedule'
@@ -22,14 +22,12 @@ class LogicComponent {
     callHook(vm, 'beforeCreate')
     initData(vm)
     callHook(vm, 'created')
+    sendInitCommandToPageComponent(vm)
   }
 
   setData (data) {
     const oldData = this.data
-    slave.send('logic:data', getChannel(this._id), {
-      id: this._id,
-      data: Object.assign(oldData, data)
-    })
+    slave.send('component:data', this._id, Object.assign(oldData, data))
   }
 }
 

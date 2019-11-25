@@ -2,6 +2,7 @@ import { Slave } from 'lone-messenger'
 import { compileToFunctions } from 'lone-compiler-dom'
 import { patch } from 'lone-virtualdom'
 import { proxy } from 'lone-util'
+import initEventListener from './eventListener'
 
 let cid = 0
 
@@ -15,6 +16,19 @@ export default function init (Component) {
     vm.callHook(vm, 'page:inited')
     reaction(vm)
     vm.callHook(vm, 'page:ready')
+  }
+
+  proto._setData = function (data) {
+    const vm = this
+    vm._data = data
+    const keys = Object.keys(data)
+    let i = keys.length
+    while (i--) {
+      const key = keys[i]
+      proxy(vm, '_data', key)
+    }
+    const vnode = vm._render()
+    vm._update(vnode)
   }
 
   proto._render = function () {
@@ -52,7 +66,12 @@ function initOptions (vm, options, Component) {
 }
 
 function initMessenger (vm) {
-  vm.slave = new Slave({ env: 'postMessage', channel: vm.pid })
+  vm.slave = new Slave({ env: 'postMessage', channel: vm.id })
+
+  vm.slave.onmessage('component:inited', function ({ data: initData, methods }) {
+    initEventListener(vm, methods)
+    vm._setData(initData)
+  })
 }
 
 function initRender (vm) {
@@ -61,15 +80,7 @@ function initRender (vm) {
 }
 
 function reaction (vm) {
-  vm.slave.onmessage('ui:data', function ({ id, data }) {
-    vm._data = data
-    const keys = Object.keys(data)
-    let i = keys.length
-    while (i--) {
-      const key = keys[i]
-      proxy(vm, '_data', key)
-    }
-    const vnode = vm._render()
-    vm._update(vnode)
+  vm.slave.onmessage('component:data', function (data) {
+    vm._setData(data)
   })
 }

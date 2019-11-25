@@ -8,7 +8,7 @@ Lone.page({
           <ul>
             <li v-for="item in list">{{item}}</li>
           </ul>
-          <button id="navigate-btn" style="color:red;">On Success</button>
+          <button id="navigate-btn" style="color:red;" v-on:click="navigatorTo">navigatorTo: /test</button>
           <h2 :id="n" :style="{backgroundColor: 'red'}" style="color:blue;">N:{{ n }}</h2>
         </div>
       `

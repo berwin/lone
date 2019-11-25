@@ -1,6 +1,6 @@
 import { Slave } from 'lone-messenger'
 import { callHook, createComponentInstance } from './component'
-import { getChannel } from './helper'
+import { triggerEvent } from './helper'
 
 export const instanceStorage = new Map()
 export const slave = new Slave({ env: 'worker', channel: 'logic' })
@@ -9,12 +9,15 @@ const MESSENGER_EVENTS_UI = {
   'ui:inited': function ({ name, id }) {
     const vm = createComponentInstance(name, id)
     instanceStorage.set(id, vm)
-    slave.send('logic:data', getChannel(id), { id, data: vm.data })
   },
   'ui:ready': function ({ id }) {
     const vm = instanceStorage.get(id)
     callHook(vm, 'onReady')
     callHook(vm, 'mounted')
+  },
+  'ui:triggerEvent': function ({ id, method, event }) {
+    const vm = instanceStorage.get(id)
+    triggerEvent(vm, method, event)
   }
 }
 
