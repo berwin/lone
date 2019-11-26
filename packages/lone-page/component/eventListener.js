@@ -17,7 +17,9 @@ function getEvent (event) {
   return {
     type: event.type,
     timeStamp: event.timeStamp,
-    target: {},
+    target: {
+      value: event.target.value
+    },
     detail: {
       x: event.x,
       y: event.y
