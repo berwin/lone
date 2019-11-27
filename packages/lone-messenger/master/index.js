@@ -1,14 +1,12 @@
-import BaseMessenger from '../base/messenger'
-
 import Native from './native-messenger'
 import Post from './post-messenger'
 import WebWorker from './worker-messenger'
 
 const connection = Symbol('messenger:master#connection')
 
-export default class Master extends BaseMessenger {
+export default class Master {
   constructor (options) {
-    super()
+    this._messages = Object.create(null)
     this.options = options
     this.native = new Native()
     this.post = new Post()
@@ -21,6 +19,14 @@ export default class Master extends BaseMessenger {
     if (this.options.env === 'native') this.native.connection()
     if (this.options.env === 'worker') this.worker.connection(this.options.worker)
     this.post.connection()
+  }
+
+  onmessage (type, fn) {
+    (this._messages[type] || (this._messages[type] = [])).push(fn)
+  }
+
+  send (type, channel, data) {
+    this._postMessage(type, channel, data)
   }
 
   listen () {

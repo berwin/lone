@@ -27,7 +27,8 @@ class LogicComponent {
 
   setData (data) {
     const oldData = this.data
-    slave.send('component:data', this._id, Object.assign(oldData, data))
+    this.data = Object.assign(oldData, data)
+    slave.send('component:data', this._id, this.data)
   }
 }
 

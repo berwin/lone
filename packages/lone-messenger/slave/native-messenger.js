@@ -1,7 +1,19 @@
-import Messenger from '../base/native-messenger'
+import Messenger from './base'
 import { isObject } from 'lone-util'
 
 class NativeMessenger extends Messenger {
+  constructor () {
+    super()
+    this.listen()
+  }
+
+  _onmessage (fn) {
+    window.onSeNativeMessage = function (rawData) {
+      const data = JSON.parse(rawData)
+      fn(data)
+    }
+  }
+
   _postMessage (type, channel, data) {
     if (!isObject(data)) throw new TypeError('data must be plain object.')
     const bag = JSON.stringify({ type, channel, data })

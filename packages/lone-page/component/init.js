@@ -45,7 +45,7 @@ export default function init (Component) {
   }
 
   proto._update = function (vnode) {
-    const oldVnode = this._vnode || document.getElementById('app')
+    const oldVnode = this._vnode || this.options.el
     this._vnode = vnode
     patch(oldVnode, this._vnode)
   }
@@ -68,7 +68,7 @@ function initOptions (vm, options, Component) {
 function initMessenger (vm) {
   vm.slave = new Slave({ env: 'postMessage', channel: vm.id })
 
-  vm.slave.onmessage('component:inited', function ({ data: initData, methods }) {
+  vm.slave.onmessage('component:inited', function ({ data: initData = {}, methods = [] }) {
     initEventListener(vm, methods)
     vm._setData(initData)
   })

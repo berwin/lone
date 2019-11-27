@@ -10,8 +10,13 @@ Lone.page({
           </ul>
           <button id="navigate-btn" style="color:red;" v-on:click="navigatorTo">navigatorTo: /test</button>
           <h2 :id="n" :style="{backgroundColor: 'red'}" style="color:blue;">N:{{ n }}</h2>
+          <ad />
         </div>
       `
+    },
+    {
+      name: 'ad',
+      template: `<div>我是广告</div>`
     },
     {
       name: 'test2',
