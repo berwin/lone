@@ -31,9 +31,6 @@ Lone.logic('test', {
       vm.setData({
         n: 2
       })
-      setTimeout(_ => {
-        vm.navigateTo('/test')
-      }, 2000)
     }, 1000)
     console.log('app.main.js: mounted~~~')
   },
@@ -60,3 +57,5 @@ Lone.logic('test2', {
     }, 2000)
   }
 })
+
+Lone.logic('ad', {})

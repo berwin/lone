@@ -1,4 +1,4 @@
-import Messenger from '../base/messenger'
+import Messenger from './base'
 
 class WorkerMessenger extends Messenger {
   constructor () {

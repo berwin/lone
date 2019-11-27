@@ -87,124 +87,6 @@ var Lone = typeof Lone === "object" ? Lone : {}; Lone["ui"] =
 /************************************************************************/
 /******/ ({
 
-/***/ "./packages/lone-messenger/base/messenger.js":
-/*!***************************************************!*\
-  !*** ./packages/lone-messenger/base/messenger.js ***!
-  \***************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-class Messenger {
-  constructor() {
-    if (new.target === Messenger) {
-      throw new TypeError('Messenger is only used for inheritance, not allowed to use directly.');
-    }
-
-    this._messages = Object.create(null);
-  }
-
-  onmessage(type, fn) {
-    (this._messages[type] || (this._messages[type] = [])).push(fn);
-  }
-
-  send(type, channel, data) {
-    this._postMessage(type, channel, data);
-  }
-
-  listen() {
-    this._onmessage(evt => {
-      const cbs = this._messages[evt.type];
-      if (!cbs) return;
-      let i = cbs.length;
-
-      while (i--) {
-        cbs[i].call(evt, evt.data);
-      }
-    });
-  }
-
-  _postMessage() {
-    throw new TypeError('Subclass of Messenger doesn\'t provide the \'_postMessage\' method.');
-  }
-
-  _onmessage() {
-    throw new TypeError('Subclass of Messenger doesn\'t provide the \'_onmessage\' method.');
-  }
-
-}
-
-/* harmony default export */ __webpack_exports__["default"] = (new Proxy(Messenger, {
-  apply() {
-    throw new TypeError('Messenger is only used for inheritance, not allowed to use directly.');
-  }
-
-}));
-
-/***/ }),
-
-/***/ "./packages/lone-messenger/base/native-messenger.js":
-/*!**********************************************************!*\
-  !*** ./packages/lone-messenger/base/native-messenger.js ***!
-  \**********************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _messenger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./messenger */ "./packages/lone-messenger/base/messenger.js");
-
-
-class NativeMessenger extends _messenger__WEBPACK_IMPORTED_MODULE_0__["default"] {
-  constructor() {
-    super();
-    this.listen();
-  }
-
-  _onmessage(fn) {
-    window.onSeNativeMessage = function (rawData) {
-      const data = JSON.parse(rawData);
-      fn(data);
-    };
-  }
-
-}
-
-/* harmony default export */ __webpack_exports__["default"] = (NativeMessenger);
-
-/***/ }),
-
-/***/ "./packages/lone-messenger/base/post-messenger.js":
-/*!********************************************************!*\
-  !*** ./packages/lone-messenger/base/post-messenger.js ***!
-  \********************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _messenger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./messenger */ "./packages/lone-messenger/base/messenger.js");
-
-
-class PostMessenger extends _messenger__WEBPACK_IMPORTED_MODULE_0__["default"] {
-  constructor() {
-    super();
-    this.listen();
-  }
-
-  _onmessage(fn) {
-    window.addEventListener('message', function (evt) {
-      fn.call(evt, evt.data);
-    });
-  }
-
-}
-
-/* harmony default export */ __webpack_exports__["default"] = (PostMessenger);
-
-/***/ }),
-
 /***/ "./packages/lone-messenger/index.js":
 /*!******************************************!*\
   !*** ./packages/lone-messenger/index.js ***!
@@ -236,22 +118,20 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Master; });
-/* harmony import */ var _base_messenger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../base/messenger */ "./packages/lone-messenger/base/messenger.js");
-/* harmony import */ var _native_messenger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./native-messenger */ "./packages/lone-messenger/master/native-messenger.js");
-/* harmony import */ var _post_messenger__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./post-messenger */ "./packages/lone-messenger/master/post-messenger.js");
-/* harmony import */ var _worker_messenger__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./worker-messenger */ "./packages/lone-messenger/master/worker-messenger.js");
-
+/* harmony import */ var _native_messenger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./native-messenger */ "./packages/lone-messenger/master/native-messenger.js");
+/* harmony import */ var _post_messenger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./post-messenger */ "./packages/lone-messenger/master/post-messenger.js");
+/* harmony import */ var _worker_messenger__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./worker-messenger */ "./packages/lone-messenger/master/worker-messenger.js");
 
 
 
 const connection = Symbol('messenger:master#connection');
-class Master extends _base_messenger__WEBPACK_IMPORTED_MODULE_0__["default"] {
+class Master {
   constructor(options) {
-    super();
+    this._messages = Object.create(null);
     this.options = options;
-    this.native = new _native_messenger__WEBPACK_IMPORTED_MODULE_1__["default"]();
-    this.post = new _post_messenger__WEBPACK_IMPORTED_MODULE_2__["default"]();
-    this.worker = new _worker_messenger__WEBPACK_IMPORTED_MODULE_3__["default"]();
+    this.native = new _native_messenger__WEBPACK_IMPORTED_MODULE_0__["default"]();
+    this.post = new _post_messenger__WEBPACK_IMPORTED_MODULE_1__["default"]();
+    this.worker = new _worker_messenger__WEBPACK_IMPORTED_MODULE_2__["default"]();
     this[connection]();
     this.listen();
   }
@@ -260,6 +140,14 @@ class Master extends _base_messenger__WEBPACK_IMPORTED_MODULE_0__["default"] {
     if (this.options.env === 'native') this.native.connection();
     if (this.options.env === 'worker') this.worker.connection(this.options.worker);
     this.post.connection();
+  }
+
+  onmessage(type, fn) {
+    (this._messages[type] || (this._messages[type] = [])).push(fn);
+  }
+
+  send(type, channel, data) {
+    this._postMessage(type, channel, data);
   }
 
   listen() {
@@ -372,6 +260,7 @@ class PostMessenger {
     if (!slave) throw new Error('No Slave Source, please connection first!');
     slave.postMessage({
       type,
+      channel,
       data
     }, slave.origin);
   }
@@ -415,6 +304,63 @@ class WorkerMessenger {
 
 /***/ }),
 
+/***/ "./packages/lone-messenger/slave/base.js":
+/*!***********************************************!*\
+  !*** ./packages/lone-messenger/slave/base.js ***!
+  \***********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+class Messenger {
+  constructor() {
+    if (new.target === Messenger) {
+      throw new TypeError('Messenger is only used for inheritance, not allowed to use directly.');
+    }
+
+    this._messages = Object.create(null);
+  }
+
+  onmessage(type, fn) {
+    (this._messages[type] || (this._messages[type] = [])).push(fn);
+  }
+
+  send(type, channel, data) {
+    this._postMessage(type, channel, data);
+  }
+
+  listen() {
+    this._onmessage(evt => {
+      const cbs = this._messages[evt.type];
+      if (!cbs) return;
+      let i = cbs.length;
+
+      while (i--) {
+        cbs[i].call(evt, evt.data);
+      }
+    });
+  }
+
+  _postMessage() {
+    throw new TypeError('Subclass of Messenger doesn\'t provide the \'_postMessage\' method.');
+  }
+
+  _onmessage() {
+    throw new TypeError('Subclass of Messenger doesn\'t provide the \'_onmessage\' method.');
+  }
+
+}
+
+/* harmony default export */ __webpack_exports__["default"] = (new Proxy(Messenger, {
+  apply() {
+    throw new TypeError('Messenger is only used for inheritance, not allowed to use directly.');
+  }
+
+}));
+
+/***/ }),
+
 /***/ "./packages/lone-messenger/slave/index.js":
 /*!************************************************!*\
   !*** ./packages/lone-messenger/slave/index.js ***!
@@ -454,12 +400,24 @@ const slaveMap = {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _base_native_messenger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../base/native-messenger */ "./packages/lone-messenger/base/native-messenger.js");
+/* harmony import */ var _base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./base */ "./packages/lone-messenger/slave/base.js");
 /* harmony import */ var lone_util__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! lone-util */ "./packages/lone-util/index.js");
 
 
 
-class NativeMessenger extends _base_native_messenger__WEBPACK_IMPORTED_MODULE_0__["default"] {
+class NativeMessenger extends _base__WEBPACK_IMPORTED_MODULE_0__["default"] {
+  constructor() {
+    super();
+    this.listen();
+  }
+
+  _onmessage(fn) {
+    window.onSeNativeMessage = function (rawData) {
+      const data = JSON.parse(rawData);
+      fn(data);
+    };
+  }
+
   _postMessage(type, channel, data) {
     if (!Object(lone_util__WEBPACK_IMPORTED_MODULE_1__["isObject"])(data)) throw new TypeError('data must be plain object.');
     const bag = JSON.stringify({
@@ -485,19 +443,29 @@ class NativeMessenger extends _base_native_messenger__WEBPACK_IMPORTED_MODULE_0_
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _base_post_messenger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../base/post-messenger */ "./packages/lone-messenger/base/post-messenger.js");
+/* harmony import */ var _base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./base */ "./packages/lone-messenger/slave/base.js");
 
 const connection = Symbol('messenger:slave#connection');
 
-class PostMessenger extends _base_post_messenger__WEBPACK_IMPORTED_MODULE_0__["default"] {
+class PostMessenger extends _base__WEBPACK_IMPORTED_MODULE_0__["default"] {
   constructor(options) {
     super();
     this.channel = options.channel;
+    this.listen();
     this[connection]();
   }
 
   [connection]() {
     this._postMessage('connection', this.channel);
+  }
+
+  _onmessage(fn) {
+    const vm = this;
+    window.addEventListener('message', function (evt) {
+      if (evt.data.channel === vm.channel) {
+        fn.call(evt, evt.data);
+      }
+    });
   }
 
   _postMessage(type, channel, data) {
@@ -524,10 +492,10 @@ class PostMessenger extends _base_post_messenger__WEBPACK_IMPORTED_MODULE_0__["d
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _base_messenger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../base/messenger */ "./packages/lone-messenger/base/messenger.js");
+/* harmony import */ var _base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./base */ "./packages/lone-messenger/slave/base.js");
 
 
-class WorkerMessenger extends _base_messenger__WEBPACK_IMPORTED_MODULE_0__["default"] {
+class WorkerMessenger extends _base__WEBPACK_IMPORTED_MODULE_0__["default"] {
   constructor() {
     super();
     this.listen();

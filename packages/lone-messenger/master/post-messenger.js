@@ -24,7 +24,7 @@ class PostMessenger {
   send (type, channel, data) {
     const slave = this[source][channel]
     if (!slave) throw new Error('No Slave Source, please connection first!')
-    slave.postMessage({ type, data }, slave.origin)
+    slave.postMessage({ type, channel, data }, slave.origin)
   }
 }
 

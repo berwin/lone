@@ -40,8 +40,8 @@ function getData (data, vm) {
 export function sendInitCommandToPageComponent (vm) {
   const reservedWords = [...LIFECYCLE_HOOKS, 'data', 'methods']
   slave.send('component:inited', vm._id, {
-    data: vm.data,
-    methods: [...Object.keys(vm.$options).filter(key => !reservedWords.includes(key)), ...Object.keys(vm.$options.methods)]
+    data: vm.data || {},
+    methods: [...Object.keys(vm.$options).filter(key => !reservedWords.includes(key)), ...Object.keys(vm.$options.methods || {})]
   })
 }
 
