@@ -1,9 +1,10 @@
 import { LIFECYCLE_HOOKS } from 'lone-util/constants'
-import { isArray, isFunction } from 'lone-util'
+import { isArray, camelize } from 'lone-util'
 import { slave } from './schedule'
 
 export function initOptions (options) {
   normalizeHooks(options)
+  normalizePropsData(options)
   return options
 }
 
@@ -17,24 +18,32 @@ function normalizeHooks (options) {
   }
 }
 
+function normalizePropsData (options) {
+  const props = options.props
+  if (!props) return
+  const res = {}
+  let i, val, name
+  if (isArray(props)) {
+    i = props.length
+    while (i--) {
+      val = props[i]
+      if (typeof val === 'string') {
+        name = camelize(val)
+        res[name] = { type: null }
+      } else if (process.env.NODE_ENV !== 'production') {
+        warn('props must be strings when using array syntax.')
+      }
+    }
+  }
+  options.props = res
+}
+
+export function warn (msg) {
+  console.error(`[warn]: ${msg}`)
+}
+
 export function handleError (err, vm, info) {
   console.error(`[warn]: ${`Error in ${info}: "${err.toString()}"`}`)
-}
-
-export function initData (vm) {
-  const data = vm.$options.data
-  vm.data = isFunction(data)
-    ? getData(data, vm)
-    : data
-}
-
-function getData (data, vm) {
-  try {
-    return data.call(vm, vm)
-  } catch (e) {
-    handleError(e, vm, 'data()')
-    return {}
-  }
 }
 
 export function sendInitCommandToPageComponent (vm) {

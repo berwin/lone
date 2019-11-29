@@ -13,7 +13,7 @@ export default function init (Component) {
     initOptions(vm, options, Component)
     initMessenger(vm)
     initRender(vm)
-    vm.callHook(vm, 'page:inited')
+    vm.callHook(vm, 'page:inited', { propsData: vm.propsData })
     reaction(vm)
     vm.callHook(vm, 'page:ready')
   }
@@ -50,8 +50,8 @@ export default function init (Component) {
     patch(oldVnode, this._vnode)
   }
 
-  proto.callHook = function (vm, hook) {
-    vm.slave.send(hook, 'logic', { name: vm.name, id: vm.id })
+  proto.callHook = function (vm, hook, rest = {}) {
+    vm.slave.send(hook, 'logic', { name: vm.name, id: vm.id, ...rest })
   }
 }
 
@@ -63,6 +63,7 @@ function initOptions (vm, options, Component) {
   const config = Component.options.components.find(item => item.name === vm.options.name)
   vm.name = config.name
   vm.template = config.template
+  vm.propsData = options.propsData || {}
 }
 
 function initMessenger (vm) {

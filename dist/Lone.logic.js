@@ -87,85 +87,10 @@ var Lone = typeof Lone === "object" ? Lone : {}; Lone["logic"] =
 /************************************************************************/
 /******/ ({
 
-/***/ "./packages/lone-logic/component.js":
-/*!******************************************!*\
-  !*** ./packages/lone-logic/component.js ***!
-  \******************************************/
-/*! exports provided: default, createComponentInstance, callHook */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Component; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createComponentInstance", function() { return createComponentInstance; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "callHook", function() { return callHook; });
-/* harmony import */ var _helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./helper */ "./packages/lone-logic/helper.js");
-/* harmony import */ var _events__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./events */ "./packages/lone-logic/events.js");
-/* harmony import */ var _router__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./router */ "./packages/lone-logic/router.js");
-/* harmony import */ var _schedule__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./schedule */ "./packages/lone-logic/schedule.js");
-var _class;
-
-
-
-
-
-const componentStorage = new Map();
-const init = Symbol('lone-logic:init');
-
-let LogicComponent = Object(_events__WEBPACK_IMPORTED_MODULE_1__["default"])(_class = Object(_router__WEBPACK_IMPORTED_MODULE_2__["default"])(_class = class LogicComponent {
-  constructor(id, options) {
-    const vm = this;
-    vm._id = id;
-    vm[init](options);
-  }
-
-  [init](options) {
-    const vm = this;
-    vm._events = Object.create(null);
-    vm.$options = Object(_helper__WEBPACK_IMPORTED_MODULE_0__["initOptions"])(options);
-    callHook(vm, 'beforeCreate');
-    Object(_helper__WEBPACK_IMPORTED_MODULE_0__["initData"])(vm);
-    callHook(vm, 'created');
-    Object(_helper__WEBPACK_IMPORTED_MODULE_0__["sendInitCommandToPageComponent"])(vm);
-  }
-
-  setData(data) {
-    const oldData = this.data;
-    this.data = Object.assign(oldData, data);
-    _schedule__WEBPACK_IMPORTED_MODULE_3__["slave"].send('component:data', this._id, this.data);
-  }
-
-}) || _class) || _class;
-
-function Component(name, options) {
-  componentStorage.set(name, options);
-}
-function createComponentInstance(name, id) {
-  const options = componentStorage.get(name);
-  return new LogicComponent(id, options);
-}
-function callHook(vm, hook) {
-  const handlers = vm.$options[hook];
-
-  if (handlers) {
-    for (let i = 0, j = handlers.length; i < j; i++) {
-      try {
-        handlers[i].call(vm);
-      } catch (e) {
-        Object(_helper__WEBPACK_IMPORTED_MODULE_0__["handleError"])(e, vm, `${hook} hook`);
-      }
-    }
-  }
-
-  vm.$emit('hook:' + hook);
-}
-
-/***/ }),
-
-/***/ "./packages/lone-logic/events.js":
-/*!***************************************!*\
-  !*** ./packages/lone-logic/events.js ***!
-  \***************************************/
+/***/ "./packages/lone-logic/component/events.js":
+/*!*************************************************!*\
+  !*** ./packages/lone-logic/component/events.js ***!
+  \*************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -173,7 +98,7 @@ function callHook(vm, hook) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return events; });
 /* harmony import */ var lone_util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lone-util */ "./packages/lone-util/index.js");
-/* harmony import */ var _helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./helper */ "./packages/lone-logic/helper.js");
+/* harmony import */ var _helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../helper */ "./packages/lone-logic/helper.js");
 
 
 function events(Lone) {
@@ -267,18 +192,173 @@ function emit(event) {
 
 /***/ }),
 
+/***/ "./packages/lone-logic/component/index.js":
+/*!************************************************!*\
+  !*** ./packages/lone-logic/component/index.js ***!
+  \************************************************/
+/*! exports provided: default, createComponentInstance, callHook */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Component; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createComponentInstance", function() { return createComponentInstance; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "callHook", function() { return callHook; });
+/* harmony import */ var _helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../helper */ "./packages/lone-logic/helper.js");
+/* harmony import */ var _state__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./state */ "./packages/lone-logic/component/state.js");
+/* harmony import */ var _events__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./events */ "./packages/lone-logic/component/events.js");
+/* harmony import */ var _router__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./router */ "./packages/lone-logic/component/router.js");
+/* harmony import */ var _schedule__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../schedule */ "./packages/lone-logic/schedule.js");
+var _class;
+
+
+
+
+
+
+const componentStorage = new Map();
+const init = Symbol('lone-logic:init');
+
+let LogicComponent = Object(_events__WEBPACK_IMPORTED_MODULE_2__["default"])(_class = Object(_router__WEBPACK_IMPORTED_MODULE_3__["default"])(_class = class LogicComponent {
+  constructor(id, options) {
+    const vm = this;
+    vm._id = id;
+    vm[init](options);
+  }
+
+  [init](options) {
+    const vm = this;
+    vm._events = Object.create(null);
+    vm.$options = Object(_helper__WEBPACK_IMPORTED_MODULE_0__["initOptions"])(options);
+    callHook(vm, 'beforeCreate');
+    Object(_state__WEBPACK_IMPORTED_MODULE_1__["default"])(vm);
+    callHook(vm, 'created');
+    Object(_helper__WEBPACK_IMPORTED_MODULE_0__["sendInitCommandToPageComponent"])(vm);
+  }
+
+  setData(data) {
+    const oldData = this.data;
+    this.data = Object.assign(oldData, data);
+    _schedule__WEBPACK_IMPORTED_MODULE_4__["slave"].send('component:data', this._id, this.data);
+  }
+
+}) || _class) || _class;
+
+function Component(name, options) {
+  componentStorage.set(name, options);
+}
+function createComponentInstance(name, id, propsData) {
+  const options = componentStorage.get(name);
+  options.propsData = propsData;
+  return new LogicComponent(id, options);
+}
+function callHook(vm, hook) {
+  const handlers = vm.$options[hook];
+
+  if (handlers) {
+    for (let i = 0, j = handlers.length; i < j; i++) {
+      try {
+        handlers[i].call(vm);
+      } catch (e) {
+        Object(_helper__WEBPACK_IMPORTED_MODULE_0__["handleError"])(e, vm, `${hook} hook`);
+      }
+    }
+  }
+
+  vm.$emit('hook:' + hook);
+}
+
+/***/ }),
+
+/***/ "./packages/lone-logic/component/router.js":
+/*!*************************************************!*\
+  !*** ./packages/lone-logic/component/router.js ***!
+  \*************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return events; });
+/* harmony import */ var _schedule__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../schedule */ "./packages/lone-logic/schedule.js");
+
+function events(Lone) {
+  const proto = Lone.prototype;
+  proto.navigateTo = navigateTo;
+  proto.redirectTo = redirectTo;
+  proto.navigateBack = navigateBack;
+}
+
+function navigateTo(url) {
+  _schedule__WEBPACK_IMPORTED_MODULE_0__["slave"].send('logic:navigateTo', null, {
+    url
+  });
+}
+
+function redirectTo(url) {
+  _schedule__WEBPACK_IMPORTED_MODULE_0__["slave"].send('logic:redirectTo', null, {
+    url
+  });
+}
+
+function navigateBack(delta) {
+  _schedule__WEBPACK_IMPORTED_MODULE_0__["slave"].send('logic:navigateBack', null, {
+    delta
+  });
+}
+
+/***/ }),
+
+/***/ "./packages/lone-logic/component/state.js":
+/*!************************************************!*\
+  !*** ./packages/lone-logic/component/state.js ***!
+  \************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return initState; });
+/* harmony import */ var lone_util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lone-util */ "./packages/lone-util/index.js");
+/* harmony import */ var _helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../helper */ "./packages/lone-logic/helper.js");
+
+
+function initState(vm) {
+  initProps(vm);
+  initData(vm);
+}
+
+function initData(vm) {
+  const data = vm.$options.data;
+  vm.data = Object(lone_util__WEBPACK_IMPORTED_MODULE_0__["isFunction"])(data) ? getData(data, vm) : data;
+}
+
+function getData(data, vm) {
+  try {
+    return data.call(vm, vm);
+  } catch (e) {
+    Object(_helper__WEBPACK_IMPORTED_MODULE_1__["handleError"])(e, vm, 'data()');
+    return {};
+  }
+}
+
+function initProps(vm) {// ...
+}
+
+/***/ }),
+
 /***/ "./packages/lone-logic/helper.js":
 /*!***************************************!*\
   !*** ./packages/lone-logic/helper.js ***!
   \***************************************/
-/*! exports provided: initOptions, handleError, initData, sendInitCommandToPageComponent, triggerEvent */
+/*! exports provided: initOptions, warn, handleError, sendInitCommandToPageComponent, triggerEvent */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "initOptions", function() { return initOptions; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "warn", function() { return warn; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "handleError", function() { return handleError; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "initData", function() { return initData; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "sendInitCommandToPageComponent", function() { return sendInitCommandToPageComponent; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "triggerEvent", function() { return triggerEvent; });
 /* harmony import */ var lone_util_constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lone-util/constants */ "./packages/lone-util/constants.js");
@@ -289,6 +369,7 @@ __webpack_require__.r(__webpack_exports__);
 
 function initOptions(options) {
   normalizeHooks(options);
+  normalizePropsData(options);
   return options;
 }
 
@@ -300,23 +381,38 @@ function normalizeHooks(options) {
   }
 }
 
+function normalizePropsData(options) {
+  const props = options.props;
+  if (!props) return;
+  const res = {};
+  let i, val, name;
+
+  if (Object(lone_util__WEBPACK_IMPORTED_MODULE_1__["isArray"])(props)) {
+    i = props.length;
+
+    while (i--) {
+      val = props[i];
+
+      if (typeof val === 'string') {
+        name = Object(lone_util__WEBPACK_IMPORTED_MODULE_1__["camelize"])(val);
+        res[name] = {
+          type: null
+        };
+      } else if (true) {
+        warn('props must be strings when using array syntax.');
+      }
+    }
+  }
+
+  options.props = res;
+}
+
+function warn(msg) {
+  console.error(`[warn]: ${msg}`);
+}
 function handleError(err, vm, info) {
   console.error(`[warn]: ${`Error in ${info}: "${err.toString()}"`}`);
 }
-function initData(vm) {
-  const data = vm.$options.data;
-  vm.data = Object(lone_util__WEBPACK_IMPORTED_MODULE_1__["isFunction"])(data) ? getData(data, vm) : data;
-}
-
-function getData(data, vm) {
-  try {
-    return data.call(vm, vm);
-  } catch (e) {
-    handleError(e, vm, 'data()');
-    return {};
-  }
-}
-
 function sendInitCommandToPageComponent(vm) {
   const reservedWords = [...lone_util_constants__WEBPACK_IMPORTED_MODULE_0__["LIFECYCLE_HOOKS"], 'data', 'methods'];
   _schedule__WEBPACK_IMPORTED_MODULE_2__["slave"].send('component:inited', vm._id, {
@@ -346,50 +442,11 @@ function triggerEvent(vm, method, event) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _schedule__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./schedule */ "./packages/lone-logic/schedule.js");
-/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./component */ "./packages/lone-logic/component.js");
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./component */ "./packages/lone-logic/component/index.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "default", function() { return _component__WEBPACK_IMPORTED_MODULE_1__["default"]; });
 
 
 
-
-/***/ }),
-
-/***/ "./packages/lone-logic/router.js":
-/*!***************************************!*\
-  !*** ./packages/lone-logic/router.js ***!
-  \***************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return events; });
-/* harmony import */ var _schedule__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./schedule */ "./packages/lone-logic/schedule.js");
-
-function events(Lone) {
-  const proto = Lone.prototype;
-  proto.navigateTo = navigateTo;
-  proto.redirectTo = redirectTo;
-  proto.navigateBack = navigateBack;
-}
-
-function navigateTo(url) {
-  _schedule__WEBPACK_IMPORTED_MODULE_0__["slave"].send('logic:navigateTo', null, {
-    url
-  });
-}
-
-function redirectTo(url) {
-  _schedule__WEBPACK_IMPORTED_MODULE_0__["slave"].send('logic:redirectTo', null, {
-    url
-  });
-}
-
-function navigateBack(delta) {
-  _schedule__WEBPACK_IMPORTED_MODULE_0__["slave"].send('logic:navigateBack', null, {
-    delta
-  });
-}
 
 /***/ }),
 
@@ -405,7 +462,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "instanceStorage", function() { return instanceStorage; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "slave", function() { return slave; });
 /* harmony import */ var lone_messenger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lone-messenger */ "./packages/lone-messenger/index.js");
-/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./component */ "./packages/lone-logic/component.js");
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./component */ "./packages/lone-logic/component/index.js");
 /* harmony import */ var _helper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./helper */ "./packages/lone-logic/helper.js");
 
 
@@ -418,9 +475,10 @@ const slave = new lone_messenger__WEBPACK_IMPORTED_MODULE_0__["Slave"]({
 const MESSENGER_EVENTS_UI = {
   'ui:inited': function ({
     name,
-    id
+    id,
+    propsData
   }) {
-    const vm = Object(_component__WEBPACK_IMPORTED_MODULE_1__["createComponentInstance"])(name, id);
+    const vm = Object(_component__WEBPACK_IMPORTED_MODULE_1__["createComponentInstance"])(name, id, propsData);
     instanceStorage.set(id, vm);
   },
   'ui:ready': function ({

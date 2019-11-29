@@ -1,7 +1,8 @@
-import { initOptions, handleError, initData, sendInitCommandToPageComponent } from './helper'
+import { initOptions, handleError, sendInitCommandToPageComponent } from '../helper'
+import initData from './state'
 import events from './events'
 import router from './router'
-import { slave } from './schedule'
+import { slave } from '../schedule'
 
 const componentStorage = new Map()
 const init = Symbol('lone-logic:init')
@@ -36,8 +37,9 @@ export default function Component (name, options) {
   componentStorage.set(name, options)
 }
 
-export function createComponentInstance (name, id) {
+export function createComponentInstance (name, id, propsData) {
   const options = componentStorage.get(name)
+  options.propsData = propsData
   return new LogicComponent(id, options)
 }
 

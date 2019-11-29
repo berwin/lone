@@ -3,10 +3,23 @@ import Component from 'lone-page/component'
 
 export default {
   create: function (oldVnode, vnode) {
-    const isComponent = Component.options.components.find(component => component.name === vnode.sel)
-    if (!isReservedTag(vnode.sel) && isComponent) {
-      // eslint-disable-next-line
-      new Component({ name: vnode.sel, el: vnode.elm })
+    if (!isReservedTag(vnode.sel) && isComponent(vnode.sel)) {
+      const component = new Component({ name: vnode.sel, el: vnode.elm, propsData: vnode.data.attrs })
+      vnode.elm.component = component
+    }
+  },
+  update (oldVnode, vnode) {
+    if (!isReservedTag(vnode.sel) && isComponent(vnode.sel)) {
+      const oldAttrs = oldVnode.data.attrs
+      const attrs = vnode.data.attrs
+      if (!oldAttrs && !attrs) return
+      if (JSON.stringify(oldAttrs) === JSON.stringify(attrs)) return
+      const component = vnode.elm.component
+      console.log(component)
     }
   }
+}
+
+function isComponent (name) {
+  return Component.options.components.find(component => component.name === name)
 }

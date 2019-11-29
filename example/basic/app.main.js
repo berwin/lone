@@ -49,13 +49,18 @@ Lone.logic('test', {
 })
 
 Lone.logic('test2', {
-  data: () => ({ n: 0 }),
-  methods: {},
-  mounted () {
-    setTimeout(_ => {
-      this.navigateBack()
-    }, 2000)
+  back () {
+    this.navigateBack()
   }
 })
 
-Lone.logic('ad', {})
+Lone.logic('ad', {
+  data: () => ({ n: 0 }),
+  mounted () {
+    setTimeout(_ => {
+      this.setData({
+        n: 1
+      })
+    }, 1000)
+  }
+})

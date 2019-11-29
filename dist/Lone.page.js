@@ -3911,7 +3911,9 @@ function init(Component) {
     initOptions(vm, options, Component);
     initMessenger(vm);
     initRender(vm);
-    vm.callHook(vm, 'page:inited');
+    vm.callHook(vm, 'page:inited', {
+      propsData: vm.propsData
+    });
     reaction(vm);
     vm.callHook(vm, 'page:ready');
   };
@@ -3953,10 +3955,11 @@ function init(Component) {
     Object(lone_virtualdom__WEBPACK_IMPORTED_MODULE_2__["patch"])(oldVnode, this._vnode);
   };
 
-  proto.callHook = function (vm, hook) {
+  proto.callHook = function (vm, hook, rest = {}) {
     vm.slave.send(hook, 'logic', {
       name: vm.name,
-      id: vm.id
+      id: vm.id,
+      ...rest
     });
   };
 }
@@ -3969,6 +3972,7 @@ function initOptions(vm, options, Component) {
   const config = Component.options.components.find(item => item.name === vm.options.name);
   vm.name = config.name;
   vm.template = config.template;
+  vm.propsData = options.propsData || {};
 }
 
 function initMessenger(vm) {
@@ -4650,17 +4654,32 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   create: function (oldVnode, vnode) {
-    const isComponent = lone_page_component__WEBPACK_IMPORTED_MODULE_1__["default"].options.components.find(component => component.name === vnode.sel);
-
-    if (!Object(lone_util_web__WEBPACK_IMPORTED_MODULE_0__["isReservedTag"])(vnode.sel) && isComponent) {
-      // eslint-disable-next-line
-      new lone_page_component__WEBPACK_IMPORTED_MODULE_1__["default"]({
+    if (!Object(lone_util_web__WEBPACK_IMPORTED_MODULE_0__["isReservedTag"])(vnode.sel) && isComponent(vnode.sel)) {
+      const component = new lone_page_component__WEBPACK_IMPORTED_MODULE_1__["default"]({
         name: vnode.sel,
-        el: vnode.elm
+        el: vnode.elm,
+        propsData: vnode.data.attrs
       });
+      vnode.elm.component = component;
+    }
+  },
+
+  update(oldVnode, vnode) {
+    if (!Object(lone_util_web__WEBPACK_IMPORTED_MODULE_0__["isReservedTag"])(vnode.sel) && isComponent(vnode.sel)) {
+      const oldAttrs = oldVnode.data.attrs;
+      const attrs = vnode.data.attrs;
+      if (!oldAttrs && !attrs) return;
+      if (JSON.stringify(oldAttrs) === JSON.stringify(attrs)) return;
+      const component = vnode.elm.component;
+      console.log(component);
     }
   }
+
 });
+
+function isComponent(name) {
+  return lone_page_component__WEBPACK_IMPORTED_MODULE_1__["default"].options.components.find(component => component.name === name);
+}
 
 /***/ }),
 

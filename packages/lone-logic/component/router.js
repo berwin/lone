@@ -1,4 +1,4 @@
-import { slave } from './schedule'
+import { slave } from '../schedule'
 
 export default function events (Lone) {
   const proto = Lone.prototype

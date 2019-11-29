@@ -1,5 +1,5 @@
 import { isArray } from 'lone-util'
-import { handleError } from './helper'
+import { handleError } from '../helper'
 
 export default function events (Lone) {
   const proto = Lone.prototype
