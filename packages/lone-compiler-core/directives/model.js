@@ -32,7 +32,8 @@ export function genComponentModel (el, value, modifiers) {
 export function genAssignmentCode (value, assignment) {
   const res = parseModel(value)
   if (res.key === null) {
-    return `${value}=${assignment}`
+    // return `${value}=${assignment}` change to send a worker message
+    return `slave.send('page:vmodelData', 'logic', {id: id, data:{${value}: ${assignment}}})`
   } else {
     return `$set(${res.exp}, ${res.key}, ${assignment})`
   }
