@@ -250,6 +250,7 @@ function Component(name, options) {
 function createComponentInstance(name, id, propsData) {
   const options = componentStorage.get(name);
   options.propsData = propsData;
+  options.name = name;
   return new LogicComponent(id, options);
 }
 function callHook(vm, hook) {
@@ -324,13 +325,24 @@ __webpack_require__.r(__webpack_exports__);
 
 
 function initState(vm) {
+  vm.data = Object.create(null);
   initProps(vm);
   initData(vm);
 }
 
 function initData(vm) {
-  const data = vm.$options.data;
-  vm.data = Object(lone_util__WEBPACK_IMPORTED_MODULE_0__["isFunction"])(data) ? getData(data, vm) : data;
+  const rawData = vm.$options.data;
+  const data = Object(lone_util__WEBPACK_IMPORTED_MODULE_0__["isFunction"])(rawData) ? getData(rawData, vm) : rawData;
+
+  for (const name in data) {
+    if (name in vm.data) {
+      Object(_helper__WEBPACK_IMPORTED_MODULE_1__["warn"])('"data.' + name + '": already exists, Props and data are not recommended to have the same name', vm);
+    }
+
+    if (!(name in vm.data)) {
+      vm.data[name] = data[name];
+    }
+  }
 }
 
 function getData(data, vm) {
@@ -342,7 +354,118 @@ function getData(data, vm) {
   }
 }
 
-function initProps(vm) {// ...
+function initProps(vm) {
+  const propsOptions = vm.$options.props;
+  if (!propsOptions) return;
+
+  for (const key in propsOptions) {
+    const propsData = vm.$options.propsData;
+    const value = validateProp(key, propsOptions, propsData, vm);
+    vm.data[key] = value;
+  }
+}
+
+function validateProp(key, propsOptions, propsData, vm) {
+  const prop = propsOptions[key];
+  const absent = !(key in propsData);
+  let value = propsData[key];
+
+  if (isType(Boolean, prop.type)) {
+    if (absent && !('default' in prop)) {
+      // absent = false
+      value = false;
+    } else if (!isType(String, prop.type) && (value === '' || value === Object(lone_util__WEBPACK_IMPORTED_MODULE_0__["hyphenate"])(key))) {
+      // '' = true
+      value = true;
+    }
+  } // check default value
+
+
+  if (value === undefined) {
+    value = getPropDefaultValue(vm, prop, key);
+  }
+
+  assertProp(prop, key, value, vm, absent);
+  return value;
+}
+/**
+ * Get the default value of a prop.
+ */
+
+
+function getPropDefaultValue(vm, prop, key) {
+  // no default, return undefined
+  if (!('default' in prop)) {
+    return undefined;
+  }
+
+  const def = prop.default; // call factory function for non-Function types
+  // a value is Function if its prototype is function even across different execution context
+
+  return typeof def === 'function' && getType(prop.type) !== 'Function' ? def.call(vm) : def;
+}
+
+function assertProp(prop, name, value, vm, absent) {
+  if (prop.required && absent) {
+    Object(_helper__WEBPACK_IMPORTED_MODULE_1__["warn"])('Missing required prop: "' + name + '"', vm);
+    return undefined;
+  }
+
+  if (value == null && !prop.required) {
+    return undefined;
+  }
+
+  let type = prop.type;
+  let valid = !type || type === true;
+
+  if (type) {
+    if (!Object(lone_util__WEBPACK_IMPORTED_MODULE_0__["isArray"])(type)) {
+      type = [type];
+    }
+
+    for (let i = 0; i < type.length && !valid; i++) {
+      const toString = Object.prototype.toString;
+      valid = toString.call(value) === toString.call(type[i]());
+    }
+  }
+
+  if (!valid) {
+    Object(_helper__WEBPACK_IMPORTED_MODULE_1__["warn"])(`Invalid prop: type check failed for prop "${name}".`, vm);
+    return undefined;
+  }
+
+  const validator = prop.validator;
+
+  if (validator) {
+    if (!validator(value)) {
+      Object(_helper__WEBPACK_IMPORTED_MODULE_1__["warn"])('Invalid prop: custom validator check failed for prop "' + name + '".', vm);
+    }
+  }
+}
+/**
+ * Use function string name to check built-in types,
+ * because a simple equality check will fail when running
+ * across different vms / iframes.
+ */
+
+
+function getType(fn) {
+  const match = fn && fn.toString().match(/^\s*function (\w+)/);
+  return match ? match[1] : '';
+}
+
+function isType(type, fn) {
+  if (!Array.isArray(fn)) {
+    return getType(fn) === getType(type);
+  }
+
+  for (let i = 0, len = fn.length; i < len; i++) {
+    if (getType(fn[i]) === getType(type)) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 /***/ }),
@@ -402,13 +525,21 @@ function normalizePropsData(options) {
         warn('props must be strings when using array syntax.');
       }
     }
+  } else if (Object(lone_util__WEBPACK_IMPORTED_MODULE_1__["isPlainObject"])(props)) {
+    for (const key in props) {
+      val = props[key];
+      name = Object(lone_util__WEBPACK_IMPORTED_MODULE_1__["camelize"])(key);
+      res[name] = Object(lone_util__WEBPACK_IMPORTED_MODULE_1__["isPlainObject"])(val) ? val : {
+        type: val
+      };
+    }
   }
 
   options.props = res;
 }
 
-function warn(msg) {
-  console.error(`[warn]: ${msg}`);
+function warn(msg, vm) {
+  console.error(`[${vm ? vm.$options.name + ' ' : ''}warn]: ${msg}`);
 }
 function handleError(err, vm, info) {
   console.error(`[warn]: ${`Error in ${info}: "${err.toString()}"`}`);

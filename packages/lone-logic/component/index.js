@@ -40,6 +40,7 @@ export default function Component (name, options) {
 export function createComponentInstance (name, id, propsData) {
   const options = componentStorage.get(name)
   options.propsData = propsData
+  options.name = name
   return new LogicComponent(id, options)
 }
 

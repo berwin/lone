@@ -16,7 +16,7 @@ Lone.page({
     },
     {
       name: 'ad',
-      template: `<div>我是广告{{n}}</div>`
+      template: `<div>我是广告{{n}} {{title}}</div>`
     },
     {
       name: 'test2',

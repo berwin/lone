@@ -1,5 +1,5 @@
 import { LIFECYCLE_HOOKS } from 'lone-util/constants'
-import { isArray, camelize } from 'lone-util'
+import { isArray, isPlainObject, camelize } from 'lone-util'
 import { slave } from './schedule'
 
 export function initOptions (options) {
@@ -34,12 +34,20 @@ function normalizePropsData (options) {
         warn('props must be strings when using array syntax.')
       }
     }
+  } else if (isPlainObject(props)) {
+    for (const key in props) {
+      val = props[key]
+      name = camelize(key)
+      res[name] = isPlainObject(val)
+        ? val
+        : { type: val }
+    }
   }
   options.props = res
 }
 
-export function warn (msg) {
-  console.error(`[warn]: ${msg}`)
+export function warn (msg, vm) {
+  console.error(`[${vm ? (vm.$options.name + ' ') : ''}warn]: ${msg}`)
 }
 
 export function handleError (err, vm, info) {

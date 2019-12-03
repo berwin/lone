@@ -55,12 +55,15 @@ Lone.logic('test2', {
 })
 
 Lone.logic('ad', {
-  data: () => ({ n: 0 }),
-  mounted () {
-    setTimeout(_ => {
-      this.setData({
-        n: 1
-      })
-    }, 1000)
+  props: {
+    title: String,
+    n: {
+      type: Number,
+      required: true,
+      default: -1,
+      validator: function (value) {
+        return value >= 0
+      }
+    }
   }
 })

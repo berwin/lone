@@ -34,11 +34,11 @@ class Schedule {
       'page:navigateTo': function () {
         console.log('ui-schedule: view:navigateTo')
       },
-      'page:inited': function (channel, { name, id }) {
-        vm.master.send('ui:inited', channel, { name, id })
+      'page:inited': function (channel, data) {
+        vm.master.send('ui:inited', channel, data)
       },
-      'page:ready': function (channel, { id }) {
-        vm.master.send('ui:ready', channel, { id })
+      'page:ready': function (channel, data) {
+        vm.master.send('ui:ready', channel, data)
       },
       'page:triggerEvent': function (channel, data) {
         vm.master.send('ui:triggerEvent', channel, data)
