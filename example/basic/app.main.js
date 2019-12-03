@@ -64,3 +64,11 @@ Lone.logic('ad', {
     }, 1000)
   }
 })
+Lone.logic('v-model', {
+  data: () => ({ n: 0 }),
+  methods: {
+    showModel () {
+      console.log(this.data.n)
+    }
+  }
+})
