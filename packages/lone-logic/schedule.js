@@ -19,7 +19,7 @@ const MESSENGER_EVENTS_UI = {
     const vm = instanceStorage.get(id)
     triggerEvent(vm, method, event)
   },
-  'ui:vmodelData': function ({ id, data }) {
+  'ui:vmodel': function ({ id, data }) {
     const vm = instanceStorage.get(id)
     vm.setData(data)
   }
