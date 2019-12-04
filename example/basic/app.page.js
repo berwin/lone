@@ -11,12 +11,22 @@ Lone.page({
           <button id="navigate-btn" style="color:red;" v-on:click="navigatorTo">navigatorTo: /test</button>
           <h2 :id="n" :style="{backgroundColor: 'red'}" style="color:blue;">N:{{ n }}</h2>
           <ad title="My journey with Lone" :n="n" />
+          <v-model />
         </div>
       `
     },
     {
       name: 'ad',
       template: `<div>我是广告{{n}} {{title}}</div>`
+    },
+    {
+      name: 'v-model',
+      template: `<div style="background-color: aquamarine;">
+        <input v-model="n">
+        <p>you input is: {{n}}</p>
+        <p @click="showModel" style="cursor: pointer;">click me show the input model on console.</p>
+      </div>
+      `
     },
     {
       name: 'test2',

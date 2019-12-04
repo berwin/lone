@@ -42,6 +42,9 @@ class Schedule {
       },
       'page:triggerEvent': function (channel, data) {
         vm.master.send('ui:triggerEvent', channel, data)
+      },
+      'page:vmodel': function (channel, data) {
+        vm.master.send('ui:vmodel', channel, data)
       }
     }
     vm.init()
