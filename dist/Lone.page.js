@@ -871,7 +871,7 @@ function genAssignmentCode(value, assignment) {
   const res = parseModel(value);
 
   if (res.key === null) {
-    return `${value}=${assignment}`;
+    return `slave.send('page:vmodel', 'logic', {id: id, data:{${value}: ${assignment}}})`;
   } else {
     return `$set(${res.exp}, ${res.key}, ${assignment})`;
   }
@@ -3808,14 +3808,34 @@ class WorkerMessenger extends _base__WEBPACK_IMPORTED_MODULE_0__["default"] {
 /*!*******************************************************!*\
   !*** ./packages/lone-page/component/eventListener.js ***!
   \*******************************************************/
-/*! exports provided: default */
+/*! exports provided: initParentListener, initEventListener */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return initEventListener; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "initParentListener", function() { return initParentListener; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "initEventListener", function() { return initEventListener; });
 /* harmony import */ var lone_util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lone-util */ "./packages/lone-util/index.js");
 
+const customType = 'custom';
+function initParentListener(vm) {
+  vm._parentListeners = Object.create(null);
+  const listeners = vm.options._parentListeners;
+
+  if (listeners) {
+    vm._parentListeners = listeners;
+  }
+
+  vm.slave.onmessage('component:triggerParentEvent', function ({
+    name,
+    data
+  }) {
+    vm._parentListeners[name]({
+      type: customType,
+      data
+    });
+  });
+}
 function initEventListener(vm, methods) {
   vm._eventListener = Object.create(null);
   let i = methods.length;
@@ -3825,7 +3845,7 @@ function initEventListener(vm, methods) {
       return function (event) {
         vm.slave.send('page:triggerEvent', 'logic', {
           id: vm.id,
-          event: getEvent(event),
+          event: event.type === customType ? event.data : getEvent(event),
           method
         });
       };
@@ -3910,9 +3930,11 @@ function init(Component) {
     const vm = this;
     initOptions(vm, options, Component);
     initMessenger(vm);
+    Object(_eventListener__WEBPACK_IMPORTED_MODULE_4__["initParentListener"])(vm);
     initRender(vm);
     vm.callHook(vm, 'page:inited', {
-      propsData: vm.propsData
+      propsData: vm.propsData,
+      parentListeners: Object.keys(vm._parentListeners)
     });
     reaction(vm);
     vm.callHook(vm, 'page:ready');
@@ -3984,7 +4006,7 @@ function initMessenger(vm) {
     data: initData = {},
     methods = []
   }) {
-    Object(_eventListener__WEBPACK_IMPORTED_MODULE_4__["default"])(vm, methods);
+    Object(_eventListener__WEBPACK_IMPORTED_MODULE_4__["initEventListener"])(vm, methods);
 
     vm._setData(initData);
   });
@@ -4655,10 +4677,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = ({
   create: function (oldVnode, vnode) {
     if (!Object(lone_util_web__WEBPACK_IMPORTED_MODULE_0__["isReservedTag"])(vnode.sel) && isComponent(vnode.sel)) {
+      const {
+        attrs,
+        on
+      } = vnode.data;
       const component = new lone_page_component__WEBPACK_IMPORTED_MODULE_1__["default"]({
         name: vnode.sel,
         el: vnode.elm,
-        propsData: vnode.data.attrs
+        propsData: attrs,
+        _parentListeners: on
       });
       vnode.elm.component = component;
     }

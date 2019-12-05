@@ -17,6 +17,9 @@ Lone.logic('test', {
       // })
       console.log(event)
       this.navigateTo('/test')
+    },
+    test (data) {
+      console.log('event trigger!', data)
     }
   },
   created () {
@@ -65,6 +68,9 @@ Lone.logic('ad', {
         return value >= 0
       }
     }
+  },
+  created () {
+    this.$emit('enlarge-text', 123)
   }
 })
 Lone.logic('v-model', {

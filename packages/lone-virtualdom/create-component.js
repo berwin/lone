@@ -4,7 +4,13 @@ import Component from 'lone-page/component'
 export default {
   create: function (oldVnode, vnode) {
     if (!isReservedTag(vnode.sel) && isComponent(vnode.sel)) {
-      const component = new Component({ name: vnode.sel, el: vnode.elm, propsData: vnode.data.attrs })
+      const { attrs, on } = vnode.data
+      const component = new Component({
+        name: vnode.sel,
+        el: vnode.elm,
+        propsData: attrs,
+        _parentListeners: on
+      })
       vnode.elm.component = component
     }
   },

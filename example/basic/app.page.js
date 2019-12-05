@@ -10,7 +10,7 @@ Lone.page({
           </ul>
           <button id="navigate-btn" style="color:red;" v-on:click="navigatorTo">navigatorTo: /test</button>
           <h2 :id="n" :style="{backgroundColor: 'red'}" style="color:blue;">N:{{ n }}</h2>
-          <ad title="My journey with Lone" :n="n" />
+          <ad title="My journey with Lone" :n="n" @enlarge-text="test" />
           <v-model />
         </div>
       `

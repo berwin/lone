@@ -741,6 +741,9 @@ class Schedule {
       'component:data': function (channel, data) {
         vm.master.send('component:data', channel, data);
       },
+      'component:triggerParentEvent': function (channel, data) {
+        vm.master.send('component:triggerParentEvent', channel, data);
+      },
       'logic:navigateTo': function (channel, {
         url
       }) {
@@ -769,6 +772,9 @@ class Schedule {
       },
       'page:triggerEvent': function (channel, data) {
         vm.master.send('ui:triggerEvent', channel, data);
+      },
+      'page:vmodel': function (channel, data) {
+        vm.master.send('ui:vmodel', channel, data);
       }
     };
     vm.init();

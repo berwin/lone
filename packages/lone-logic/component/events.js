@@ -1,5 +1,6 @@
 import { isArray } from 'lone-util'
 import { handleError } from '../helper'
+import { slave } from '../schedule'
 
 export default function events (Lone) {
   const proto = Lone.prototype
@@ -7,6 +8,17 @@ export default function events (Lone) {
   proto.$once = once
   proto.$off = off
   proto.$emit = emit
+}
+
+export function initEvents (vm) {
+  const parentListeners = vm.$options.parentListeners
+  let i = parentListeners.length
+  while (i--) {
+    const name = parentListeners[i]
+    vm.$on(name, function (data) {
+      slave.send('component:triggerParentEvent', vm._id, { name, data })
+    })
+  }
 }
 
 function on (event, fn) {

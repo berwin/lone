@@ -91,14 +91,17 @@ var Lone = typeof Lone === "object" ? Lone : {}; Lone["logic"] =
 /*!*************************************************!*\
   !*** ./packages/lone-logic/component/events.js ***!
   \*************************************************/
-/*! exports provided: default */
+/*! exports provided: default, initEvents */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return events; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "initEvents", function() { return initEvents; });
 /* harmony import */ var lone_util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lone-util */ "./packages/lone-util/index.js");
 /* harmony import */ var _helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../helper */ "./packages/lone-logic/helper.js");
+/* harmony import */ var _schedule__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../schedule */ "./packages/lone-logic/schedule.js");
+
 
 
 function events(Lone) {
@@ -107,6 +110,20 @@ function events(Lone) {
   proto.$once = once;
   proto.$off = off;
   proto.$emit = emit;
+}
+function initEvents(vm) {
+  const parentListeners = vm.$options.parentListeners;
+  let i = parentListeners.length;
+
+  while (i--) {
+    const name = parentListeners[i];
+    vm.$on(name, function (data) {
+      _schedule__WEBPACK_IMPORTED_MODULE_2__["slave"].send('component:triggerParentEvent', vm._id, {
+        name,
+        data
+      });
+    });
+  }
 }
 
 function on(event, fn) {
@@ -230,6 +247,7 @@ let LogicComponent = Object(_events__WEBPACK_IMPORTED_MODULE_2__["default"])(_cl
     const vm = this;
     vm._events = Object.create(null);
     vm.$options = Object(_helper__WEBPACK_IMPORTED_MODULE_0__["initOptions"])(options);
+    Object(_events__WEBPACK_IMPORTED_MODULE_2__["initEvents"])(vm);
     callHook(vm, 'beforeCreate');
     Object(_state__WEBPACK_IMPORTED_MODULE_1__["default"])(vm);
     callHook(vm, 'created');
@@ -247,9 +265,8 @@ let LogicComponent = Object(_events__WEBPACK_IMPORTED_MODULE_2__["default"])(_cl
 function Component(name, options) {
   componentStorage.set(name, options);
 }
-function createComponentInstance(name, id, propsData) {
-  const options = componentStorage.get(name);
-  options.propsData = propsData;
+function createComponentInstance(name, id, otherOptions) {
+  const options = Object.assign(componentStorage.get(name), otherOptions);
   options.name = name;
   return new LogicComponent(id, options);
 }
@@ -607,9 +624,13 @@ const MESSENGER_EVENTS_UI = {
   'ui:inited': function ({
     name,
     id,
-    propsData
+    propsData,
+    parentListeners
   }) {
-    const vm = Object(_component__WEBPACK_IMPORTED_MODULE_1__["createComponentInstance"])(name, id, propsData);
+    const vm = Object(_component__WEBPACK_IMPORTED_MODULE_1__["createComponentInstance"])(name, id, {
+      propsData,
+      parentListeners
+    });
     instanceStorage.set(id, vm);
   },
   'ui:ready': function ({
@@ -626,6 +647,13 @@ const MESSENGER_EVENTS_UI = {
   }) {
     const vm = instanceStorage.get(id);
     Object(_helper__WEBPACK_IMPORTED_MODULE_2__["triggerEvent"])(vm, method, event);
+  },
+  'ui:vmodel': function ({
+    id,
+    data
+  }) {
+    const vm = instanceStorage.get(id);
+    vm.setData(data);
   }
 };
 

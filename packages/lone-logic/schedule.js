@@ -6,8 +6,8 @@ export const instanceStorage = new Map()
 export const slave = new Slave({ env: 'worker', channel: 'logic' })
 
 const MESSENGER_EVENTS_UI = {
-  'ui:inited': function ({ name, id, propsData }) {
-    const vm = createComponentInstance(name, id, propsData)
+  'ui:inited': function ({ name, id, propsData, parentListeners }) {
+    const vm = createComponentInstance(name, id, { propsData, parentListeners })
     instanceStorage.set(id, vm)
   },
   'ui:ready': function ({ id }) {

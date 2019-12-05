@@ -1,6 +1,6 @@
 import { initOptions, handleError, sendInitCommandToPageComponent } from '../helper'
 import initData from './state'
-import events from './events'
+import events, { initEvents } from './events'
 import router from './router'
 import { slave } from '../schedule'
 
@@ -20,6 +20,7 @@ class LogicComponent {
     const vm = this
     vm._events = Object.create(null)
     vm.$options = initOptions(options)
+    initEvents(vm)
     callHook(vm, 'beforeCreate')
     initData(vm)
     callHook(vm, 'created')
@@ -37,9 +38,11 @@ export default function Component (name, options) {
   componentStorage.set(name, options)
 }
 
-export function createComponentInstance (name, id, propsData) {
-  const options = componentStorage.get(name)
-  options.propsData = propsData
+export function createComponentInstance (name, id, otherOptions) {
+  const options = Object.assign(
+    componentStorage.get(name),
+    otherOptions
+  )
   options.name = name
   return new LogicComponent(id, options)
 }

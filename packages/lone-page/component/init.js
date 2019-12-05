@@ -2,7 +2,10 @@ import { Slave } from 'lone-messenger'
 import { compileToFunctions } from 'lone-compiler-dom'
 import { patch } from 'lone-virtualdom'
 import { proxy } from 'lone-util'
-import initEventListener from './eventListener'
+import {
+  initParentListener,
+  initEventListener
+} from './eventListener'
 
 let cid = 0
 
@@ -12,8 +15,9 @@ export default function init (Component) {
     const vm = this
     initOptions(vm, options, Component)
     initMessenger(vm)
+    initParentListener(vm)
     initRender(vm)
-    vm.callHook(vm, 'page:inited', { propsData: vm.propsData })
+    vm.callHook(vm, 'page:inited', { propsData: vm.propsData, parentListeners: Object.keys(vm._parentListeners) })
     reaction(vm)
     vm.callHook(vm, 'page:ready')
   }

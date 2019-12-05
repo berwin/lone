@@ -1,12 +1,31 @@
 import { proxy } from 'lone-util'
 
-export default function initEventListener (vm, methods) {
+const customType = 'custom'
+
+export function initParentListener (vm) {
+  vm._parentListeners = Object.create(null)
+  const listeners = vm.options._parentListeners
+  if (listeners) {
+    vm._parentListeners = listeners
+  }
+  vm.slave.onmessage('component:triggerParentEvent', function ({ name, data }) {
+    vm._parentListeners[name]({ type: customType, data })
+  })
+}
+
+export function initEventListener (vm, methods) {
   vm._eventListener = Object.create(null)
   let i = methods.length
   while (i--) {
     vm._eventListener[methods[i]] = (function (method) {
       return function (event) {
-        vm.slave.send('page:triggerEvent', 'logic', { id: vm.id, event: getEvent(event), method })
+        vm.slave.send('page:triggerEvent', 'logic', {
+          id: vm.id,
+          event: event.type === customType
+            ? event.data
+            : getEvent(event),
+          method
+        })
       }
     })(methods[i])
     proxy(vm, '_eventListener', methods[i])

@@ -20,6 +20,9 @@ class Schedule {
       'component:data': function (channel, data) {
         vm.master.send('component:data', channel, data)
       },
+      'component:triggerParentEvent': function (channel, data) {
+        vm.master.send('component:triggerParentEvent', channel, data)
+      },
       'logic:navigateTo': function (channel, { url }) {
         vm.router.navigateTo(url)
       },
