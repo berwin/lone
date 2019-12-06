@@ -1,7 +1,7 @@
 /* @flow */
 
 import { isReservedTag } from 'lone-util/web/element'
-import { addHandler, addProp, getBindingAttr } from 'lone-compiler-core/helpers'
+import { addHandler, addProp, addAttr, getBindingAttr } from 'lone-compiler-core/helpers'
 import { genComponentModel, genAssignmentCode } from 'lone-compiler-core/directives/model'
 
 let warn
@@ -90,6 +90,7 @@ function genRadioModel (el, value, modifiers) {
   let valueBinding = getBindingAttr(el, 'value') || 'null'
   valueBinding = number ? `_n(${valueBinding})` : valueBinding
   addProp(el, 'checked', `_q(${value},${valueBinding})`)
+  addAttr(el, 'name', value)
   addHandler(el, 'change', genAssignmentCode(value, valueBinding), null, true)
 }
 
