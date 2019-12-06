@@ -17,9 +17,9 @@ export default function init (Component) {
     initMessenger(vm)
     initParentListener(vm)
     initRender(vm)
-    vm.callHook(vm, 'page:inited', { propsData: vm.propsData, parentListeners: Object.keys(vm._parentListeners) })
+    vm.callHook('page:inited', { propsData: vm.propsData, parentListeners: Object.keys(vm._parentListeners) })
     reaction(vm)
-    vm.callHook(vm, 'page:ready')
+    vm.callHook('page:ready')
   }
 
   proto._setData = function (data) {
@@ -54,8 +54,15 @@ export default function init (Component) {
     patch(oldVnode, this._vnode)
   }
 
-  proto.callHook = function (vm, hook, rest = {}) {
+  proto.callHook = function (hook, rest = {}) {
+    const vm = this
     vm.slave.send(hook, 'logic', { name: vm.name, id: vm.id, ...rest })
+  }
+
+  proto.updatePropsData = function (oldData, data) {
+    const vm = this
+    vm.propsData = data
+    vm.slave.send('page:data', 'logic', { id: vm.id, data })
   }
 }
 

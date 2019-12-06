@@ -648,7 +648,7 @@ const MESSENGER_EVENTS_UI = {
     const vm = instanceStorage.get(id);
     Object(_helper__WEBPACK_IMPORTED_MODULE_2__["triggerEvent"])(vm, method, event);
   },
-  'ui:vmodel': function ({
+  'ui:data': function ({
     id,
     data
   }) {

@@ -18,10 +18,10 @@ export default {
     if (!isReservedTag(vnode.sel) && isComponent(vnode.sel)) {
       const oldAttrs = oldVnode.data.attrs
       const attrs = vnode.data.attrs
-      if (!oldAttrs && !attrs) return
-      if (JSON.stringify(oldAttrs) === JSON.stringify(attrs)) return
       const component = vnode.elm.component
-      console.log(component)
+      if ((oldAttrs || attrs) && JSON.stringify(oldAttrs) !== JSON.stringify(attrs)) {
+        component.updatePropsData(oldAttrs, attrs)
+      }
     }
   }
 }

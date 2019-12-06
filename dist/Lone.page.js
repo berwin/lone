@@ -871,7 +871,7 @@ function genAssignmentCode(value, assignment) {
   const res = parseModel(value);
 
   if (res.key === null) {
-    return `slave.send('page:vmodel', 'logic', {id: id, data:{${value}: ${assignment}}})`;
+    return `slave.send('page:data', 'logic', {id: id, data:{${value}: ${assignment}}})`;
   } else {
     return `$set(${res.exp}, ${res.key}, ${assignment})`;
   }
@@ -3932,12 +3932,12 @@ function init(Component) {
     initMessenger(vm);
     Object(_eventListener__WEBPACK_IMPORTED_MODULE_4__["initParentListener"])(vm);
     initRender(vm);
-    vm.callHook(vm, 'page:inited', {
+    vm.callHook('page:inited', {
       propsData: vm.propsData,
       parentListeners: Object.keys(vm._parentListeners)
     });
     reaction(vm);
-    vm.callHook(vm, 'page:ready');
+    vm.callHook('page:ready');
   };
 
   proto._setData = function (data) {
@@ -3977,11 +3977,21 @@ function init(Component) {
     Object(lone_virtualdom__WEBPACK_IMPORTED_MODULE_2__["patch"])(oldVnode, this._vnode);
   };
 
-  proto.callHook = function (vm, hook, rest = {}) {
+  proto.callHook = function (hook, rest = {}) {
+    const vm = this;
     vm.slave.send(hook, 'logic', {
       name: vm.name,
       id: vm.id,
       ...rest
+    });
+  };
+
+  proto.updatePropsData = function (oldData, data) {
+    const vm = this;
+    vm.propsData = data;
+    vm.slave.send('page:data', 'logic', {
+      id: vm.id,
+      data
     });
   };
 }
@@ -4695,10 +4705,11 @@ __webpack_require__.r(__webpack_exports__);
     if (!Object(lone_util_web__WEBPACK_IMPORTED_MODULE_0__["isReservedTag"])(vnode.sel) && isComponent(vnode.sel)) {
       const oldAttrs = oldVnode.data.attrs;
       const attrs = vnode.data.attrs;
-      if (!oldAttrs && !attrs) return;
-      if (JSON.stringify(oldAttrs) === JSON.stringify(attrs)) return;
       const component = vnode.elm.component;
-      console.log(component);
+
+      if ((oldAttrs || attrs) && JSON.stringify(oldAttrs) !== JSON.stringify(attrs)) {
+        component.updatePropsData(oldAttrs, attrs);
+      }
     }
   }
 
