@@ -74,10 +74,12 @@ Lone.logic('ad', {
   }
 })
 Lone.logic('v-model', {
-  data: () => ({ n: 0 }),
+  data: () => (
+    { n: 0, message: '', checked: false, checkedNames: [], picked: '', selected: [] }
+  ),
   methods: {
     showModel () {
-      console.log(this.data.n)
+      console.log(this.data)
     }
   }
 })
