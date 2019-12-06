@@ -90,7 +90,8 @@ function genRadioModel (el, value, modifiers) {
   let valueBinding = getBindingAttr(el, 'value') || 'null'
   valueBinding = number ? `_n(${valueBinding})` : valueBinding
   addProp(el, 'checked', `_q(${value},${valueBinding})`)
-  addAttr(el, 'name', value)
+  const name = getBindingAttr(el, 'name')
+  if (!name) addAttr(el, 'name', `"${value}"`)
   addHandler(el, 'change', genAssignmentCode(value, valueBinding), null, true)
 }
 
