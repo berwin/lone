@@ -1,4 +1,4 @@
-import { toString } from 'lone-util'
+import { toString, looseIndexOf, looseEqual } from 'lone-util'
 import { h } from './index'
 import { renderList } from './render-list'
 
@@ -10,6 +10,8 @@ export function installRenderHelpers (target) {
   proto._c = h
   proto._s = toString
   proto._l = renderList
+  proto._i = looseIndexOf
+  proto._q = looseEqual
 
   // target._o = markOnce
   // target._t = renderSlot
