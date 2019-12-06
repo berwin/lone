@@ -78,8 +78,8 @@ function genCheckboxModel (el, value, modifiers) {
     'if(Array.isArray($$a)){' +
       `var $$v=${number ? '_n(' + valueBinding + ')' : valueBinding},` +
           '$$i=_i($$a,$$v);' +
-      `if($$el.checked){$$i<0&&(${value}=$$a.concat([$$v]))}` +
-      `else{$$i>-1&&(${value}=$$a.slice(0,$$i).concat($$a.slice($$i+1)))}` +
+      `if($$el.checked){$$i<0&&(slave.send('page:vmodel', 'logic', {id: id, data:{${value}: $$a.concat([$$v])}}))}` +
+      `else{$$i>-1&&(slave.send('page:vmodel', 'logic', {id: id, data:{${value}: $$a.slice(0,$$i).concat($$a.slice($$i+1))}}))}` +
     `}else{${genAssignmentCode(value, '$$c')}}`,
     null, true
   )
