@@ -4511,7 +4511,7 @@ const isTextInputType = Object(_index__WEBPACK_IMPORTED_MODULE_1__["makeMap"])('
 /*!*****************************************!*\
   !*** ./packages/lone-util/web/index.js ***!
   \*****************************************/
-/*! exports provided: isReservedAttr, mustUseProp, isEnumeratedAttr, isBooleanAttr, xlinkNS, isXlink, getXlinkProp, isFalsyAttrValue, genClassForVnode, renderClass, concat, stringifyClass, namespaceMap, isHTMLTag, isSVG, isPreTag, isReservedTag, getTagNamespace, isUnknownElement, isTextInputType, query */
+/*! exports provided: query, isReservedAttr, mustUseProp, isEnumeratedAttr, isBooleanAttr, xlinkNS, isXlink, getXlinkProp, isFalsyAttrValue, genClassForVnode, renderClass, concat, stringifyClass, namespaceMap, isHTMLTag, isSVG, isPreTag, isReservedTag, getTagNamespace, isUnknownElement, isTextInputType */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

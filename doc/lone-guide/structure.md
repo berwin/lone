@@ -2,4 +2,4 @@
 
 ## 通信模型
 
-![通信模型](./structure/messenger-model.gif)
+![通信模型](doc/lone-guide/structure/messenger-model.gif)
