@@ -125,6 +125,8 @@ http-server
 
 > 文档在`/doc/lone-api/`目录下。
 
+文档中最好包含该功能的实现原理，以便日后其他开发者在修改这部分功能时，可以知道之前是如何实现的，以及代码整体的设计思路。
+
 ### Git 流程
 
 Git流程遵从广为流传的 GitFlow 流程，两个长期分支：master与develop、以及若干个短期分支：feature、hotfix。
