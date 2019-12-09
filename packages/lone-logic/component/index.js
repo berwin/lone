@@ -3,6 +3,7 @@ import initData from './state'
 import events, { initEvents } from './events'
 import router from './router'
 import { slave } from '../schedule'
+import { notifyPropsObserver } from './observer'
 
 const componentStorage = new Map()
 const init = Symbol('lone-logic:init')
@@ -29,7 +30,8 @@ class LogicComponent {
 
   setData (data) {
     const oldData = this.data
-    this.data = Object.assign(oldData, data)
+    this.data = Object.assign({}, oldData, data)
+    notifyPropsObserver(this, oldData, this.data)
     slave.send('component:data', this._id, this.data)
   }
 }

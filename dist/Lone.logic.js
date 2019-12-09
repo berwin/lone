@@ -226,7 +226,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _events__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./events */ "./packages/lone-logic/component/events.js");
 /* harmony import */ var _router__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./router */ "./packages/lone-logic/component/router.js");
 /* harmony import */ var _schedule__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../schedule */ "./packages/lone-logic/schedule.js");
+/* harmony import */ var _observer__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./observer */ "./packages/lone-logic/component/observer.js");
 var _class;
+
 
 
 
@@ -256,7 +258,8 @@ let LogicComponent = Object(_events__WEBPACK_IMPORTED_MODULE_2__["default"])(_cl
 
   setData(data) {
     const oldData = this.data;
-    this.data = Object.assign(oldData, data);
+    this.data = Object.assign({}, oldData, data);
+    Object(_observer__WEBPACK_IMPORTED_MODULE_5__["notifyPropsObserver"])(this, oldData, this.data);
     _schedule__WEBPACK_IMPORTED_MODULE_4__["slave"].send('component:data', this._id, this.data);
   }
 
@@ -284,6 +287,42 @@ function callHook(vm, hook) {
   }
 
   vm.$emit('hook:' + hook);
+}
+
+/***/ }),
+
+/***/ "./packages/lone-logic/component/observer.js":
+/*!***************************************************!*\
+  !*** ./packages/lone-logic/component/observer.js ***!
+  \***************************************************/
+/*! exports provided: notifyPropsObserver */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "notifyPropsObserver", function() { return notifyPropsObserver; });
+function notifyPropsObserver(vm, oldData, newData) {
+  const propsOptions = vm.$options.props;
+
+  for (const key in newData) {
+    if (key in propsOptions) {
+      const cur = newData[key];
+      const old = oldData[key];
+      const observer = propsOptions[key].observer;
+
+      if (JSON.stringify(cur) !== JSON.stringify(old)) {
+        observer && observer.call(vm, cur, old);
+      }
+    }
+  }
+
+  for (const key in oldData) {
+    if (!(key in newData)) {
+      const old = oldData[key];
+      const observer = propsOptions[key].observer;
+      observer && observer.call(vm, null, old);
+    }
+  }
 }
 
 /***/ }),
@@ -523,7 +562,6 @@ function normalizeHooks(options) {
 
 function normalizePropsData(options) {
   const props = options.props;
-  if (!props) return;
   const res = {};
   let i, val, name;
 

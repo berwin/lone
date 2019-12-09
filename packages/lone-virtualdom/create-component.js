@@ -20,7 +20,7 @@ export default {
       const attrs = vnode.data.attrs
       const component = vnode.elm.component
       if ((oldAttrs || attrs) && JSON.stringify(oldAttrs) !== JSON.stringify(attrs)) {
-        component.updatePropsData(oldAttrs, attrs)
+        component.updatePropsData(attrs, oldAttrs)
       }
     }
   }

@@ -20,7 +20,6 @@ function normalizeHooks (options) {
 
 function normalizePropsData (options) {
   const props = options.props
-  if (!props) return
   const res = {}
   let i, val, name
   if (isArray(props)) {

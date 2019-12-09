@@ -32,7 +32,8 @@ Lone.logic('test', {
     const vm = this
     setTimeout(() => {
       vm.setData({
-        n: 2
+        n: 2,
+        list: [...vm.data.list, 6]
       })
     }, 1000)
     console.log('app.main.js: mounted~~~')
@@ -66,6 +67,12 @@ Lone.logic('ad', {
       default: -1,
       validator: function (value) {
         return value >= 0
+      }
+    },
+    list: {
+      type: Array,
+      observer (newData, oldData) {
+        console.log('ad->props-observer:', newData, oldData)
       }
     }
   },

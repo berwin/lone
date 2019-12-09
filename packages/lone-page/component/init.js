@@ -59,7 +59,7 @@ export default function init (Component) {
     vm.slave.send(hook, 'logic', { name: vm.name, id: vm.id, ...rest })
   }
 
-  proto.updatePropsData = function (oldData, data) {
+  proto.updatePropsData = function (data) {
     const vm = this
     vm.propsData = data
     vm.slave.send('page:data', 'logic', { id: vm.id, data })

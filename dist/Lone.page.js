@@ -3986,7 +3986,7 @@ function init(Component) {
     });
   };
 
-  proto.updatePropsData = function (oldData, data) {
+  proto.updatePropsData = function (data) {
     const vm = this;
     vm.propsData = data;
     vm.slave.send('page:data', 'logic', {
@@ -4708,7 +4708,7 @@ __webpack_require__.r(__webpack_exports__);
       const component = vnode.elm.component;
 
       if ((oldAttrs || attrs) && JSON.stringify(oldAttrs) !== JSON.stringify(attrs)) {
-        component.updatePropsData(oldAttrs, attrs);
+        component.updatePropsData(attrs, oldAttrs);
       }
     }
   }
