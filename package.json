@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "webpack -w --config scripts/webpack.dev.conf.js",
     "build": "webpack --config scripts/webpack.prod.conf.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "bootstrap": "lerna bootstrap"
   },
   "devDependencies": {
     "@babel/core": "^7.6.4",

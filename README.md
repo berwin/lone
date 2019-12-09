@@ -11,7 +11,7 @@
 安装依赖：
 
 ```
-npm install && lerna bootstrap
+npm install && npm run bootstrap
 ```
 
 ### 脚本
