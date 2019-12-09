@@ -76,13 +76,17 @@ http-server
 
 ### 代码提交流程
 
-本项目严格施行PR制度，所有功能都应该通过提交PR合并到分支中。但请注意，要保持PR的体积越小越好，否则会导致Code Review非常难以进行，评审者有权让开发者将一个大PR拆分成多个小的PR进行Code Review。
+本项目严格施行PR制度，所有功能都应该通过提交PR合并到分支中。
+
+所有功能均需要新建 feature 分支，例如：`feature/v-model`。当功能开发完毕时，将代码提交到远程`feature/v-model`分支，然后在Git系统的`Merge Requests`中点击`New Merge Request`，并详细编写描述。等待Code Review，期间会进行比较频繁的沟通，修改代码再提交Commit，直到PR完全没问题后成功合并代码并删除`feature/v-model`分支，代表该功能开发完毕。
+
+但请注意，要保持PR的体积越小越好，否则会导致Code Review非常难以进行，评审者有权让开发者将一个大PR拆分成多个小的PR进行Code Review。
 
 提交PR的准则是：PR的数量可以多，但是PR的改动要小。如果是一个改动特别大的PR，则最好拆分成多个小PR分批提交并进行Code Review。
 
-提交PR时，需要非常清晰的编写描述。
-
 #### PR描述准则
+
+提交PR时，需要非常清晰的编写描述。
 
 **第一行**：PR描述的第一行应该是对PR所做的具体工作的简短摘要，然后是空白行。
 
@@ -124,6 +128,8 @@ http-server
 ### Git 流程
 
 Git流程遵从广为流传的 GitFlow 流程，两个长期分支：master与develop、以及若干个短期分支：feature、hotfix。
+
+> 由于项目现在并没有线上版本，所以只有一个长期分支：Master。所有feature分支可以从master建立，开发完毕后通过Merge Request合并回Master。
 
 **长期分支：**
 
