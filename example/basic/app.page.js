@@ -25,6 +25,37 @@ Lone.page({
         <input v-model="n">
         <p>you input is: {{n}}</p>
         <p @click="showModel" style="cursor: pointer;">click me show the input model on console.</p>
+        <h3>textarea:</h3>
+        <span>Multiline message is:</span>
+        <p style="white-space: pre-line;">{{ message }}</p>
+        <br>
+        <textarea v-model="message" placeholder="add multiple lines"></textarea>
+        <h3>单个复选框，绑定到布尔值:</h3>
+        <div>
+          <input type="checkbox" id="checkbox" v-model="checked">
+          <label for="checkbox">{{ checked }}</label>          
+        </div>
+        <h3>多个复选框，绑定到同一个数组：        </h3>
+        <div id='example-3'>
+          <input type="checkbox" id="jack" value="Jack" v-model="checkedNames">
+          <label for="jack">Jack</label>
+          <input type="checkbox" id="john" value="John" v-model="checkedNames">
+          <label for="john">John</label>
+          <input type="checkbox" id="mike" value="Mike" v-model="checkedNames">
+          <label for="mike">Mike</label>
+          <br>
+          <span>Checked names: {{ checkedNames }}</span>
+        </div>
+        <h3>单选按钮</h3>
+        <div id="example-4">
+          <input type="radio" id="one" value="One" v-model="picked">
+          <label for="one">One</label>
+          <br>
+          <input type="radio" id="two" value="Two" v-model="picked">
+          <label for="two">Two</label>
+          <br>
+          <span>Picked: {{ picked }}</span>
+        </div>
       </div>
       `
     },

@@ -1,7 +1,7 @@
 /* @flow */
 
 import { isReservedTag } from 'lone-util/web/element'
-import { addHandler, addProp, getBindingAttr } from 'lone-compiler-core/helpers'
+import { addHandler, addProp, addAttr, getBindingAttr } from 'lone-compiler-core/helpers'
 import { genComponentModel, genAssignmentCode } from 'lone-compiler-core/directives/model'
 
 let warn
@@ -78,8 +78,8 @@ function genCheckboxModel (el, value, modifiers) {
     'if(Array.isArray($$a)){' +
       `var $$v=${number ? '_n(' + valueBinding + ')' : valueBinding},` +
           '$$i=_i($$a,$$v);' +
-      `if($$el.checked){$$i<0&&(${value}=$$a.concat([$$v]))}` +
-      `else{$$i>-1&&(${value}=$$a.slice(0,$$i).concat($$a.slice($$i+1)))}` +
+      `if($$el.checked){$$i<0&&(slave.send('page:data', 'logic', {id: id, data:{${value}: $$a.concat([$$v])}}))}` +
+      `else{$$i>-1&&(slave.send('page:data', 'logic', {id: id, data:{${value}: $$a.slice(0,$$i).concat($$a.slice($$i+1))}}))}` +
     `}else{${genAssignmentCode(value, '$$c')}}`,
     null, true
   )
@@ -90,6 +90,8 @@ function genRadioModel (el, value, modifiers) {
   let valueBinding = getBindingAttr(el, 'value') || 'null'
   valueBinding = number ? `_n(${valueBinding})` : valueBinding
   addProp(el, 'checked', `_q(${value},${valueBinding})`)
+  const name = getBindingAttr(el, 'name')
+  if (!name) addAttr(el, 'name', `"${value}"`)
   addHandler(el, 'change', genAssignmentCode(value, valueBinding), null, true)
 }
 
