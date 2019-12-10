@@ -3024,7 +3024,7 @@ function genCheckboxModel(el, value, modifiers) {
   const trueValueBinding = Object(lone_compiler_core_helpers__WEBPACK_IMPORTED_MODULE_1__["getBindingAttr"])(el, 'true-value') || 'true';
   const falseValueBinding = Object(lone_compiler_core_helpers__WEBPACK_IMPORTED_MODULE_1__["getBindingAttr"])(el, 'false-value') || 'false';
   Object(lone_compiler_core_helpers__WEBPACK_IMPORTED_MODULE_1__["addProp"])(el, 'checked', `Array.isArray(${value})` + `?_i(${value},${valueBinding})>-1` + (trueValueBinding === 'true' ? `:(${value})` : `:_q(${value},${trueValueBinding})`));
-  Object(lone_compiler_core_helpers__WEBPACK_IMPORTED_MODULE_1__["addHandler"])(el, 'change', `var $$a=${value},` + '$$el=$event.target,' + `$$c=$$el.checked?(${trueValueBinding}):(${falseValueBinding});` + 'if(Array.isArray($$a)){' + `var $$v=${number ? '_n(' + valueBinding + ')' : valueBinding},` + '$$i=_i($$a,$$v);' + `if($$el.checked){$$i<0&&(${value}=$$a.concat([$$v]))}` + `else{$$i>-1&&(${value}=$$a.slice(0,$$i).concat($$a.slice($$i+1)))}` + `}else{${Object(lone_compiler_core_directives_model__WEBPACK_IMPORTED_MODULE_2__["genAssignmentCode"])(value, '$$c')}}`, null, true);
+  Object(lone_compiler_core_helpers__WEBPACK_IMPORTED_MODULE_1__["addHandler"])(el, 'change', `var $$a=${value},` + '$$el=$event.target,' + `$$c=$$el.checked?(${trueValueBinding}):(${falseValueBinding});` + 'if(Array.isArray($$a)){' + `var $$v=${number ? '_n(' + valueBinding + ')' : valueBinding},` + '$$i=_i($$a,$$v);' + `if($$el.checked){$$i<0&&(slave.send('page:data', 'logic', {id: id, data:{${value}: $$a.concat([$$v])}}))}` + `else{$$i>-1&&(slave.send('page:data', 'logic', {id: id, data:{${value}: $$a.slice(0,$$i).concat($$a.slice($$i+1))}}))}` + `}else{${Object(lone_compiler_core_directives_model__WEBPACK_IMPORTED_MODULE_2__["genAssignmentCode"])(value, '$$c')}}`, null, true);
 }
 
 function genRadioModel(el, value, modifiers) {
@@ -3032,6 +3032,8 @@ function genRadioModel(el, value, modifiers) {
   let valueBinding = Object(lone_compiler_core_helpers__WEBPACK_IMPORTED_MODULE_1__["getBindingAttr"])(el, 'value') || 'null';
   valueBinding = number ? `_n(${valueBinding})` : valueBinding;
   Object(lone_compiler_core_helpers__WEBPACK_IMPORTED_MODULE_1__["addProp"])(el, 'checked', `_q(${value},${valueBinding})`);
+  const name = Object(lone_compiler_core_helpers__WEBPACK_IMPORTED_MODULE_1__["getBindingAttr"])(el, 'name');
+  if (!name) Object(lone_compiler_core_helpers__WEBPACK_IMPORTED_MODULE_1__["addAttr"])(el, 'name', `"${value}"`);
   Object(lone_compiler_core_helpers__WEBPACK_IMPORTED_MODULE_1__["addHandler"])(el, 'change', Object(lone_compiler_core_directives_model__WEBPACK_IMPORTED_MODULE_2__["genAssignmentCode"])(value, valueBinding), null, true);
 }
 
@@ -4097,7 +4099,7 @@ const isChrome = UA && /chrome\/\d+/.test(UA) && !isEdge;
 /*!*************************************!*\
   !*** ./packages/lone-util/index.js ***!
   \*************************************/
-/*! exports provided: isString, isObject, isBoolean, isArray, isFunction, noop, toString, isPlainObject, camelize, no, cached, extend, toObject, makeMap, isBuiltInTag, warn, tip, isUnaryTag, canBeLeftOpenTag, isNonPhrasingTag, genStaticKeys, isDef, def, hyphenate, emptyObject, proxy */
+/*! exports provided: isString, isObject, isBoolean, isArray, isFunction, noop, toString, isPlainObject, camelize, no, cached, extend, toObject, makeMap, isBuiltInTag, warn, tip, isUnaryTag, canBeLeftOpenTag, isNonPhrasingTag, genStaticKeys, isDef, def, hyphenate, emptyObject, proxy, looseEqual, looseIndexOf */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4128,6 +4130,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "hyphenate", function() { return hyphenate; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "emptyObject", function() { return emptyObject; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "proxy", function() { return proxy; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "looseEqual", function() { return looseEqual; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "looseIndexOf", function() { return looseIndexOf; });
 const _toString = Object.prototype.toString;
 const isString = s => _toString.call(s) === '[object String]';
 const isObject = o => _toString.call(o) === '[object Object]';
@@ -4278,6 +4282,60 @@ function proxy(target, sourceKey, key) {
   };
 
   Object.defineProperty(target, key, sharedPropertyDefinition);
+}
+/**
+ * Check if two values are loosely equal - that is,
+ * if they are plain objects, do they have the same shape?
+ */
+
+function looseEqual(a, b) {
+  if (a === b) return true;
+  const isObjectA = isObject(a);
+  const isObjectB = isObject(b);
+
+  if (isObjectA && isObjectB) {
+    try {
+      const isArrayA = Array.isArray(a);
+      const isArrayB = Array.isArray(b);
+
+      if (isArrayA && isArrayB) {
+        return a.length === b.length && a.every((e, i) => {
+          return looseEqual(e, b[i]);
+        });
+      } else if (a instanceof Date && b instanceof Date) {
+        return a.getTime() === b.getTime();
+      } else if (!isArrayA && !isArrayB) {
+        const keysA = Object.keys(a);
+        const keysB = Object.keys(b);
+        return keysA.length === keysB.length && keysA.every(key => {
+          return looseEqual(a[key], b[key]);
+        });
+      } else {
+        /* istanbul ignore next */
+        return false;
+      }
+    } catch (e) {
+      /* istanbul ignore next */
+      return false;
+    }
+  } else if (!isObjectA && !isObjectB) {
+    return String(a) === String(b);
+  } else {
+    return false;
+  }
+}
+/**
+ * Return the first index at which a loosely equal value can be
+ * found in the array (if value is a plain object, the array must
+ * contain an object of the same shape), or -1 if it is not present.
+ */
+
+function looseIndexOf(arr, val) {
+  for (let i = 0; i < arr.length; i++) {
+    if (looseEqual(arr[i], val)) return i;
+  }
+
+  return -1;
 }
 
 /***/ }),
@@ -4511,7 +4569,7 @@ const isTextInputType = Object(_index__WEBPACK_IMPORTED_MODULE_1__["makeMap"])('
 /*!*****************************************!*\
   !*** ./packages/lone-util/web/index.js ***!
   \*****************************************/
-/*! exports provided: query, isReservedAttr, mustUseProp, isEnumeratedAttr, isBooleanAttr, xlinkNS, isXlink, getXlinkProp, isFalsyAttrValue, genClassForVnode, renderClass, concat, stringifyClass, namespaceMap, isHTMLTag, isSVG, isPreTag, isReservedTag, getTagNamespace, isUnknownElement, isTextInputType */
+/*! exports provided: isReservedAttr, mustUseProp, isEnumeratedAttr, isBooleanAttr, xlinkNS, isXlink, getXlinkProp, isFalsyAttrValue, genClassForVnode, renderClass, concat, stringifyClass, namespaceMap, isHTMLTag, isSVG, isPreTag, isReservedTag, getTagNamespace, isUnknownElement, isTextInputType, query */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5823,7 +5881,9 @@ function installRenderHelpers(target) {
 
   proto._c = _index__WEBPACK_IMPORTED_MODULE_1__["h"];
   proto._s = lone_util__WEBPACK_IMPORTED_MODULE_0__["toString"];
-  proto._l = _render_list__WEBPACK_IMPORTED_MODULE_2__["renderList"]; // target._o = markOnce
+  proto._l = _render_list__WEBPACK_IMPORTED_MODULE_2__["renderList"];
+  proto._i = lone_util__WEBPACK_IMPORTED_MODULE_0__["looseIndexOf"];
+  proto._q = lone_util__WEBPACK_IMPORTED_MODULE_0__["looseEqual"]; // target._o = markOnce
   // target._t = renderSlot
   // target._m = renderStatic
   // target._f = resolveFilter
