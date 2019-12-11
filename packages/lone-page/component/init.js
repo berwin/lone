@@ -2,6 +2,7 @@ import { Slave } from 'lone-messenger'
 import { compileToFunctions } from 'lone-compiler-dom'
 import { patch } from 'lone-virtualdom'
 import { proxy } from 'lone-util'
+import { resolveSlots } from './slot'
 import {
   initParentListener,
   initEventListener
@@ -75,6 +76,7 @@ function initOptions (vm, options, Component) {
   vm.name = config.name
   vm.template = config.template
   vm.propsData = options.propsData || {}
+  vm.$slots = resolveSlots(options._renderChildren)
 }
 
 function initMessenger (vm) {

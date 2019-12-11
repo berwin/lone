@@ -36,7 +36,7 @@ class LogicComponent {
   }
 }
 
-export default function Component (name, options) {
+export default function Component (name, options = {}) {
   componentStorage.set(name, options)
 }
 

@@ -1,6 +1,7 @@
 import { toString, looseIndexOf, looseEqual } from 'lone-util'
-import { h } from './index'
-import { renderList } from './render-list'
+import h from './h'
+import renderList from './render-list'
+import renderSlot from './render-slot'
 
 export function installRenderHelpers (target) {
   const proto = target.prototype
@@ -10,11 +11,11 @@ export function installRenderHelpers (target) {
   proto._c = h
   proto._s = toString
   proto._l = renderList
+  proto._t = renderSlot
   proto._i = looseIndexOf
   proto._q = looseEqual
 
   // target._o = markOnce
-  // target._t = renderSlot
   // target._m = renderStatic
   // target._f = resolveFilter
   // target._k = checkKeyCodes

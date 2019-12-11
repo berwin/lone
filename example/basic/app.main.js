@@ -80,6 +80,7 @@ Lone.logic('ad', {
     this.$emit('enlarge-text', 123)
   }
 })
+
 Lone.logic('v-model', {
   data: () => (
     { n: 0, message: '', checked: false, checkedNames: [], picked: '', selected: [] }
@@ -90,3 +91,5 @@ Lone.logic('v-model', {
     }
   }
 })
+
+Lone.logic('alert')

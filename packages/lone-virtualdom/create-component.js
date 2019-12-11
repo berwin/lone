@@ -9,7 +9,8 @@ export default {
         name: vnode.sel,
         el: vnode.elm,
         propsData: attrs,
-        _parentListeners: on
+        _parentListeners: on,
+        _renderChildren: vnode.children
       })
       vnode.elm.component = component
     }

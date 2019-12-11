@@ -5,7 +5,7 @@ import { isObject, isDef } from 'lone-util'
 /**
  * Runtime helper for rendering v-for lists.
  */
-export function renderList (val, render) {
+export default function renderList (val, render) {
   let ret, i, l, keys, key
   if (Array.isArray(val) || typeof val === 'string') {
     ret = new Array(val.length)

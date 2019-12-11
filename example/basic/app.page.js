@@ -11,6 +11,7 @@ Lone.page({
           <button id="navigate-btn" style="color:red;" v-on:click="navigatorTo">navigatorTo: /test</button>
           <h2 :id="n" :style="{backgroundColor: 'red'}" style="color:blue;">N:{{ n }}</h2>
           <ad title="My journey with Lone" :n="n" @enlarge-text="test" :list="list" />
+          <alert>I'm a Slot content.</alert>
           <v-model />
         </div>
       `
@@ -20,16 +21,20 @@ Lone.page({
       template: `<div>我是广告{{n}} {{title}}, {{list}}</div>`
     },
     {
+      name: 'alert',
+      template: `<div style="padding:10px 0;"><slot></slot></div>`
+    },
+    {
       name: 'v-model',
       template: `<div style="background-color: aquamarine;">
         <input v-model="n">
         <p>you input is: {{n}}</p>
         <p @click="showModel" style="cursor: pointer;">click me show the input model on console.</p>
         <h3>textarea:</h3>
-        <span>Multiline message is:</span>
-        <p style="white-space: pre-line;">{{ message }}</p>
-        <br>
         <textarea v-model="message" placeholder="add multiple lines"></textarea>
+        <br />
+        <span>Multiline message is:{{ message }}</span>
+        
         <h3>单个复选框，绑定到布尔值:</h3>
         <div>
           <input type="checkbox" id="checkbox" v-model="checked">
