@@ -93,3 +93,4 @@ Lone.logic('v-model', {
 })
 
 Lone.logic('alert')
+Lone.logic('base-layout')

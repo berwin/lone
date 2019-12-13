@@ -12,6 +12,12 @@ Lone.page({
           <h2 :id="n" :style="{backgroundColor: 'red'}" style="color:blue;">N:{{ n }}</h2>
           <ad title="My journey with Lone" :n="n" @enlarge-text="test" :list="list" />
           <alert>I'm a Slot content.</alert>
+          <alert></alert>
+          <base-layout>
+            <p slot="header">Slot Header</p>
+            <p>Slot main content.</p>
+            <p slot="footer">Slot Footer</p>
+          </base-layout>
           <v-model />
         </div>
       `
@@ -22,7 +28,25 @@ Lone.page({
     },
     {
       name: 'alert',
-      template: `<div style="padding:10px 0;"><slot></slot></div>`
+      template: `<div style="padding:10px 0;"><slot>I'm a Slot default content.</slot></div>`
+    },
+    {
+      name: 'base-layout',
+      template: `
+        <div style="padding:10px 0;background:#ccc;">
+          <div class="container">
+            <header>
+              <slot name="header"></slot>
+            </header>
+            <main>
+              <slot name="default"></slot>
+            </main>
+            <footer>
+              <slot name="footer"></slot>
+            </footer>
+          </div>
+        </div>
+      `
     },
     {
       name: 'v-model',
