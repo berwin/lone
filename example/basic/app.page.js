@@ -15,7 +15,13 @@ Lone.page({
           <alert></alert>
           <base-layout>
             <p slot="header">Slot Header</p>
-            <p>Slot main content.</p>
+            <p>
+              <base-layout>
+                <p slot="header">Nest slot Header</p>
+                <p>Nest slot main content.{{list}}</p>
+                <p slot="footer">Nest slot2 Footer</p>
+              </base-layout>
+            </p>
             <p slot="footer">Slot Footer</p>
           </base-layout>
           <v-model />
