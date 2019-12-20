@@ -1,3 +1,5 @@
+export * from './error'
+
 const _toString = Object.prototype.toString
 
 export const isString = s => _toString.call(s) === '[object String]'
@@ -93,9 +95,6 @@ export function makeMap (str, expectsLowerCase) {
  * Check if a tag is a built-in tag.
  */
 export const isBuiltInTag = makeMap('slot,component', true)
-
-export const warn = noop
-export const tip = noop
 
 export const isUnaryTag = makeMap(
   'area,base,br,col,embed,frame,hr,img,input,isindex,keygen,' +

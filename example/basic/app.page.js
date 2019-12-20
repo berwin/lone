@@ -67,11 +67,10 @@ Lone.page({
         <textarea v-model="message" placeholder="add multiple lines"></textarea>
         <br />
         <span>Multiline message is:{{ message }}</span>
-        
         <h3>单个复选框，绑定到布尔值:</h3>
         <div>
           <input type="checkbox" id="checkbox" v-model="checked">
-          <label for="checkbox">{{ checked }}</label>          
+          <label for="checkbox">{{ checked }}</label>
         </div>
         <h3>多个复选框，绑定到同一个数组：        </h3>
         <div id='example-3'>
