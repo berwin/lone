@@ -93,3 +93,11 @@ Lone.logic('v-model', {
 
 Lone.logic('alert')
 Lone.logic('base-layout')
+Lone.logic('handle-error', {
+  data () {
+    console.log(window)
+  },
+  handleError () {
+    console.log(window)
+  }
+})
