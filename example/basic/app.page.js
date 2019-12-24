@@ -8,7 +8,10 @@ Lone.page({
           <ul>
             <li v-for="item in list">{{item}}</li>
           </ul>
-          <button id="navigate-btn" style="color:red;" v-on:click="navigatorTo">navigatorTo: /test</button>
+          <ul>
+            <li><button v-on:click="navigatorTo('/test')">navigatorTo: /test</button></li>
+            <li><button v-on:click="navigatorTo('/official')">navigateTo: /official</button></li>
+          </ul>
           <h2 :id="n" :style="{backgroundColor: 'red'}" style="color:blue;">N:{{ n }}</h2>
           <ad title="My journey with Lone" :n="n" @enlarge-text="test" :list="list" />
           <alert>I'm a Slot content.</alert>
@@ -93,6 +96,27 @@ Lone.page({
         </div>
       </div>
       `
+    },
+    {
+      official: true,
+      name: 'official',
+      template: `
+      <div style="padding:10px 0;">
+        <h1>I'm official component: {{n}}</h1>
+      </div>
+      `,
+      data () {
+        return {
+          n: 0
+        }
+      },
+      onLoad () {
+        setTimeout(() => {
+          this.setData({
+            n: 1
+          })
+        }, 1000)
+      }
     },
     {
       name: 'test2',

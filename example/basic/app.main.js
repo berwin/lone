@@ -11,12 +11,11 @@ Lone.logic('test', {
         this.$router.push('/', increment)
       }
     },
-    navigatorTo (event) {
+    navigatorTo (url) {
       // this.navigateTo({
       //   url: '/é#%25ñ'
       // })
-      console.log(event)
-      this.navigateTo('/test')
+      this.navigateTo(url)
     },
     test (data) {
       console.log('event trigger!', data)
