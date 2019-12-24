@@ -1,17 +1,7 @@
-import './schedule'
-import LogicComponent from 'lone-logic'
+import { Slave } from 'lone-messenger'
+import schedule from 'lone-logic/schedule'
 
-const componentStorage = new Map()
+export const slave = new Slave({ env: 'worker', channel: 'logic' })
+schedule(slave)
 
-export default function Component (name, options = {}) {
-  componentStorage.set(name, options)
-}
-
-export function createComponentInstance (name, id, otherOptions) {
-  const options = Object.assign(
-    componentStorage.get(name),
-    otherOptions
-  )
-  options.name = name
-  return new LogicComponent(id, options)
-}
+export { default } from 'lone-logic'
