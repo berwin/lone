@@ -1,6 +1,5 @@
 import { LIFECYCLE_HOOKS } from 'lone-util/constants'
 import { isArray, isPlainObject, camelize } from 'lone-util'
-import { slave } from './schedule'
 
 export function initOptions (options) {
   normalizeHooks(options)
@@ -54,8 +53,8 @@ export function handleError (err, vm, info) {
 }
 
 export function sendInitCommandToPageComponent (vm) {
-  const reservedWords = [...LIFECYCLE_HOOKS, 'data', 'methods']
-  slave.send('component:inited', vm._id, {
+  const reservedWords = [...LIFECYCLE_HOOKS, 'data', 'methods', 'slave', 'name', 'propsData', 'parentListeners', 'props']
+  vm._slave.send('component:inited', vm._id, {
     data: vm.data || {},
     methods: [...Object.keys(vm.$options).filter(key => !reservedWords.includes(key)), ...Object.keys(vm.$options.methods || {})]
   })
@@ -68,4 +67,18 @@ export function triggerEvent (vm, method, event) {
   } catch (e) {
     handleError(e, vm, `"${method}" event handler`)
   }
+}
+
+export function callHook (vm, hook) {
+  const handlers = vm.$options[hook]
+  if (handlers) {
+    for (let i = 0, j = handlers.length; i < j; i++) {
+      try {
+        handlers[i].call(vm)
+      } catch (e) {
+        handleError(e, vm, `${hook} hook`)
+      }
+    }
+  }
+  vm.$emit('hook:' + hook)
 }
