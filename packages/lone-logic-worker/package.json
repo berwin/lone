@@ -1,12 +1,15 @@
 {
-  "name": "lone-logic",
+  "name": "lone-logic-worker",
   "version": "0.0.0",
+  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "author": "",
   "license": "ISC",
   "dependencies": {
-    "lone-util": "^0.0.0"
+    "lone-logic": "^0.0.0",
+    "lone-messenger": "^0.0.0"
   }
 }

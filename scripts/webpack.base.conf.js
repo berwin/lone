@@ -6,7 +6,7 @@ function resolve (dir) {
 
 module.exports = {
   entry: {
-    logic: resolve('packages/lone-logic/index.js'),
+    logic: resolve('packages/lone-logic-worker/index.js'),
     ui: resolve('packages/lone-ui/index.js'),
     page: resolve('packages/lone-page/index.js')
   },

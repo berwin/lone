@@ -1,5 +1,3 @@
-import { slave } from '../schedule'
-
 export default function events (Lone) {
   const proto = Lone.prototype
   proto.navigateTo = navigateTo
@@ -8,13 +6,13 @@ export default function events (Lone) {
 }
 
 function navigateTo (url) {
-  slave.send('logic:navigateTo', null, { url })
+  this._slave.send('logic:navigateTo', null, { url })
 }
 
 function redirectTo (url) {
-  slave.send('logic:redirectTo', null, { url })
+  this._slave.send('logic:redirectTo', null, { url })
 }
 
 function navigateBack (delta) {
-  slave.send('logic:navigateBack', null, { delta })
+  this._slave.send('logic:navigateBack', null, { delta })
 }
