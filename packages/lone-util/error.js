@@ -1,15 +1,5 @@
-import { inWorker } from './env'
-
 export function handleError (err, vm, info) {
-  // show friendly error log
-  warn(`Error in ${info}: "${err.toString()}"`, vm)
-  /* istanbul ignore else */
-  // show error stack log
-  if (inWorker && typeof console !== 'undefined') {
-    console.error(err)
-  } else {
-    throw err
-  }
+  warn(`Error in ${info}: "${err.toString()}"`, vm, err)
 }
 
 const hasConsole = typeof console !== 'undefined'
@@ -17,11 +7,19 @@ const classifyRE = /(?:^|[-_])(\w)/g
 const classify = str =>
   str.replace(classifyRE, c => c.toUpperCase()).replace(/[-_]/g, '')
 
-export function warn (msg, vm) {
+export function warn (msg, vm, err) {
   const trace = vm ? generateComponentTrace(vm) : ''
+  const hasErr = err
+
+  if (!err) {
+    err = err || { toString () { return this.name + this.message } }
+  }
+
+  err.name = '[Lone warn]'
+  err.message = ` ${msg}${trace}`
 
   if (hasConsole) {
-    console.error(`[Lone warn]: ${msg}${trace}`)
+    console.error(hasErr ? err : String(err))
   }
 }
 
