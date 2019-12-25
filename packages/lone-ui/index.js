@@ -1,3 +1,4 @@
+import '@babel/polyfill'
 import Schedule from './schedule'
 import Router from './router'
 
