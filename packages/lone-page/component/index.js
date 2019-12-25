@@ -11,6 +11,10 @@ class Component {
   static setGlobalOptions (options) {
     this.options = options
   }
+
+  getLogicChannel () {
+    return this.$official ? 'logic-' + this.pid : 'logic-worker'
+  }
 }
 
 export default Component

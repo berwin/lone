@@ -1,0 +1,15 @@
+{
+  "name": "lone-logic-master",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "lone-logic": "^0.0.0",
+    "lone-messenger": "^0.0.0"
+  }
+}

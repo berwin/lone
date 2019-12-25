@@ -101,21 +101,25 @@ Lone.page({
       official: true,
       name: 'official',
       template: `
-      <div style="padding:10px 0;">
-        <h1>I'm official component: {{n}}</h1>
-      </div>
+        <div style="padding:10px 0;">
+          <button v-on:click="back">navigatorBack</button>
+          <p>我是官方组件，我可以直接用JS访问DOM与BOM: {{n}}</p>
+          <p>因为我的JS在页面内的UI主线程中运行</p>
+        </div>
       `,
       data () {
         return {
           n: 0
         }
       },
-      onLoad () {
+      onReady () {
         setTimeout(() => {
-          this.setData({
-            n: 1
-          })
+          this.setData({ n: 1 })
         }, 1000)
+        console.log(document, window)
+      },
+      back () {
+        this.navigateBack()
       }
     },
     {

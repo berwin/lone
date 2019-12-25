@@ -220,7 +220,3 @@ export function looseIndexOf (arr, val) {
   }
   return -1
 }
-
-export function getLogicChannel (vm) {
-  return vm.$official ? 'master-logic' : 'worker-logic'
-}
