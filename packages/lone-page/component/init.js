@@ -1,7 +1,7 @@
 import { Slave } from 'lone-messenger'
 import { compileToFunctions } from 'lone-compiler-dom'
 import { patch } from 'lone-virtualdom'
-import { proxy, getLogicChannel } from 'lone-util'
+import { proxy } from 'lone-util'
 import { resolveSlots } from './slot'
 import {
   initParentListener,
@@ -57,13 +57,13 @@ export default function init (Component) {
 
   proto.callHook = function (hook, rest = {}) {
     const vm = this
-    vm.slave.send(hook, getLogicChannel(vm), { name: vm.name, id: vm.id, ...rest })
+    vm.slave.send(hook, vm.getLogicChannel(), { name: vm.name, id: vm.id, ...rest })
   }
 
   proto.updatePropsData = function (data) {
     const vm = this
     vm.propsData = data
-    vm.slave.send('page:data', getLogicChannel(vm), { id: vm.id, data })
+    vm.slave.send('page:data', vm.getLogicChannel(), { id: vm.id, data })
   }
 }
 

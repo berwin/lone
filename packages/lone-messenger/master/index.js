@@ -47,12 +47,10 @@ export default class Master {
   }
 
   _postMessage (type, channel, data) {
-    if (channel === 'worker-logic') {
+    // Only developer component logic running under the sandbox
+    if (channel === 'logic-worker') {
       if (this.options.env === 'native') return this.native.send(type, data)
       if (this.options.env === 'worker') return this.worker.send(type, data)
-    }
-    if (channel === 'master-logic') {
-      return
     }
     return this.post.send(type, channel, data)
   }

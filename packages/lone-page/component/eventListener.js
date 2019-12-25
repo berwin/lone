@@ -1,4 +1,4 @@
-import { proxy, getLogicChannel } from 'lone-util'
+import { proxy } from 'lone-util'
 
 const customType = 'custom'
 
@@ -19,7 +19,7 @@ export function initEventListener (vm, methods) {
   while (i--) {
     vm._eventListener[methods[i]] = (function (method) {
       return function (event) {
-        vm.slave.send('page:triggerEvent', getLogicChannel(vm), {
+        vm.slave.send('page:triggerEvent', vm.getLogicChannel(), {
           id: vm.id,
           event: event.type === customType
             ? event.data

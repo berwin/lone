@@ -27,6 +27,4 @@ export default function (slave) {
   for (const [event, fn] of Object.entries(MESSENGER_EVENTS_UI)) {
     slave.onmessage(event, fn)
   }
-
-  slave.send('logic:inited')
 }
