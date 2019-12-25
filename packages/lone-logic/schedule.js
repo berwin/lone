@@ -8,6 +8,7 @@ export default function (slave) {
     'ui:inited': function ({ name, id, propsData, parentListeners }) {
       const vm = createComponentInstance(name, id, { propsData, parentListeners, slave })
       instanceStorage.set(id, vm)
+      callHook(vm, 'beforeMount')
     },
     'ui:ready': function ({ id }) {
       const vm = instanceStorage.get(id)
@@ -21,6 +22,14 @@ export default function (slave) {
     'ui:data': function ({ id, data }) {
       const vm = instanceStorage.get(id)
       vm.setData(data)
+    },
+    'ui:beforeUpdate': function ({ id, data }) {
+      const vm = instanceStorage.get(id)
+      callHook(vm, 'beforeUpdate')
+    },
+    'ui:updated': function ({ id, data }) {
+      const vm = instanceStorage.get(id)
+      callHook(vm, 'updated')
     }
   }
 

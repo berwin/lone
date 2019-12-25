@@ -101,3 +101,64 @@ Lone.logic('handle-error', {
     console.log(window)
   }
 })
+
+Lone.logic('lifecycle', {
+  beforeCreate () {
+    console.log('lifecycle: beforeCreate')
+  },
+  created () {
+    console.log('lifecycle: created')
+  },
+  onReady () {
+    console.log('lifecycle: onReady ')
+  },
+  mounted () {
+    console.log('lifecycle: mounted ')
+  },
+  onLoad  () {
+    console.log('lifecycle: onLoad  ')
+  },
+  onShow () {
+    console.log('lifecycle: onShow ')
+  },
+  onHide () {
+    console.log('lifecycle: onHide ')
+  },
+  beforeMount () {
+    console.log('lifecycle: beforeMount ')
+  },
+  beforeUpdate () {
+    console.log('lifecycle: beforeUpdate ')
+  },
+  updated () {
+    console.log('lifecycle: updated ')
+  },
+  beforeDestroy  () {
+    console.log('lifecycle: beforeDestroy  ')
+  },
+  onUnload () {
+    console.log('lifecycle: onUnload ')
+  },
+  destroyed () {
+    console.log('lifecycle: destroyed ')
+  },
+  data: () => ({ items: [],a: 0 }),
+  methods: {
+    addItem () {
+      this.data.items.push(this.data.a)
+      this.setData({
+        items: this.data.items,
+        a: this.data.a + 1
+      })
+    },
+    dontChange () {
+      this.setData({
+        items: this.data.items,
+        a: this.data.a
+      })
+    },
+    back () {
+      this.navigateBack()
+    }
+  }
+})

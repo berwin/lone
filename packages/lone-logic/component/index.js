@@ -3,6 +3,7 @@ import initData from './state'
 import events, { initEvents } from './events'
 import router from './router'
 import { notifyPropsObserver } from './observer'
+import { looseEqual } from 'lone-util'
 
 const init = Symbol('lone-logic:init')
 
@@ -30,6 +31,7 @@ class LogicComponent {
   setData (data) {
     const oldData = this.data
     this.data = Object.assign({}, oldData, data)
+    if (looseEqual(oldData, this.data)) return
     notifyPropsObserver(this, oldData, this.data)
     this._slave.send('component:data', this._id, this.data)
   }

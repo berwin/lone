@@ -48,6 +48,12 @@ class Schedule {
       },
       'page:data': function (channel, data) {
         vm.master.send('ui:data', channel, data)
+      },
+      'page:beforeUpdate': function (channel, data) {
+        vm.master.send('ui:beforeUpdate', channel, data)
+      },
+      'page:updated': function (channel, data) {
+        vm.master.send('ui:updated', channel, data)
       }
     }
     vm.init()
