@@ -8,12 +8,6 @@ const slaveMap = {
   worker: WorkerMessenger
 }
 
-export default new Proxy(class Slave {}, {
-  construct (trapTarget, argumentList) {
-    const options = argumentList[0]
-    return Reflect.construct(
-      slaveMap[options.env],
-      argumentList
-    )
-  }
-})
+export default function (options) {
+  return new slaveMap[options.env](options)
+}

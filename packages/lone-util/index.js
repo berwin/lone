@@ -131,18 +131,6 @@ export function isDef (v) {
 }
 
 /**
- * Define a property.
- */
-export function def (obj, key, val, enumerable) {
-  Object.defineProperty(obj, key, {
-    value: val,
-    enumerable: !!enumerable,
-    writable: true,
-    configurable: true
-  })
-}
-
-/**
  * Hyphenate a camelCase string.
  */
 const hyphenateRE = /\B([A-Z])/g
@@ -151,23 +139,6 @@ export const hyphenate = cached((str) => {
 })
 
 export const emptyObject = Object.freeze({})
-
-const sharedPropertyDefinition = {
-  enumerable: true,
-  configurable: true,
-  get: noop,
-  set: noop
-}
-
-export function proxy (target, sourceKey, key) {
-  sharedPropertyDefinition.get = function proxyGetter () {
-    return this[sourceKey][key]
-  }
-  sharedPropertyDefinition.set = function proxySetter (val) {
-    this[sourceKey][key] = val
-  }
-  Object.defineProperty(target, key, sharedPropertyDefinition)
-}
 
 /**
  * Check if two values are loosely equal - that is,

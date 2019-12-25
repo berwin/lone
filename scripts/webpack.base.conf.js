@@ -32,8 +32,11 @@ module.exports = {
         exclude: /node_modules/,
         loader: 'babel-loader',
         options: {
-          // "presets": ["@babel/preset-env"],
+          presets: [
+            ['@babel/preset-env', { targets: { ie: '8' } }]
+          ],
           plugins: [
+            ['@babel/plugin-transform-modules-commonjs', { loose: true }],
             ['@babel/plugin-proposal-decorators', { legacy: true }]
           ]
         }

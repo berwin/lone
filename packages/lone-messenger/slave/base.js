@@ -1,8 +1,5 @@
 class Messenger {
   constructor () {
-    if (new.target === Messenger) {
-      throw new TypeError('Messenger is only used for inheritance, not allowed to use directly.')
-    }
     this._messages = Object.create(null)
   }
 
@@ -34,8 +31,4 @@ class Messenger {
   }
 }
 
-export default new Proxy(Messenger, {
-  apply () {
-    throw new TypeError('Messenger is only used for inheritance, not allowed to use directly.')
-  }
-})
+export default Messenger

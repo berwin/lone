@@ -1,7 +1,6 @@
 import { Slave } from 'lone-messenger'
 import { compileToFunctions } from 'lone-compiler-dom'
 import { patch } from 'lone-virtualdom'
-import { proxy } from 'lone-util'
 import { resolveSlots } from './slot'
 import {
   initParentListener,
@@ -30,7 +29,7 @@ export default function init (Component) {
     let i = keys.length
     while (i--) {
       const key = keys[i]
-      proxy(vm, '_data', key)
+      vm[key] = vm._data[key]
     }
     const vnode = vm._render()
     vm._update(vnode)

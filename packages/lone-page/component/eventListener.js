@@ -1,5 +1,3 @@
-import { proxy } from 'lone-util'
-
 const customType = 'custom'
 
 export function initParentListener (vm) {
@@ -17,18 +15,16 @@ export function initEventListener (vm, methods) {
   vm._eventListener = Object.create(null)
   let i = methods.length
   while (i--) {
-    vm._eventListener[methods[i]] = (function (method) {
-      return function (event) {
-        vm.slave.send('page:triggerEvent', vm.getLogicChannel(), {
-          id: vm.id,
-          event: event.type === customType
-            ? event.data
-            : getEvent(event),
-          method
-        })
-      }
-    })(methods[i])
-    proxy(vm, '_eventListener', methods[i])
+    const method = methods[i]
+    vm[method] = vm._eventListener[method] = function (event) {
+      vm.slave.send('page:triggerEvent', vm.getLogicChannel(), {
+        id: vm.id,
+        event: event.type === customType
+          ? event.data
+          : getEvent(event),
+        method
+      })
+    }
   }
 }
 
