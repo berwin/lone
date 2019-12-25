@@ -1,5 +1,4 @@
-import { isFunction, isArray, hyphenate } from 'lone-util'
-import { handleError, warn } from './helper'
+import { warn, handleError, isFunction, isArray, hyphenate } from 'lone-util'
 
 export default function initState (vm) {
   vm.data = Object.create(null)

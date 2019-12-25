@@ -28,6 +28,7 @@ Lone.page({
             <p slot="footer">Slot Footer</p>
           </base-layout>
           <v-model />
+          <handle-error />
         </div>
       `
     },
@@ -117,6 +118,15 @@ Lone.page({
           })
         }, 1000)
       }
+    },
+    {
+      name: 'handle-error',
+      template: `
+      <section style="color: red;background-color: #fff;border: 2px solid #666;">
+        <header><h4 @click="handleError">Handle Error Section</h4></header>
+        <main></main>
+      </section>
+      `
     },
     {
       name: 'test2',

@@ -1,5 +1,5 @@
 import { LIFECYCLE_HOOKS } from 'lone-util/constants'
-import { isArray, isPlainObject, camelize } from 'lone-util'
+import { warn, handleError, isArray, isPlainObject, camelize } from 'lone-util'
 
 export function initOptions (options) {
   normalizeHooks(options)
@@ -42,14 +42,6 @@ function normalizePropsData (options) {
     }
   }
   options.props = res
-}
-
-export function warn (msg, vm) {
-  console.error(`[${vm ? (vm.$options.name + ' ') : ''}warn]: ${msg}`)
-}
-
-export function handleError (err, vm, info) {
-  console.error(`[warn]: ${`Error in ${info}: "${err.toString()}"`}`)
 }
 
 export function sendInitCommandToPageComponent (vm) {
