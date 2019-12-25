@@ -29,11 +29,9 @@ class LogicComponent {
   }
 
   setData (data) {
-    const vm = this
     const oldData = this.data
     this.data = Object.assign({}, oldData, data)
     if (looseEqual(oldData, this.data)) return
-    callHook(vm, 'beforeUpdate')
     notifyPropsObserver(this, oldData, this.data)
     this._slave.send('component:data', this._id, this.data)
   }
