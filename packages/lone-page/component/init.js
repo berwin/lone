@@ -95,10 +95,7 @@ function initRender (vm) {
 
 function reaction (vm) {
   vm.slave.onmessage('component:data', function (data) {
-    vm.callHook('page:beforeUpdate')
-    setTimeout(() => {
-      vm._setData(data)
-      vm.callHook('page:updated')
-    })
+    vm._setData(data)
+    vm.callHook('page:updated')
   })
 }

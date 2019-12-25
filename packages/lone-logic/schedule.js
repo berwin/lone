@@ -23,10 +23,6 @@ export default function (slave) {
       const vm = instanceStorage.get(id)
       vm.setData(data)
     },
-    'ui:beforeUpdate': function ({ id, data }) {
-      const vm = instanceStorage.get(id)
-      callHook(vm, 'beforeUpdate')
-    },
     'ui:updated': function ({ id, data }) {
       const vm = instanceStorage.get(id)
       callHook(vm, 'updated')
