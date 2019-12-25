@@ -23,7 +23,7 @@ export function tip (msg, vm) {
 }
 
 export function formatComponentName (vm) {
-  const name = vm.$options.name
+  const name = vm.$options && vm.$options.name
   return (name ? `<${classify(name)}>` : '<Anonymous>')
 }
 
