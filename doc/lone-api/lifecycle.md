@@ -1,7 +1,7 @@
 # 生命周期
 
 * beforeCreate
-* created
+* created && onLoad
 * beforeMount
 * onReady && mounted
 * beforeUpdate
@@ -11,7 +11,7 @@
 
 在实例初始化之后，数据观测 (data observer) 和 event/watcher 事件配置之前被调用。
 
-#### created
+#### created && onLoad
 
 在实例创建完成后被立即调用。在这一步，除了UI还没有渲染，其他都已经完成。
 
