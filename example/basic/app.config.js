@@ -6,6 +6,7 @@ Lone.ui({
   routes: [
     { path: '/', component: 'test' },
     { path: '/test', component: 'test2' },
-    { path: '/official', component: 'official' }
+    { path: '/official', component: 'official' },
+    { path: '/lifecycle', component: 'lifecycle' }
   ]
 })

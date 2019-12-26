@@ -13,13 +13,13 @@ export default function init (Component) {
   const proto = Component.prototype
   proto.init = function (options) {
     const vm = this
+    initLifecycle(vm)
     initOptions(vm, options, Component)
     initMessenger(vm)
     initParentListener(vm)
     initRender(vm)
     vm.callHook('page:inited', { propsData: vm.propsData, parentListeners: Object.keys(vm._parentListeners) })
     reaction(vm)
-    vm.callHook('page:ready')
   }
 
   proto._setData = function (data) {
@@ -49,9 +49,16 @@ export default function init (Component) {
   }
 
   proto._update = function (vnode) {
+    const vm = this
     const oldVnode = this._vnode || this.options.el
     this._vnode = vnode
+    if (vm._isMounted && !vm._isDestroyed) {
+      vm.callHook('page:beforeUpdate')
+    }
     patch(oldVnode, this._vnode)
+    if (vm._isMounted && !vm._isDestroyed) {
+      vm.callHook('page:updated')
+    }
   }
 
   proto.callHook = function (hook, rest = {}) {
@@ -64,6 +71,11 @@ export default function init (Component) {
     vm.propsData = data
     vm.slave.send('page:data', vm.getLogicChannel(), { id: vm.id, data })
   }
+}
+
+function initLifecycle (vm) {
+  vm._isMounted = false
+  vm._isDestroyed = false
 }
 
 function initOptions (vm, options, Component) {
@@ -84,7 +96,10 @@ function initMessenger (vm) {
 
   vm.slave.onmessage('component:inited', function ({ data: initData = {}, methods = [] }) {
     initEventListener(vm, methods)
+    vm.callHook('page:beforeMount')
     vm._setData(initData)
+    vm._isMounted = true
+    vm.callHook('page:ready')
   })
 }
 

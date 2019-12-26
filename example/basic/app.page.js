@@ -11,6 +11,7 @@ Lone.page({
           <ul>
             <li><button v-on:click="navigatorTo('/test')">navigatorTo: /test</button></li>
             <li><button v-on:click="navigatorTo('/official')">navigateTo: /official</button></li>
+            <li><button v-on:click="navigatorTo('/lifecycle')">navigateTo: /lifecycle</button></li>
           </ul>
           <h2 :id="n" :style="{backgroundColor: 'red'}" style="color:blue;">N:{{ n }}</h2>
           <ad title="My journey with Lone" :n="n" @enlarge-text="test" :list="list" />
@@ -297,6 +298,20 @@ Lone.page({
         <span uid="3379" class="token punctuation">}</span>
       </span></span><span uid="3382" class="token tag"><span uid="3383" class="token tag"><span uid="3384" class="token punctuation">&lt;/</span>style</span><span uid="3387" class="token punctuation">&gt;</span></span>
       </code></pre></div> <h2 uid="3391">Props</h2> <table uid="3394"><thead uid="3395"><tr uid="3396"><th uid="3397">属性</th> <th uid="3400">类型</th> <th uid="3403">默认值</th> <th uid="3406">必填</th> <th uid="3409">说明</th></tr></thead> <tbody uid="3412"><tr uid="3413"><td uid="3414">size</td> <td uid="3417"><code uid="3418">string</code></td> <td uid="3421"><code uid="3422">default</code></td> <td uid="3425">否</td> <td uid="3428">按钮尺寸，可选值：<code uid="3430">default | mini | large</code></td></tr> <tr uid="3433"><td uid="3434">type</td> <td uid="3437"><code uid="3438">string</code></td> <td uid="3441"><code uid="3442">default</code></td> <td uid="3445">否</td> <td uid="3448">按钮类型，可选值：<code uid="3450">primary | default | warn | danger | text</code></td></tr> <tr uid="3453"><td uid="3454">plain</td> <td uid="3457"><code uid="3458">boolean</code></td> <td uid="3461"><code uid="3462">false</code></td> <td uid="3465">否</td> <td uid="3468">按钮是否镂空，背景色透明</td></tr> <tr uid="3471"><td uid="3472">disabled</td> <td uid="3475"><code uid="3476">boolean</code></td> <td uid="3479"><code uid="3480">false</code></td> <td uid="3483">否</td> <td uid="3486">是否禁用</td></tr> <tr uid="3489"><td uid="3490">loading</td> <td uid="3493"><code uid="3494">boolean</code></td> <td uid="3497"><code uid="3498">false</code></td> <td uid="3501">否</td> <td uid="3504">名称前是否带 loading 图标</td></tr> <tr uid="3507"><td uid="3508">block</td> <td uid="3511"><code uid="3512">boolean</code></td> <td uid="3515"><code uid="3516">false</code></td> <td uid="3519">否</td> <td uid="3522">按钮是否为块级元素,自适应父级元素宽度</td></tr> <tr uid="3525"><td uid="3526">form-type</td> <td uid="3529"><code uid="3530">string</code></td> <td uid="3533">-</td> <td uid="3536">否</td> <td uid="3539"><code uid="3540">submit | reset</code></td></tr></tbody></table></article>`
+    },
+    {
+      name: 'lifecycle',
+      template: `
+        <div>
+          <h1>lifecycle </h1>
+          <div><button @click="addItem">使items变化，触发beforeUpdate, updated</button></div>
+          <div><button @click="dontChange">不使数据变化，但触发setData</button></div>
+          <div><button @click="back">back</button></div>
+          <div class="lifecycle_result">
+            <div v-for="item in items">{{item}}</div>
+          </div>
+        </div>
+      `
     }
   ]
 })
