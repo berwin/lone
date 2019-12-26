@@ -73,6 +73,11 @@ export default function init (Component) {
   }
 }
 
+function initLifecycle (vm) {
+  vm._isMounted = false
+  vm._isDestroyed = false
+}
+
 function initOptions (vm, options, Component) {
   vm.options = options
   vm.cid = cid++
@@ -84,11 +89,6 @@ function initOptions (vm, options, Component) {
   vm.propsData = options.propsData || {}
   vm.$slots = resolveSlots(options._renderChildren)
   vm.$official = !!config.official
-}
-
-function initLifecycle (vm) {
-  vm._isMounted = false
-  vm._isDestroyed = false
 }
 
 function initMessenger (vm) {
