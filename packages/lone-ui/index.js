@@ -6,7 +6,8 @@ class LoneUI {
     this.options = options
     this.router = new Router({
       routes: this.options.routes,
-      entry: this.options.entry
+      entry: this.options.entry,
+      container: this.options.container || document.body
     })
     this.schedule = new Schedule({
       router: this.router,

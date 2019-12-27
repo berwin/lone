@@ -11,10 +11,10 @@ export function query (el) {
   if (typeof el === 'string') {
     const selected = document.querySelector(el)
     if (!selected) {
-      process.env.NODE_ENV !== 'production' && warn(
-        'Cannot find element: ' + el
+      warn(
+        'Cannot find element: ' + el + '. Used body instead!'
       )
-      return document.createElement('div')
+      return document.body
     }
     return selected
   } else {
