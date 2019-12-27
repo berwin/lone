@@ -58,6 +58,12 @@ class Schedule {
       },
       'page:updated': function (channel, data) {
         vm.master.send('ui:updated', channel, data)
+      },
+      'page:show': function (channel, data) {
+        vm.master.send('ui:show', channel, data)
+      },
+      'page:hide': function (channel, data) {
+        vm.master.send('ui:hide', channel, data)
       }
     }
     vm.init()
