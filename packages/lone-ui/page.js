@@ -7,6 +7,11 @@ export function createPage (route, { container, entry, mid, zIndex }) {
   setStyle(view, container, zIndex)
   container.appendChild(view)
   insertJS(view, entry)
+  document.onvisibilitychange = function () {
+    console.log(document.visibilityState)
+
+    // 当页面状态发生改变的时候 向当前iframe下所有组件发送通知 去触发onhide或者onshow
+  }
   return view
 }
 
