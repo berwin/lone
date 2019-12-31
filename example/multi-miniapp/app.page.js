@@ -20,6 +20,7 @@ Lone.page({
       <div style="padding:10px 0;">
         <button v-on:click="back">navigatorBack</button>
         <p>我是第二个页面: {{n}}</p>
+        <input type="text" v-model="n" />
       </div>
       `
     }

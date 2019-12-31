@@ -1,6 +1,10 @@
 class WorkerMessenger {
-  connection (source) {
-    this.source = source
+  constructor (options) {
+    this.worker = options.worker
+  }
+
+  connection () {
+    this.source = this.worker
   }
 
   onmessage (fn) {

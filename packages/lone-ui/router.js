@@ -10,6 +10,7 @@ class Router {
     this.routes = options.routes
     this.entry = options.entry
     this.container = query(options.container)
+    this.mid = options.mid
   }
 
   [getRoute] (url) {
@@ -31,7 +32,9 @@ class Router {
     const route = this[getRoute](url)
     const view = createPage(route, {
       entry: this.entry.page,
-      container: this.container
+      container: this.container,
+      mid: this.mid,
+      zIndex: this.stack.length
     })
     this.stack.push(view)
     return view

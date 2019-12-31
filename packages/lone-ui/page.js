@@ -1,10 +1,10 @@
 let pid = 0
 
-export function createPage (route, { container, entry }) {
+export function createPage (route, { container, entry, mid, zIndex }) {
   const id = pid++
   const view = document.createElement('iframe')
-  setAttr(id, view, route)
-  setStyle(view, container)
+  setAttr(id, view, { ...route, mid })
+  setStyle(view, container, zIndex)
   container.appendChild(view)
   insertJS(view, entry)
   return view
@@ -21,7 +21,7 @@ function setAttr (id, view, attrs) {
   }
 }
 
-function setStyle (view, container) {
+function setStyle (view, container, zIndex) {
   const box = container.tagName === 'BODY'
     ? document.documentElement
     : container
@@ -29,7 +29,7 @@ function setStyle (view, container) {
   view.style.height = box.clientHeight + 'px'
   view.style.position = 'fixed'
   view.style.border = 'none'
-  view.style.zIndex = pid
+  view.style.zIndex = zIndex
   view.style.backgroundColor = 'white'
 }
 

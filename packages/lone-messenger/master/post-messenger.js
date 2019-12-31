@@ -1,8 +1,10 @@
 const source = Symbol('messenger:master#connection')
 
 class PostMessenger {
-  constructor () {
+  constructor (options) {
     this[source] = Object.create(null)
+    this.mid = options.mid
+    this.midRe = new RegExp('^' + this.mid)
   }
 
   connection () {
@@ -15,8 +17,9 @@ class PostMessenger {
   }
 
   onmessage (fn) {
+    const vm = this
     window.addEventListener('message', function (evt) {
-      if (evt.origin !== location.origin) return
+      if (evt.origin !== location.origin || !vm.midRe.test(evt.data.channel)) return
       fn.call(evt, evt.data)
     })
   }
