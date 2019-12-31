@@ -46,7 +46,6 @@ class Router {
 
   _push (url) {
     this.triggerCurrentPageHideHook() // 路由切换之前 执行当前iframe的onHide
-
     const route = this[getRoute](url)
     const view = createPage(route, {
       entry: this.entry.page,
