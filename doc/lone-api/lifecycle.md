@@ -2,10 +2,12 @@
 
 * beforeCreate
 * created && onLoad
+* onShow
 * beforeMount
 * onReady && mounted
 * beforeUpdate
 * updated
+* onHide
 
 #### beforeCreate
 
@@ -14,6 +16,10 @@
 #### created && onLoad
 
 在实例创建完成后被立即调用。在这一步，除了UI还没有渲染，其他都已经完成。
+
+#### onShow
+
+页面展示的时候被调用
 
 #### beforeMount
 
@@ -34,3 +40,7 @@
 由于数据更改导致的虚拟 DOM 重新渲染和打补丁，在这之后会调用该钩子。
 
 换句话说，渲染完成后调用。
+
+#### onHide
+
+页面隐藏的时候被调用
