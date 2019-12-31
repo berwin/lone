@@ -1,7 +1,7 @@
 importScripts('../../dist/lone.logic.js')
 
 Lone.logic('test', {
-  data: () => ({ n: 0, list: [1,2,3,4,5] }),
+  data: () => ({ n: 0, list: [1, 2, 3, 4, 5] }),
   methods: {
     navigateAndIncrement () {
       const increment = () => this.n++
@@ -54,6 +54,12 @@ Lone.logic('test', {
 Lone.logic('test2', {
   back () {
     this.navigateBack()
+  },
+  onShow () {
+    console.log('test2.js: onShow~~~')
+  },
+  onHide () {
+    console.log('test2.js: onHide~~~')
   }
 })
 
@@ -142,7 +148,7 @@ Lone.logic('lifecycle', {
   destroyed () {
     console.log('lifecycle: destroyed ')
   },
-  data: () => ({ items: [],a: 0 }),
+  data: () => ({ items: [], a: 0 }),
   methods: {
     addItem () {
       this.data.items.push(this.data.a)

@@ -20,6 +20,8 @@ export default function init (Component) {
     initRender(vm)
     vm.callHook('page:inited', { propsData: vm.propsData, parentListeners: Object.keys(vm._parentListeners) })
     reaction(vm)
+    initHideChange(vm)
+    initShowChange(vm)
   }
 
   proto._setData = function (data) {
@@ -112,5 +114,17 @@ function initRender (vm) {
 function reaction (vm) {
   vm.slave.onmessage('component:data', function (data) {
     vm._setData(data)
+  })
+}
+
+function initHideChange (vm) {
+  document.addEventListener('onHide', function () {
+    vm.callHook('page:hide', { pid: vm.pid })
+  })
+}
+
+function initShowChange (vm) {
+  document.addEventListener('onShow', function () {
+    vm.callHook('page:show', { pid: vm.pid })
   })
 }

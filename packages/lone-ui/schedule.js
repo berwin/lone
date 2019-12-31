@@ -58,9 +58,16 @@ class Schedule {
       },
       'page:updated': function (channel, data) {
         vm.master.send('ui:updated', channel, data)
+      },
+      'page:show': function (channel, data) {
+        vm.master.send('ui:show', channel, data)
+      },
+      'page:hide': function (channel, data) {
+        vm.master.send('ui:hide', channel, data)
       }
     }
     vm.init()
+    vm.listenVisibilityChange(vm.router)
   }
 
   init () {
@@ -72,6 +79,16 @@ class Schedule {
     for (const [event, fn] of Object.entries(events)) {
       messenger.onmessage(event, fn)
     }
+  }
+
+  listenVisibilityChange (router) {
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible') {
+        router.triggerCurrentPageShowHook()
+      } else {
+        router.triggerCurrentPageHideHook()
+      }
+    })
   }
 }
 

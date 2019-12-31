@@ -33,6 +33,14 @@ export default function (slave) {
     'ui:updated': function ({ id, data }) {
       const vm = instanceStorage.get(id)
       callHook(vm, 'updated')
+    },
+    'ui:show': function ({ id, data }) {
+      const vm = instanceStorage.get(id)
+      callHook(vm, 'onShow')
+    },
+    'ui:hide': function ({ id, data }) {
+      const vm = instanceStorage.get(id)
+      callHook(vm, 'onHide')
     }
   }
 
