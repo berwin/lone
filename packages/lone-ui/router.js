@@ -28,7 +28,7 @@ class Router {
     return this.stack
   }
 
-  _handleHideEventListener () {
+  triggerCurrentPageHideHook () {
     const currentPage = this.currentPage()
     if (currentPage) {
       var hidechange = new Event('onHide')
@@ -36,7 +36,7 @@ class Router {
     }
   }
 
-  _handleShowEventListener () {
+  triggerCurrentPageShowHook () {
     const currentPage = this.currentPage()
     if (currentPage) {
       var showchange = new Event('onShow')
@@ -45,7 +45,7 @@ class Router {
   }
 
   _push (url) {
-    this._handleHideEventListener() // 路由切换之前 执行当前iframe的onHide
+    this.triggerCurrentPageHideHook() // 路由切换之前 执行当前iframe的onHide
 
     const route = this[getRoute](url)
     const view = createPage(route, {
@@ -61,7 +61,7 @@ class Router {
   _pop () {
     const oldView = this.stack.pop()
     removePage(this.container, oldView)
-    this._handleShowEventListener()
+    this.triggerCurrentPageShowHook()
   }
 
   navigateTo (url) {

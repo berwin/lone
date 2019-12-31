@@ -84,9 +84,9 @@ class Schedule {
   addEventListener (router) {
     document.addEventListener('visibilitychange', function () {
       if (document.visibilityState === 'visible') {
-        router._handleShowEventListener()
+        router.triggerCurrentPageShowHook()
       } else {
-        router._handleHideEventListener()
+        router.triggerCurrentPageHideHook()
       }
     })
   }
