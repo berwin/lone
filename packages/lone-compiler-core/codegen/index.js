@@ -196,7 +196,7 @@ export function genData (el, state) {
   }
   // DOM props
   if (el.props) {
-    data += `domProps:{${genProps(el.props)}},`
+    data += `props:{${genProps(el.props)}},`
   }
   // event handlers
   if (el.events) {

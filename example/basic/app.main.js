@@ -88,12 +88,19 @@ Lone.logic('ad', {
 
 Lone.logic('v-model', {
   data: () => (
-    { n: 0, message: '', checked: false, checkedNames: [], picked: '', selected: [] }
+    { n: 0, message: 'default text', checked: true, checkedNames: ['Jack'], picked: 'One' }
   ),
   methods: {
     showModel () {
       console.log(this.data)
     }
+  },
+  mounted () {
+    setTimeout(_ => {
+      this.setData({
+        n: 2
+      })
+    }, 1000)
   }
 })
 
