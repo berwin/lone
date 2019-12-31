@@ -67,7 +67,7 @@ class Schedule {
       }
     }
     vm.init()
-    vm.addEventListener(vm.router)
+    vm.listenVisibilityChange(vm.router)
   }
 
   init () {
@@ -81,7 +81,7 @@ class Schedule {
     }
   }
 
-  addEventListener (router) {
+  listenVisibilityChange (router) {
     document.addEventListener('visibilitychange', function () {
       if (document.visibilityState === 'visible') {
         router.triggerCurrentPageShowHook()
