@@ -28,7 +28,24 @@ class Router {
     return this.stack
   }
 
+  _handleHideEventListener () {
+    const currentPage = this.currentPage()
+    if (currentPage) {
+      var hidechange = new Event('hidechange')
+      currentPage.contentDocument.dispatchEvent(hidechange)
+    }
+  }
+
+  _handleShowEventListener () {
+    const currentPage = this.currentPage()
+    if (currentPage) {
+      var showchange = new Event('showchange')
+      currentPage.contentDocument.dispatchEvent(showchange)
+    }
+  }
+
   _push (url) {
+    this._handleHideEventListener()
     const route = this[getRoute](url)
     const view = createPage(route, {
       entry: this.entry.page,

@@ -20,6 +20,8 @@ export default function init (Component) {
     initRender(vm)
     vm.callHook('page:inited', { propsData: vm.propsData, parentListeners: Object.keys(vm._parentListeners) })
     reaction(vm)
+    initHideChange(vm)
+    initShowChange(vm)
   }
 
   proto._setData = function (data) {
@@ -112,5 +114,32 @@ function initRender (vm) {
 function reaction (vm) {
   vm.slave.onmessage('component:data', function (data) {
     vm._setData(data)
+  })
+}
+
+// function initVisibilitychange (vm) {
+//   initHideChange(vm)
+//   initShowChange(vm)
+
+//   document.addEventListener('visibilitychange', function () {
+//     if (document.visibilityState === 'visible') {
+//       var showchange = new Event('showchange')
+//       document.dispatchEvent(showchange)
+//     } else {
+//       var hidechange = new Event('hidechange')
+//       document.dispatchEvent(hidechange)
+//     }
+//   })
+// }
+
+function initHideChange (vm) {
+  document.addEventListener('hidechange', function () {
+    vm.callHook('page:hide', { pid: vm.pid })
+  })
+}
+
+function initShowChange (vm) {
+  document.addEventListener('showchange', function () {
+    vm.callHook('page:show', { pid: vm.pid })
   })
 }

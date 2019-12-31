@@ -26,6 +26,7 @@ class LogicComponent {
     initData(vm)
     callHook(vm, 'created')
     callHook(vm, 'onLoad')
+    callHook(vm, 'onShow')
     sendInitCommandToPageComponent(vm)
   }
 
