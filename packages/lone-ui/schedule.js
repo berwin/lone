@@ -67,6 +67,7 @@ class Schedule {
       }
     }
     vm.init()
+    vm.addEventListener(vm.router)
   }
 
   init () {
@@ -78,6 +79,16 @@ class Schedule {
     for (const [event, fn] of Object.entries(events)) {
       messenger.onmessage(event, fn)
     }
+  }
+
+  addEventListener (router) {
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible') {
+        router._handleShowEventListener()
+      } else {
+        router._handleHideEventListener()
+      }
+    })
   }
 }
 
