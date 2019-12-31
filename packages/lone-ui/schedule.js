@@ -1,11 +1,12 @@
 import { Master } from 'lone-messenger'
 
 class Schedule {
-  constructor ({ router, entry }) {
+  constructor ({ router, entry, mid }) {
     const vm = this
     vm.router = router
     vm.entry = entry
     this.master = new Master({
+      mid: mid,
       env: 'worker',
       worker: new Worker(vm.entry.logic)
     })

@@ -1,13 +1,14 @@
 import Messenger from './base'
 
 class WorkerMessenger extends Messenger {
-  constructor () {
+  constructor (options) {
     super()
+    this.channel = options.channel
     this.listen()
   }
 
-  _postMessage (type, channel, data) {
-    self.postMessage({ type, channel, data })
+  _postMessage (type, targetChannel, data) {
+    self.postMessage({ type, channel: this.channel, targetChannel, data })
   }
 
   _onmessage (fn) {

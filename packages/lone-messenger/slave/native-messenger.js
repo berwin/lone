@@ -1,3 +1,4 @@
+// 该文件当前不可用，因为没有 Native 消息通道
 import Messenger from './base'
 import { isObject } from 'lone-util'
 

@@ -1,5 +1,6 @@
 import { createPage, removePage } from './page'
 import { parse } from 'lone-util/url'
+import { query } from 'lone-util/web'
 
 const getRoute = Symbol('getRoute')
 
@@ -8,6 +9,8 @@ class Router {
     this.stack = []
     this.routes = options.routes
     this.entry = options.entry
+    this.container = query(options.container)
+    this.mid = options.mid
   }
 
   [getRoute] (url) {
@@ -27,14 +30,19 @@ class Router {
 
   _push (url) {
     const route = this[getRoute](url)
-    const view = createPage(route, this.entry)
+    const view = createPage(route, {
+      entry: this.entry.page,
+      container: this.container,
+      mid: this.mid,
+      zIndex: this.stack.length
+    })
     this.stack.push(view)
     return view
   }
 
   _pop () {
     const oldView = this.stack.pop()
-    removePage(oldView)
+    removePage(this.container, oldView)
   }
 
   navigateTo (url) {

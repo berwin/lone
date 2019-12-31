@@ -82,7 +82,8 @@ function initOptions (vm, options, Component) {
   vm.options = options
   vm.cid = cid++
   vm.pid = Component.options.pid
-  vm.id = vm.pid + '_' + vm.cid
+  vm.mid = Component.options.mid
+  vm.id = vm.mid + '_' + vm.pid + '_' + vm.cid
   const config = Component.options.components.find(item => item.name === vm.options.name)
   vm.name = config.name
   vm.template = config.template

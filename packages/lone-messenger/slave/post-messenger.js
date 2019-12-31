@@ -11,7 +11,7 @@ class PostMessenger extends BaseMessenger {
   }
 
   [connection] () {
-    this._postMessage('connection', this.channel)
+    this._postMessage('connection')
   }
 
   _onmessage (fn) {
@@ -23,9 +23,9 @@ class PostMessenger extends BaseMessenger {
     })
   }
 
-  _postMessage (type, channel, data) {
+  _postMessage (type, targetChannel, data) {
     const slave = window.parent
-    slave.postMessage({ type, channel, data }, slave.origin)
+    slave.postMessage({ type, channel: this.channel, targetChannel, data }, slave.origin)
   }
 }
 

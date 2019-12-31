@@ -8,16 +8,16 @@ export default class Master {
   constructor (options) {
     this._messages = Object.create(null)
     this.options = options
-    this.native = new Native()
-    this.post = new Post()
-    this.worker = new WebWorker()
+    this.native = new Native(options)
+    this.post = new Post(options)
+    this.worker = new WebWorker(options)
     this[connection]()
     this.listen()
   }
 
   [connection] () {
     if (this.options.env === 'native') this.native.connection()
-    if (this.options.env === 'worker') this.worker.connection(this.options.worker)
+    if (this.options.env === 'worker') this.worker.connection()
     this.post.connection()
   }
 
@@ -35,7 +35,7 @@ export default class Master {
       if (!cbs) return
       let i = cbs.length
       while (i--) {
-        cbs[i].call(evt, evt.channel, evt.data)
+        cbs[i].call(evt, evt.targetChannel, evt.data)
       }
     })
   }

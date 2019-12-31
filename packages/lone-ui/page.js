@@ -1,17 +1,17 @@
 let pid = 0
 
-export function createPage (options, entry) {
+export function createPage (route, { container, entry, mid, zIndex }) {
   const id = pid++
   const view = document.createElement('iframe')
-  setAttr(id, view, options)
-  setStyle(view)
-  document.body.appendChild(view)
+  setAttr(id, view, { ...route, mid })
+  setStyle(view, container, zIndex)
+  container.appendChild(view)
   insertJS(view, entry)
   return view
 }
 
-export function removePage (page) {
-  document.body.removeChild(page)
+export function removePage (container, page) {
+  container.removeChild(page)
 }
 
 function setAttr (id, view, attrs) {
@@ -21,13 +21,15 @@ function setAttr (id, view, attrs) {
   }
 }
 
-function setStyle (view) {
-  const doc = document.documentElement
-  view.style.width = doc.clientWidth + 'px'
-  view.style.height = doc.clientHeight + 'px'
+function setStyle (view, container, zIndex) {
+  const box = container.tagName === 'BODY'
+    ? document.documentElement
+    : container
+  view.style.width = box.clientWidth + 'px'
+  view.style.height = box.clientHeight + 'px'
   view.style.position = 'fixed'
   view.style.border = 'none'
-  view.style.zIndex = pid
+  view.style.zIndex = zIndex
   view.style.backgroundColor = 'white'
 }
 
@@ -41,6 +43,7 @@ function insertJS (view, entry) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
         <title>Document</title>
+        <style>body{margin:0;}</style>
       </head>
       <body>${scriptTag}</body>
     </html>
@@ -52,7 +55,7 @@ function insertPageJS () {
 }
 
 function insertUserJS (entry) {
-  return '<script src="' + entry.page + '"></script>'
+  return '<script src="' + entry + '"></script>'
 }
 
 function insertContainer () {
