@@ -31,7 +31,7 @@ class Router {
   _handleHideEventListener () {
     const currentPage = this.currentPage()
     if (currentPage) {
-      var hidechange = new Event('hidechange')
+      var hidechange = new Event('hideIframeComponent')
       currentPage.contentDocument.dispatchEvent(hidechange)
     }
   }
@@ -39,13 +39,14 @@ class Router {
   _handleShowEventListener () {
     const currentPage = this.currentPage()
     if (currentPage) {
-      var showchange = new Event('showchange')
+      var showchange = new Event('showIframeComponent')
       currentPage.contentDocument.dispatchEvent(showchange)
     }
   }
 
   _push (url) {
-    this._handleHideEventListener()
+    this._handleHideEventListener() // 路由切换之前 执行当前iframe的onHide
+
     const route = this[getRoute](url)
     const view = createPage(route, {
       entry: this.entry.page,
