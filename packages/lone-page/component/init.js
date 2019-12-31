@@ -118,13 +118,13 @@ function reaction (vm) {
 }
 
 function initHideChange (vm) {
-  document.addEventListener('hideIframeComponent', function () {
+  document.addEventListener('onHide', function () {
     vm.callHook('page:hide', { pid: vm.pid })
   })
 }
 
 function initShowChange (vm) {
-  document.addEventListener('showIframeComponent', function () {
+  document.addEventListener('onShow', function () {
     vm.callHook('page:show', { pid: vm.pid })
   })
 }

@@ -31,7 +31,7 @@ class Router {
   _handleHideEventListener () {
     const currentPage = this.currentPage()
     if (currentPage) {
-      var hidechange = new Event('hideIframeComponent')
+      var hidechange = new Event('onHide')
       currentPage.contentDocument.dispatchEvent(hidechange)
     }
   }
@@ -39,7 +39,7 @@ class Router {
   _handleShowEventListener () {
     const currentPage = this.currentPage()
     if (currentPage) {
-      var showchange = new Event('showIframeComponent')
+      var showchange = new Event('onShow')
       currentPage.contentDocument.dispatchEvent(showchange)
     }
   }
@@ -61,6 +61,7 @@ class Router {
   _pop () {
     const oldView = this.stack.pop()
     removePage(this.container, oldView)
+    this._handleShowEventListener()
   }
 
   navigateTo (url) {
