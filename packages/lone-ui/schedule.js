@@ -70,9 +70,6 @@ class Schedule {
       },
       'page:hide': function (channel, data) {
         vm.master.send('ui:hide', channel, data)
-      },
-      'page:destroy': function (channel, data) {
-        vm.master.send('ui:destroy', channel, data)
       }
     }
     vm.init()

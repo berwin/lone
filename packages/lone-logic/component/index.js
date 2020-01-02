@@ -29,7 +29,6 @@ class LogicComponent {
     callHook(vm, 'onLoad')
     callHook(vm, 'onShow')
     sendInitCommandToPageComponent(vm)
-    console.log(vm)
   }
 
   setData (data) {

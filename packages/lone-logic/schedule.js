@@ -41,10 +41,6 @@ export default function (slave) {
     'ui:hide': function ({ id }) {
       const vm = instanceStorage.get(id)
       callHook(vm, 'onHide')
-    },
-    'ui:destroy': function ({ id }) {
-      const vm = instanceStorage.get(id)
-      vm.$destroy()
     }
   }
 
