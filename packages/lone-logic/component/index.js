@@ -47,6 +47,7 @@ class LogicComponent {
     callHook(vm, 'beforeDestroy')
     vm._isBeingDestroyed = true
     vm.data = null
+    vm.$off()
     instanceStorage.delete(vm._id)
     callHook(vm, 'destroyed')
     vm._slave.send('component:destroy', this._id, {})
