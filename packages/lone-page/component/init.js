@@ -2,6 +2,7 @@ import { Slave } from 'lone-messenger'
 import { compileToFunctions } from 'lone-compiler-dom'
 import { patch } from 'lone-virtualdom'
 import { resolveSlots } from './slot'
+import { proxy } from 'lone-util'
 import {
   initParentListener,
   initEventListener
@@ -22,8 +23,7 @@ export default function init (Component) {
     reaction(vm)
     initHideChange(vm)
     initShowChange(vm)
-    patchVnodeToNull(vm)
-    initDestroy(vm)
+    patchNodeDestroy(vm)
   }
 
   proto._setData = function (data) {
@@ -33,7 +33,7 @@ export default function init (Component) {
     let i = keys.length
     while (i--) {
       const key = keys[i]
-      vm[key] = vm._data[key]
+      proxy(vm, '_data', key)
     }
     const vnode = vm._render()
     vm._update(vnode)
@@ -119,9 +119,9 @@ function reaction (vm) {
   })
 }
 
-function patchVnodeToNull (vm) {
-  vm.slave.onmessage('component:patch', function (data) {
-    vm._update(null)
+function patchNodeDestroy (vm) {
+  vm.slave.onmessage('component:destroy', function (info) {
+    console.log('此处移除组件')
   })
 }
 
@@ -134,11 +134,5 @@ function initHideChange (vm) {
 function initShowChange (vm) {
   document.addEventListener('onShow', function () {
     vm.callHook('page:show', { pid: vm.pid })
-  })
-}
-
-function initDestroy (vm) {
-  document.addEventListener('onDestroy', function () {
-    vm.callHook('page:destroy', { pid: vm.pid })
   })
 }

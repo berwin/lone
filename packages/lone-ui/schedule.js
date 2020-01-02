@@ -18,6 +18,9 @@ class Schedule {
       'component:inited': function (channel, data) {
         vm.master.send('component:inited', channel, data)
       },
+      'component:destroy': function (channel, data) {
+        vm.master.send('component:destroy', channel, data)
+      },
       'component:data': function (channel, data) {
         vm.master.send('component:data', channel, data)
       },

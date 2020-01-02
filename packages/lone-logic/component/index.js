@@ -4,6 +4,7 @@ import events, { initEvents } from './events'
 import router from './router'
 import { notifyPropsObserver } from './observer'
 import { looseEqual } from 'lone-util'
+import { instanceStorage } from '../schedule'
 
 const init = Symbol('lone-logic:init')
 
@@ -28,6 +29,7 @@ class LogicComponent {
     callHook(vm, 'onLoad')
     callHook(vm, 'onShow')
     sendInitCommandToPageComponent(vm)
+    console.log(vm)
   }
 
   setData (data) {
@@ -45,12 +47,11 @@ class LogicComponent {
     }
     callHook(vm, 'beforeDestroy')
     vm._isBeingDestroyed = true
-    // this._slave.send('component:patch', this._id, this.data)
-    // // 是否需要去掉vm.data的监听
-    // vm.data = null
-    // vm.$options = null
-    // 中间这部分逻辑需要待定
+    vm.data = null
+    instanceStorage.delete(vm._id)
+    vm._slave.send('component:destroy', this._id, this.data)
     callHook(vm, 'destroyed')
+    console.log('清除组件内所有事件绑定')
   };
 }
 

@@ -52,6 +52,7 @@ Lone.logic('test', {
 })
 
 Lone.logic('test2', {
+  data: () => ({ n: 0, list: [1, 2, 3, 4, 5] }),
   back () {
     this.navigateBack()
   },
@@ -68,9 +69,11 @@ Lone.logic('test2', {
   },
   beforeDestroy () {
     console.log('test2.js: beforeDestroy~~~')
+    console.log(this.list)
   },
   destroyed () {
     console.log('test2.js: destroyed~~~')
+    console.log(this.list)
   }
 
 })

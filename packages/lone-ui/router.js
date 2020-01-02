@@ -44,14 +44,6 @@ class Router {
     }
   }
 
-  triggerCurrentPageDestroyedHook () {
-    const currentPage = this.currentPage()
-    if (currentPage) {
-      var showchange = new Event('onDestroy')
-      currentPage.contentDocument.dispatchEvent(showchange)
-    }
-  }
-
   _push (url) {
     this.triggerCurrentPageHideHook() // 路由切换之前 执行当前iframe的onHide
     const route = this[getRoute](url)
@@ -66,7 +58,6 @@ class Router {
   }
 
   _pop () {
-    this.triggerCurrentPageDestroyedHook()
     const oldView = this.stack.pop()
     removePage(this.container, oldView)
     this.triggerCurrentPageShowHook()
