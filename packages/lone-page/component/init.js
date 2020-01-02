@@ -23,7 +23,7 @@ export default function init (Component) {
     reaction(vm)
     initHideChange(vm)
     initShowChange(vm)
-    patchDestroyRemoveNode(vm)
+    initDestroyRemoveNode(vm)
   }
 
   proto._setData = function (data) {
@@ -119,9 +119,9 @@ function reaction (vm) {
   })
 }
 
-function patchDestroyRemoveNode (vm) {
+function initDestroyRemoveNode (vm) {
   vm.slave.onmessage('component:destroy', function (info) {
-    console.log('此处移除组件')
+    console.log('此处移除组件', info)
   })
 }
 

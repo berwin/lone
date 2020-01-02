@@ -52,30 +52,16 @@ Lone.logic('test', {
 })
 
 Lone.logic('test2', {
-  data: () => ({ n: 0, list: [1, 2, 3, 4, 5] }),
   back () {
     this.navigateBack()
   },
-  methods: {
-    handleDestroyed () {
-      this.$destroy()
-    }
-  },
+  methods: {},
   onShow () {
     console.log('test2.js: onShow~~~')
   },
   onHide () {
     console.log('test2.js: onHide~~~')
-  },
-  beforeDestroy () {
-    console.log('test2.js: beforeDestroy~~~')
-    console.log(this.list)
-  },
-  destroyed () {
-    console.log('test2.js: destroyed~~~')
-    console.log(this.list)
   }
-
 })
 
 Lone.logic('ad', {
@@ -163,12 +149,14 @@ Lone.logic('lifecycle', {
   },
   beforeDestroy  () {
     console.log('lifecycle: beforeDestroy  ')
+    console.log(this)
   },
   onUnload () {
     console.log('lifecycle: onUnload ')
   },
   destroyed () {
     console.log('lifecycle: destroyed ')
+    console.log(this)
   },
   data: () => ({ items: [], a: 0 }),
   methods: {
@@ -187,6 +175,10 @@ Lone.logic('lifecycle', {
     },
     back () {
       this.navigateBack()
+    },
+
+    handleDestroyed () {
+      this.$destroy()
     }
   }
 })

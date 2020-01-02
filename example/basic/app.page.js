@@ -135,9 +135,7 @@ Lone.page({
     },
     {
       name: 'test2',
-      template: `
-      <article uid="238" class="markdown-body ">
-      <div @click="handleDestroyed">销毁组件</div>
+      template: `<article uid="238" class="markdown-body ">
       <button v-on:click="back">navigatorBack</button><h1 uid="239">Button</h1> <h2 uid="242">基础用法</h2> <h3 uid="245">不同主题</h3> <div uid="248" class="vue-demo-block"><div uid="249" class="vue-demo"><button uid="250" class="se-button se-button--default"><!---->默认按钮</button> <button uid="254" class="se-button se-button--primary"><!---->主要按钮</button> <button uid="258" class="se-button se-button--warn"><!---->警告按钮</button> <button uid="262" class="se-button se-button--danger"><!---->危险按钮</button></div> <div uid="266"></div> <pre uid="268" class="vue-demo-source-code"><code uid="269" class="language-html"><span uid="270" class="token tag"><span uid="271" class="token tag"><span uid="272" class="token punctuation">&lt;</span>se-button</span> <span uid="276" class="token attr-name">type</span><span uid="278" class="token attr-value"><span uid="279" class="token punctuation">=</span><span uid="281" class="token punctuation">"</span>default<span uid="284" class="token punctuation">"</span></span><span uid="286" class="token punctuation">&gt;</span></span>默认按钮<span uid="289" class="token tag"><span uid="290" class="token tag"><span uid="291" class="token punctuation">&lt;/</span>se-button</span><span uid="294" class="token punctuation">&gt;</span></span>
       <span uid="297" class="token tag"><span uid="298" class="token tag"><span uid="299" class="token punctuation">&lt;</span>se-button</span> <span uid="303" class="token attr-name">type</span><span uid="305" class="token attr-value"><span uid="306" class="token punctuation">=</span><span uid="308" class="token punctuation">"</span>primary<span uid="311" class="token punctuation">"</span></span><span uid="313" class="token punctuation">&gt;</span></span>主要按钮<span uid="316" class="token tag"><span uid="317" class="token tag"><span uid="318" class="token punctuation">&lt;/</span>se-button</span><span uid="321" class="token punctuation">&gt;</span></span>
       <span uid="324" class="token tag"><span uid="325" class="token tag"><span uid="326" class="token punctuation">&lt;</span>se-button</span> <span uid="330" class="token attr-name">type</span><span uid="332" class="token attr-value"><span uid="333" class="token punctuation">=</span><span uid="335" class="token punctuation">"</span>warn<span uid="338" class="token punctuation">"</span></span><span uid="340" class="token punctuation">&gt;</span></span>警告按钮<span uid="343" class="token tag"><span uid="344" class="token tag"><span uid="345" class="token punctuation">&lt;/</span>se-button</span><span uid="348" class="token punctuation">&gt;</span></span>
@@ -313,6 +311,7 @@ Lone.page({
           <div class="lifecycle_result">
             <div v-for="item in items">{{item}}</div>
           </div>
+          <button @click="handleDestroyed">销毁组件</button>
         </div>
       `
     }
