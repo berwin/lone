@@ -60,7 +60,6 @@ export default function init (Component) {
       vm.callHook('page:beforeUpdate')
     }
     vm.$el = patch(oldVnode, this._vnode)
-    console.log(vm)
     if (vm._isMounted && !vm._isDestroyed) {
       vm.callHook('page:updated')
     }
@@ -125,8 +124,6 @@ function initDestroyRemoveNode (vm) {
     const self = vm.$el.elm
     const parent = self.parentElement
     parent.removeChild(self)
-
-    console.log(vm)
   })
 }
 
