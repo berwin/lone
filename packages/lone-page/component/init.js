@@ -59,7 +59,8 @@ export default function init (Component) {
     if (vm._isMounted && !vm._isDestroyed) {
       vm.callHook('page:beforeUpdate')
     }
-    patch(oldVnode, this._vnode)
+    vm.$el = patch(oldVnode, this._vnode)
+    console.log(vm)
     if (vm._isMounted && !vm._isDestroyed) {
       vm.callHook('page:updated')
     }
@@ -121,7 +122,11 @@ function reaction (vm) {
 
 function initDestroyRemoveNode (vm) {
   vm.slave.onmessage('component:destroy', function (info) {
-    console.log('此处移除组件', info)
+    const self = vm.$el.elm
+    const parent = self.parentElement
+    parent.removeChild(self)
+
+    console.log(vm)
   })
 }
 

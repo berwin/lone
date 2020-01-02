@@ -48,8 +48,8 @@ class LogicComponent {
     vm._isBeingDestroyed = true
     vm.data = null
     instanceStorage.delete(vm._id)
-    vm._slave.send('component:destroy', this._id, {})
     callHook(vm, 'destroyed')
+    vm._slave.send('component:destroy', this._id, {})
     console.log('清除组件内所有事件绑定')
   };
 }
