@@ -47,14 +47,13 @@ class LogicComponent {
     callHook(vm, 'beforeDestroy')
     vm._isBeingDestroyed = true
     vm.data = null
-    vm._slave = null
-    callHook(vm, 'destroyed')
-    vm.$options = {}
     vm.$off()
+    vm._slave.send('component:destroy', this._id, {})
+    callHook(vm, 'destroyed')
+
     if (instanceStorage.has(vm._id)) {
       instanceStorage.delete(vm._id)
     }
-    // vm._slave.send('component:destroy', this._id, {}) 销毁真实dom
   };
 }
 

@@ -121,9 +121,7 @@ function reaction (vm) {
 
 function initDestroyRemoveNode (vm) {
   vm.slave.onmessage('component:destroy', function (info) {
-    const self = vm.$el.elm
-    const parent = self.parentElement
-    parent.removeChild(self)
+    vm.callHook = function () {}
   })
 }
 

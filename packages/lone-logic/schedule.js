@@ -7,40 +7,40 @@ export default function (slave) {
   const MESSENGER_EVENTS_UI = {
     'ui:inited': function ({ name, id, propsData, parentListeners }) {
       const vm = createComponentInstance(name, id, { propsData, parentListeners, slave })
-      vm && instanceStorage.set(id, vm)
+      instanceStorage.set(id, vm)
     },
     'ui:ready': function ({ id }) {
       const vm = instanceStorage.get(id)
-      vm && callHook(vm, 'onReady')
-      vm && callHook(vm, 'mounted')
+      callHook(vm, 'onReady')
+      callHook(vm, 'mounted')
     },
     'ui:triggerEvent': function ({ id, method, event }) {
       const vm = instanceStorage.get(id)
-      vm && triggerEvent(vm, method, event)
+      triggerEvent(vm, method, event)
     },
     'ui:data': function ({ id, data }) {
       const vm = instanceStorage.get(id)
-      vm && vm.setData(data)
+      vm.setData(data)
     },
     'ui:beforeMount': function ({ id }) {
       const vm = instanceStorage.get(id)
-      vm && callHook(vm, 'beforeMount')
+      callHook(vm, 'beforeMount')
     },
     'ui:beforeUpdate': function ({ id }) {
       const vm = instanceStorage.get(id)
-      vm && callHook(vm, 'beforeUpdate')
+      callHook(vm, 'beforeUpdate')
     },
     'ui:updated': function ({ id }) {
       const vm = instanceStorage.get(id)
-      vm && callHook(vm, 'updated')
+      callHook(vm, 'updated')
     },
     'ui:show': function ({ id }) {
       const vm = instanceStorage.get(id)
-      vm && callHook(vm, 'onShow')
+      callHook(vm, 'onShow')
     },
     'ui:hide': function ({ id }) {
       const vm = instanceStorage.get(id)
-      vm && callHook(vm, 'onHide')
+      callHook(vm, 'onHide')
     }
   }
 
