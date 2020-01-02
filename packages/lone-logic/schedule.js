@@ -22,25 +22,29 @@ export default function (slave) {
       const vm = instanceStorage.get(id)
       vm.setData(data)
     },
-    'ui:beforeMount': function ({ id, data }) {
+    'ui:beforeMount': function ({ id }) {
       const vm = instanceStorage.get(id)
       callHook(vm, 'beforeMount')
     },
-    'ui:beforeUpdate': function ({ id, data }) {
+    'ui:beforeUpdate': function ({ id }) {
       const vm = instanceStorage.get(id)
       callHook(vm, 'beforeUpdate')
     },
-    'ui:updated': function ({ id, data }) {
+    'ui:updated': function ({ id }) {
       const vm = instanceStorage.get(id)
       callHook(vm, 'updated')
     },
-    'ui:show': function ({ id, data }) {
+    'ui:show': function ({ id }) {
       const vm = instanceStorage.get(id)
       callHook(vm, 'onShow')
     },
-    'ui:hide': function ({ id, data }) {
+    'ui:hide': function ({ id }) {
       const vm = instanceStorage.get(id)
       callHook(vm, 'onHide')
+    },
+    'ui:destroy': function ({ id }) {
+      const vm = instanceStorage.get(id)
+      vm.$destroy()
     }
   }
 

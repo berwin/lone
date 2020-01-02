@@ -55,12 +55,24 @@ Lone.logic('test2', {
   back () {
     this.navigateBack()
   },
+  methods: {
+    handleDestroyed () {
+      this.$destroy()
+    }
+  },
   onShow () {
     console.log('test2.js: onShow~~~')
   },
   onHide () {
     console.log('test2.js: onHide~~~')
+  },
+  beforeDestroy () {
+    console.log('test2.js: beforeDestroy~~~')
+  },
+  destroyed () {
+    console.log('test2.js: destroyed~~~')
   }
+
 })
 
 Lone.logic('ad', {

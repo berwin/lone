@@ -22,6 +22,8 @@ export default function init (Component) {
     reaction(vm)
     initHideChange(vm)
     initShowChange(vm)
+    patchVnodeToNull(vm)
+    initDestroy(vm)
   }
 
   proto._setData = function (data) {
@@ -117,6 +119,12 @@ function reaction (vm) {
   })
 }
 
+function patchVnodeToNull (vm) {
+  vm.slave.onmessage('component:patch', function (data) {
+    vm._update(null)
+  })
+}
+
 function initHideChange (vm) {
   document.addEventListener('onHide', function () {
     vm.callHook('page:hide', { pid: vm.pid })
@@ -126,5 +134,11 @@ function initHideChange (vm) {
 function initShowChange (vm) {
   document.addEventListener('onShow', function () {
     vm.callHook('page:show', { pid: vm.pid })
+  })
+}
+
+function initDestroy (vm) {
+  document.addEventListener('onDestroy', function () {
+    vm.callHook('page:destroy', { pid: vm.pid })
   })
 }

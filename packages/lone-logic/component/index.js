@@ -37,6 +37,21 @@ class LogicComponent {
     notifyPropsObserver(this, oldData, this.data)
     this._slave.send('component:data', this._id, this.data)
   }
+
+  $destroy () {
+    const vm = this
+    if (vm._isBeingDestroyed) {
+      return
+    }
+    callHook(vm, 'beforeDestroy')
+    vm._isBeingDestroyed = true
+    // this._slave.send('component:patch', this._id, this.data)
+    // // 是否需要去掉vm.data的监听
+    // vm.data = null
+    // vm.$options = null
+    // 中间这部分逻辑需要待定
+    callHook(vm, 'destroyed')
+  };
 }
 
 export default LogicComponent
