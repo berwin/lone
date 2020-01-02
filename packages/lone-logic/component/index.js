@@ -50,7 +50,7 @@ class LogicComponent {
     vm._slave = null
     callHook(vm, 'destroyed')
     vm.$options = {}
-
+    vm.$off()
     if (instanceStorage.has(vm._id)) {
       instanceStorage.delete(vm._id)
     }
