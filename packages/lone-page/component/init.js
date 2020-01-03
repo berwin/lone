@@ -83,9 +83,9 @@ function initLifecycle (vm) {
 
 function initOptions (vm, options, Component) {
   vm.options = options
-  vm.cid = cid++
-  vm.pid = Component.options.pid
   vm.mid = Component.options.mid
+  vm.pid = Component.options.pid
+  vm.cid = cid++
   vm.id = vm.mid + '_' + vm.pid + '_' + vm.cid
   const config = Component.options.components.find(item => item.name === vm.options.name)
   vm.name = config.name

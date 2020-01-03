@@ -13,7 +13,7 @@ class Component {
   }
 
   getLogicChannel () {
-    return this.$official ? 'logic-' + this.pid : 'logic-worker'
+    return this.$official ? `${this.mid}_${this.pid}_logic` : 'logic-worker'
   }
 }
 
