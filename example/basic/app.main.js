@@ -51,18 +51,6 @@ Lone.logic('test', {
   }
 })
 
-Lone.logic('test2', {
-  back () {
-    this.navigateBack()
-  },
-  onShow () {
-    console.log('test2.js: onShow~~~')
-  },
-  onHide () {
-    console.log('test2.js: onHide~~~')
-  }
-})
-
 Lone.logic('ad', {
   props: {
     title: String,
@@ -172,10 +160,12 @@ Lone.logic('lifecycle', {
     },
     back () {
       this.navigateBack()
-    },
-
-    handleDestroyed () {
-      this.$destroy()
     }
+  }
+})
+
+Lone.logic('destory', {
+  handleDestroyed () {
+    this.$destroy()
   }
 })
