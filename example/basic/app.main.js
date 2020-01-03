@@ -12,10 +12,9 @@ Lone.logic('test', {
       }
     },
     navigatorTo (url) {
-      // this.navigateTo({
-      //   url: '/é#%25ñ'
-      // })
-      this.navigateTo(url)
+      this.navigateTo({
+        url
+      })
     },
     test (data) {
       console.log('event trigger!', data)

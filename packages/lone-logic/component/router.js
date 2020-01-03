@@ -5,14 +5,14 @@ export default function events (Lone) {
   proto.navigateBack = navigateBack
 }
 
-function navigateTo (url) {
+function navigateTo ({ url }) {
   this._slave.send('logic:navigateTo', null, { url })
 }
 
-function redirectTo (url) {
+function redirectTo ({ url }) {
   this._slave.send('logic:redirectTo', null, { url })
 }
 
-function navigateBack (delta) {
+function navigateBack ({ delta } = {}) {
   this._slave.send('logic:navigateBack', null, { delta })
 }

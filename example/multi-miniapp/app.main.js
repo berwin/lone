@@ -4,7 +4,7 @@ Lone.logic('test', {
   data: () => ({ list: [1, 2] }),
   methods: {
     to (url) {
-      this.navigateTo(url)
+      this.navigateTo({ url })
     }
   },
   mounted () {
