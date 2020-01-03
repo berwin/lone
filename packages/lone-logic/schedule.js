@@ -1,9 +1,9 @@
 import { triggerEvent, callHook } from './component/helper'
 import { createComponentInstance } from './index'
 
-export const instanceStorage = new Map()
-
 export default function (slave) {
+  const instanceStorage = new Map()
+
   const MESSENGER_EVENTS_UI = {
     'ui:inited': function ({ name, id, propsData, parentListeners }) {
       const vm = createComponentInstance(name, id, { propsData, parentListeners, slave })
@@ -41,6 +41,11 @@ export default function (slave) {
     'ui:hide': function ({ id }) {
       const vm = instanceStorage.get(id)
       callHook(vm, 'onHide')
+    },
+    'ui:destroyed': function ({ id }) {
+      const vm = instanceStorage.get(id)
+      callHook(vm, 'destroyed')
+      instanceStorage.delete(id)
     }
   }
 

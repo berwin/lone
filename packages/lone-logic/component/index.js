@@ -4,7 +4,6 @@ import events, { initEvents } from './events'
 import router from './router'
 import { notifyPropsObserver } from './observer'
 import { looseEqual } from 'lone-util'
-import { instanceStorage } from '../schedule'
 
 const init = Symbol('lone-logic:init')
 
@@ -46,15 +45,10 @@ class LogicComponent {
     }
     callHook(vm, 'beforeDestroy')
     vm._isBeingDestroyed = true
-    vm.data = null
+    vm.data = Object.create(null)
     vm.$off()
-    vm._slave.send('component:destroy', this._id, {})
-    callHook(vm, 'destroyed')
-
-    if (instanceStorage.has(vm._id)) {
-      instanceStorage.delete(vm._id)
-    }
-  };
+    vm._slave.send('component:destroy', this._id)
+  }
 }
 
 export default LogicComponent

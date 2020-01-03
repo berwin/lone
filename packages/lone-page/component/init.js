@@ -19,11 +19,10 @@ export default function init (Component) {
     initMessenger(vm)
     initParentListener(vm)
     initRender(vm)
-    vm.callHook('page:inited', { propsData: vm.propsData, parentListeners: Object.keys(vm._parentListeners) })
     reaction(vm)
-    initHideChange(vm)
-    initShowChange(vm)
-    initDestroyRemoveNode(vm)
+    listenVisibilityChange(vm)
+    listenDestroy(vm)
+    vm.callHook('page:inited', { propsData: vm.propsData, parentListeners: Object.keys(vm._parentListeners) })
   }
 
   proto._setData = function (data) {
@@ -59,7 +58,7 @@ export default function init (Component) {
     if (vm._isMounted && !vm._isDestroyed) {
       vm.callHook('page:beforeUpdate')
     }
-    vm.$el = patch(oldVnode, this._vnode)
+    patch(oldVnode, this._vnode)
     if (vm._isMounted && !vm._isDestroyed) {
       vm.callHook('page:updated')
     }
@@ -119,20 +118,23 @@ function reaction (vm) {
   })
 }
 
-function initDestroyRemoveNode (vm) {
-  vm.slave.onmessage('component:destroy', function (info) {
-    vm.callHook = function () {}
+function listenVisibilityChange (vm) {
+  const data = { pid: vm.pid }
+  vm._onHide = _ => vm.callHook('page:hide', data)
+  vm._onShow = _ => vm.callHook('page:show', data)
+  document.addEventListener('onHide', vm._onHide)
+  document.addEventListener('onShow', vm._onShow)
+}
+
+function listenDestroy (vm) {
+  vm.slave.onmessage('component:destroy', function () {
+    unlistenVisibilityChange(vm)
+    patch((vm._vnode || vm.options.el), vm._c('!'))
+    vm.callHook('page:destroyed')
   })
 }
 
-function initHideChange (vm) {
-  document.addEventListener('onHide', function () {
-    vm.callHook('page:hide', { pid: vm.pid })
-  })
-}
-
-function initShowChange (vm) {
-  document.addEventListener('onShow', function () {
-    vm.callHook('page:show', { pid: vm.pid })
-  })
+function unlistenVisibilityChange (vm) {
+  document.removeEventListener('onHide', vm._onHide)
+  document.removeEventListener('onShow', vm._onShow)
 }

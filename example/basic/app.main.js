@@ -124,39 +124,37 @@ Lone.logic('lifecycle', {
     console.log('lifecycle: created')
   },
   onReady () {
-    console.log('lifecycle: onReady ')
+    console.log('lifecycle: onReady')
   },
   mounted () {
-    console.log('lifecycle: mounted ')
+    console.log('lifecycle: mounted')
   },
   onLoad  () {
-    console.log('lifecycle: onLoad  ')
+    console.log('lifecycle: onLoad')
   },
   onShow () {
-    console.log('lifecycle: onShow ')
+    console.log('lifecycle: onShow')
   },
   onHide () {
-    console.log('lifecycle: onHide ')
+    console.log('lifecycle: onHide')
   },
   beforeMount () {
-    console.log('lifecycle: beforeMount ')
+    console.log('lifecycle: beforeMount')
   },
   beforeUpdate () {
-    console.log('lifecycle: beforeUpdate ')
+    console.log('lifecycle: beforeUpdate')
   },
   updated () {
-    console.log('lifecycle: updated ')
+    console.log('lifecycle: updated')
   },
   beforeDestroy  () {
-    console.log('lifecycle: beforeDestroy  ')
-    console.log(this)
+    console.log('lifecycle: beforeDestroy')
   },
   onUnload () {
     console.log('lifecycle: onUnload ')
   },
   destroyed () {
     console.log('lifecycle: destroyed ')
-    console.log(this)
   },
   data: () => ({ items: [], a: 0 }),
   methods: {

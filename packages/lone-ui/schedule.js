@@ -21,8 +21,8 @@ class Schedule {
       'component:data': function (channel, data) {
         vm.master.send('component:data', channel, data)
       },
-      'component:destroy': function (channel, data) {
-        vm.master.send('component:destroy', channel, data)
+      'component:destroy': function (channel) {
+        vm.master.send('component:destroy', channel)
       },
       'component:triggerParentEvent': function (channel, data) {
         vm.master.send('component:triggerParentEvent', channel, data)
@@ -67,6 +67,9 @@ class Schedule {
       },
       'page:hide': function (channel, data) {
         vm.master.send('ui:hide', channel, data)
+      },
+      'page:destroyed': function (channel, data) {
+        vm.master.send('ui:destroyed', channel, data)
       }
     }
     vm.init()
