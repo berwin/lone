@@ -167,5 +167,11 @@ Lone.logic('lifecycle', {
 Lone.logic('destory', {
   handleDestroyed () {
     this.$destroy()
+  },
+  beforeDestroy  () {
+    console.log('lifecycle: beforeDestroy')
+  },
+  destroyed () {
+    console.log('lifecycle: destroyed ')
   }
 })

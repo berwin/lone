@@ -6,11 +6,11 @@ Lone.page({
         <div id="app">
           <h1>Page 1</h1>
           <ul>
-            <li v-for="item in list">{{item}}</li>
-          </ul>
-          <ul>
             <li><button v-on:click="navigatorTo('/official')">navigateTo: /official</button></li>
             <li><button v-on:click="navigatorTo('/lifecycle')">navigateTo: /lifecycle</button></li>
+          </ul>
+          <ul>
+            <li v-for="item in list">{{item}}</li>
           </ul>
           <h2 :id="n" :style="{backgroundColor: 'red'}" style="color:blue;">N:{{ n }}</h2>
           <ad title="My journey with Lone" :n="n" @enlarge-text="test" :list="list" />
