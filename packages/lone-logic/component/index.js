@@ -40,9 +40,7 @@ class LogicComponent {
 
   $destroy () {
     const vm = this
-    if (vm._isBeingDestroyed) {
-      return
-    }
+    if (vm._isBeingDestroyed) return
     callHook(vm, 'beforeDestroy')
     vm._isBeingDestroyed = true
     vm.data = Object.create(null)

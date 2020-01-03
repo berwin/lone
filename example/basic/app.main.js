@@ -55,7 +55,6 @@ Lone.logic('test2', {
   back () {
     this.navigateBack()
   },
-  methods: {},
   onShow () {
     console.log('test2.js: onShow~~~')
   },
