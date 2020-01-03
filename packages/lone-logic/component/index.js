@@ -37,6 +37,16 @@ class LogicComponent {
     notifyPropsObserver(this, oldData, this.data)
     this._slave.send('component:data', this._id, this.data)
   }
+
+  $destroy () {
+    const vm = this
+    if (vm._isBeingDestroyed) return
+    callHook(vm, 'beforeDestroy')
+    vm._isBeingDestroyed = true
+    vm.data = Object.create(null)
+    vm.$off()
+    vm._slave.send('component:destroy', this._id)
+  }
 }
 
 export default LogicComponent

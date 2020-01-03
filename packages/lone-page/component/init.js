@@ -2,6 +2,7 @@ import { Slave } from 'lone-messenger'
 import { compileToFunctions } from 'lone-compiler-dom'
 import { patch } from 'lone-virtualdom'
 import { resolveSlots } from './slot'
+import { proxy } from 'lone-util'
 import {
   initParentListener,
   initEventListener
@@ -18,10 +19,10 @@ export default function init (Component) {
     initMessenger(vm)
     initParentListener(vm)
     initRender(vm)
-    vm.callHook('page:inited', { propsData: vm.propsData, parentListeners: Object.keys(vm._parentListeners) })
     reaction(vm)
-    initHideChange(vm)
-    initShowChange(vm)
+    listenVisibilityChange(vm)
+    listenDestroy(vm)
+    vm.callHook('page:inited', { propsData: vm.propsData, parentListeners: Object.keys(vm._parentListeners) })
   }
 
   proto._setData = function (data) {
@@ -31,7 +32,7 @@ export default function init (Component) {
     let i = keys.length
     while (i--) {
       const key = keys[i]
-      vm[key] = vm._data[key]
+      proxy(vm, '_data', key)
     }
     const vnode = vm._render()
     vm._update(vnode)
@@ -117,14 +118,23 @@ function reaction (vm) {
   })
 }
 
-function initHideChange (vm) {
-  document.addEventListener('onHide', function () {
-    vm.callHook('page:hide', { pid: vm.pid })
+function listenVisibilityChange (vm) {
+  const data = { pid: vm.pid }
+  vm._onHide = _ => vm.callHook('page:hide', data)
+  vm._onShow = _ => vm.callHook('page:show', data)
+  document.addEventListener('onHide', vm._onHide)
+  document.addEventListener('onShow', vm._onShow)
+}
+
+function listenDestroy (vm) {
+  vm.slave.onmessage('component:destroy', function () {
+    unlistenVisibilityChange(vm)
+    patch((vm._vnode || vm.options.el), vm._c('!'))
+    vm.callHook('page:destroyed')
   })
 }
 
-function initShowChange (vm) {
-  document.addEventListener('onShow', function () {
-    vm.callHook('page:show', { pid: vm.pid })
-  })
+function unlistenVisibilityChange (vm) {
+  document.removeEventListener('onHide', vm._onHide)
+  document.removeEventListener('onShow', vm._onShow)
 }

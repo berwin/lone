@@ -51,18 +51,6 @@ Lone.logic('test', {
   }
 })
 
-Lone.logic('test2', {
-  back () {
-    this.navigateBack()
-  },
-  onShow () {
-    console.log('test2.js: onShow~~~')
-  },
-  onHide () {
-    console.log('test2.js: onHide~~~')
-  }
-})
-
 Lone.logic('ad', {
   props: {
     title: String,
@@ -123,31 +111,31 @@ Lone.logic('lifecycle', {
     console.log('lifecycle: created')
   },
   onReady () {
-    console.log('lifecycle: onReady ')
+    console.log('lifecycle: onReady')
   },
   mounted () {
-    console.log('lifecycle: mounted ')
+    console.log('lifecycle: mounted')
   },
   onLoad  () {
-    console.log('lifecycle: onLoad  ')
+    console.log('lifecycle: onLoad')
   },
   onShow () {
-    console.log('lifecycle: onShow ')
+    console.log('lifecycle: onShow')
   },
   onHide () {
-    console.log('lifecycle: onHide ')
+    console.log('lifecycle: onHide')
   },
   beforeMount () {
-    console.log('lifecycle: beforeMount ')
+    console.log('lifecycle: beforeMount')
   },
   beforeUpdate () {
-    console.log('lifecycle: beforeUpdate ')
+    console.log('lifecycle: beforeUpdate')
   },
   updated () {
-    console.log('lifecycle: updated ')
+    console.log('lifecycle: updated')
   },
   beforeDestroy  () {
-    console.log('lifecycle: beforeDestroy  ')
+    console.log('lifecycle: beforeDestroy')
   },
   onUnload () {
     console.log('lifecycle: onUnload ')
@@ -173,5 +161,17 @@ Lone.logic('lifecycle', {
     back () {
       this.navigateBack()
     }
+  }
+})
+
+Lone.logic('destory', {
+  handleDestroyed () {
+    this.$destroy()
+  },
+  beforeDestroy  () {
+    console.log('lifecycle: beforeDestroy')
+  },
+  destroyed () {
+    console.log('lifecycle: destroyed ')
   }
 })
