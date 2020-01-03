@@ -15,3 +15,15 @@ export function parse (url) {
     username: a.username
   }
 }
+
+// abc=123&abc=xyz
+export function parseSearch (search) {
+  search = search.replace('?', '')
+  const sep = '&'
+  const eq = '='
+  const searchParams = Object.create(null)
+  return search.split(sep).reduce((res, param) => {
+    const [key, value] = param.split(eq)
+    return { ...res, [key]: value }
+  }, searchParams)
+}

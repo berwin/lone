@@ -8,6 +8,7 @@ Lone.page({
           <ul>
             <li><button v-on:click="navigatorTo('/official')">navigateTo: /official</button></li>
             <li><button v-on:click="navigatorTo('/lifecycle')">navigateTo: /lifecycle</button></li>
+            <li><button v-on:click="navigatorTo('/query?a=1&b=2')">navigateTo: /query?a=1&b=2</button></li>
           </ul>
           <ul>
             <li v-for="item in list">{{item}}</li>
@@ -154,6 +155,15 @@ Lone.page({
         <button @click="handleDestroyed">销毁组件</button>
         <p>销毁组件Demo</p>
       </div>
+      `
+    },
+    {
+      name: 'query',
+      template: `
+        <div>
+          <div><button @click="back">navigateBack</button></div>
+          <h2>Query:</h2>
+        </div>
       `
     }
   ]
