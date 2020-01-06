@@ -15,18 +15,6 @@ class Schedule {
         // Default Route Page
         vm.router.navigateTo(vm.router.routes[0].path)
       },
-      'component:inited': function (channel, data) {
-        vm.master.send('component:inited', channel, data)
-      },
-      'component:data': function (channel, data) {
-        vm.master.send('component:data', channel, data)
-      },
-      'component:destroy': function (channel) {
-        vm.master.send('component:destroy', channel)
-      },
-      'component:triggerParentEvent': function (channel, data) {
-        vm.master.send('component:triggerParentEvent', channel, data)
-      },
       'logic:navigateTo': function (channel, { url }) {
         vm.router.navigateTo(url)
       },
@@ -40,36 +28,6 @@ class Schedule {
     vm.pageEvents = {
       'page:navigateTo': function () {
         console.log('ui-schedule: view:navigateTo')
-      },
-      'page:inited': function (channel, data) {
-        vm.master.send('ui:inited', channel, data)
-      },
-      'page:ready': function (channel, data) {
-        vm.master.send('ui:ready', channel, data)
-      },
-      'page:triggerEvent': function (channel, data) {
-        vm.master.send('ui:triggerEvent', channel, data)
-      },
-      'page:data': function (channel, data) {
-        vm.master.send('ui:data', channel, data)
-      },
-      'page:beforeMount': function (channel, data) {
-        vm.master.send('ui:beforeMount', channel, data)
-      },
-      'page:beforeUpdate': function (channel, data) {
-        vm.master.send('ui:beforeUpdate', channel, data)
-      },
-      'page:updated': function (channel, data) {
-        vm.master.send('ui:updated', channel, data)
-      },
-      'page:show': function (channel, data) {
-        vm.master.send('ui:show', channel, data)
-      },
-      'page:hide': function (channel, data) {
-        vm.master.send('ui:hide', channel, data)
-      },
-      'page:destroyed': function (channel, data) {
-        vm.master.send('ui:destroyed', channel, data)
       }
     }
     vm.init()
