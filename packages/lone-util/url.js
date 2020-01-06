@@ -1,3 +1,5 @@
+import { isArray } from './index'
+
 export function parse (url) {
   const a = document.createElement('a')
   a.href = url
@@ -16,14 +18,21 @@ export function parse (url) {
   }
 }
 
-// abc=123&abc=xyz
-export function parseSearch (search) {
-  search = search.replace('?', '')
-  const sep = '&'
-  const eq = '='
-  const searchParams = Object.create(null)
+// parseSearch('abc=123&abc=xyz') => { abc: ['123', 'xyz'] }
+export function parseSearch (search, sep = '&', eq = '=') {
+  search = search.trim().replace(/^\?/, '').trim()
+  const res = Object.create(null)
+  if (search === '') return res
   return search.split(sep).reduce((res, param) => {
     const [key, value] = param.split(eq)
-    return { ...res, [key]: value }
-  }, searchParams)
+    if (!key) return res
+    return {
+      ...res,
+      [key]: res[key]
+        ? isArray(res[key])
+          ? [...res[key], value]
+          : [res[key], value]
+        : value
+    }
+  }, res)
 }

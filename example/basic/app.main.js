@@ -181,6 +181,11 @@ Lone.logic('query', {
       query: ''
     }
   },
+  created () {
+    this.setData({
+      query: '11'
+    })
+  },
   onLoad (query) {
     this.setData({
       query: query ? JSON.stringify(query) : ''

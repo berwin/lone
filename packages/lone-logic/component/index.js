@@ -19,15 +19,16 @@ class LogicComponent {
   [init] (options) {
     const vm = this
     vm._events = Object.create(null)
+    vm._inited = false
     vm.$options = initOptions(options)
     vm._slave = vm.$options.slave
     initEvents(vm)
     callHook(vm, 'beforeCreate')
     initData(vm)
-    callHook(vm, 'created')
-    callHook(vm, 'onLoad')
-    callHook(vm, 'onShow')
     sendInitCommandToPageComponent(vm)
+    callHook(vm, 'created')
+    callHook(vm, 'onLoad', vm.$options.query)
+    callHook(vm, 'onShow')
   }
 
   setData (data) {
@@ -35,6 +36,7 @@ class LogicComponent {
     this.data = Object.assign({}, oldData, data)
     if (looseEqual(oldData, this.data)) return
     notifyPropsObserver(this, oldData, this.data)
+    if (!this._inited) return
     this._slave.send('component:data', this._id, this.data)
   }
 

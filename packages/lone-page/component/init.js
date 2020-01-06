@@ -22,7 +22,11 @@ export default function init (Component) {
     reaction(vm)
     listenVisibilityChange(vm)
     listenDestroy(vm)
-    vm.callHook('page:inited', { propsData: vm.propsData, parentListeners: Object.keys(vm._parentListeners) })
+    vm.callHook('page:inited', {
+      propsData: vm.propsData,
+      parentListeners: Object.keys(vm._parentListeners),
+      search: vm.search
+    })
   }
 
   proto._setData = function (data) {
@@ -87,6 +91,8 @@ function initOptions (vm, options, Component) {
   vm.pid = Component.options.pid
   vm.cid = cid++
   vm.id = vm.mid + '_' + vm.pid + '_' + vm.cid
+  vm.pathname = Component.options.pathname
+  vm.search = Component.options.search
   const config = Component.options.components.find(item => item.name === vm.options.name)
   vm.name = config.name
   vm.template = config.template

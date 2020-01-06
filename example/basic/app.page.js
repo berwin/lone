@@ -162,7 +162,7 @@ Lone.page({
       template: `
         <div>
           <div><button @click="back">navigateBack</button></div>
-          <h2>Query:</h2>
+          <h2>Query:{{query}}</h2>
         </div>
       `
     }

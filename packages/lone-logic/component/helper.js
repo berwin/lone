@@ -1,5 +1,5 @@
 import { LIFECYCLE_HOOKS } from 'lone-util/constants'
-import { warn, handleError, isArray, isPlainObject, camelize } from 'lone-util'
+import { warn, handleError, isArray, isPlainObject, camelize, toArray } from 'lone-util'
 
 export function initOptions (options) {
   normalizeHooks(options)
@@ -45,6 +45,7 @@ function normalizePropsData (options) {
 }
 
 export function sendInitCommandToPageComponent (vm) {
+  vm._inited = true
   const reservedWords = [...LIFECYCLE_HOOKS, 'data', 'methods', 'slave', 'name', 'propsData', 'parentListeners', 'props']
   vm._slave.send('component:inited', vm._id, {
     data: vm.data || {},
@@ -66,7 +67,7 @@ export function callHook (vm, hook) {
   if (handlers) {
     for (let i = 0, j = handlers.length; i < j; i++) {
       try {
-        handlers[i].call(vm)
+        handlers[i].apply(vm, toArray(arguments, 2))
       } catch (e) {
         handleError(e, vm, `${hook} hook`)
       }
