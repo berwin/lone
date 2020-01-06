@@ -45,12 +45,12 @@ function normalizePropsData (options) {
 }
 
 export function sendInitCommandToPageComponent (vm) {
-  vm._inited = true
   const reservedWords = [...LIFECYCLE_HOOKS, 'data', 'methods', 'slave', 'name', 'propsData', 'parentListeners', 'props']
   vm._slave.send('component:inited', vm._id, {
     data: vm.data || {},
     methods: [...Object.keys(vm.$options).filter(key => !reservedWords.includes(key)), ...Object.keys(vm.$options.methods || {})]
   })
+  vm._inited = true
 }
 
 export function triggerEvent (vm, method, event) {
