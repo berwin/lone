@@ -1,12 +1,13 @@
 import { triggerEvent, callHook } from './component/helper'
 import { createComponentInstance } from './index'
+import { parseSearch } from 'lone-util/url'
 
 export default function (slave) {
   const instanceStorage = new Map()
 
   const MESSENGER_EVENTS_UI = {
-    'ui:inited': function ({ name, id, propsData, parentListeners }) {
-      const vm = createComponentInstance(name, id, { propsData, parentListeners, slave })
+    'ui:inited': function ({ name, id, propsData, parentListeners, search }) {
+      const vm = createComponentInstance(name, id, { propsData, parentListeners, slave, query: parseSearch(search) })
       instanceStorage.set(id, vm)
     },
     'ui:ready': function ({ id }) {

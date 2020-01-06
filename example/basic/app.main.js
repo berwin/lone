@@ -174,3 +174,24 @@ Lone.logic('destory', {
     console.log('lifecycle: destroyed ')
   }
 })
+
+Lone.logic('query', {
+  data () {
+    return {
+      query: ''
+    }
+  },
+  created () {
+    this.setData({
+      query: '11'
+    })
+  },
+  onLoad (query) {
+    this.setData({
+      query: query ? JSON.stringify(query) : ''
+    })
+  },
+  back () {
+    this.navigateBack()
+  }
+})

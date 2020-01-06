@@ -1,5 +1,5 @@
 import { LIFECYCLE_HOOKS } from 'lone-util/constants'
-import { warn, handleError, isArray, isPlainObject, camelize } from 'lone-util'
+import { warn, handleError, isArray, isPlainObject, camelize, toArray } from 'lone-util'
 
 export function initOptions (options) {
   normalizeHooks(options)
@@ -50,6 +50,7 @@ export function sendInitCommandToPageComponent (vm) {
     data: vm.data || {},
     methods: [...Object.keys(vm.$options).filter(key => !reservedWords.includes(key)), ...Object.keys(vm.$options.methods || {})]
   })
+  vm._inited = true
 }
 
 export function triggerEvent (vm, method, event) {
@@ -66,7 +67,7 @@ export function callHook (vm, hook) {
   if (handlers) {
     for (let i = 0, j = handlers.length; i < j; i++) {
       try {
-        handlers[i].call(vm)
+        handlers[i].apply(vm, toArray(arguments, 2))
       } catch (e) {
         handleError(e, vm, `${hook} hook`)
       }
