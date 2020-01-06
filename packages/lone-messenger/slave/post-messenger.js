@@ -17,7 +17,7 @@ class PostMessenger extends BaseMessenger {
   _onmessage (fn) {
     const vm = this
     window.addEventListener('message', function (evt) {
-      if (evt.data.channel === vm.channel) {
+      if (evt.data.targetChannel === vm.channel) {
         fn.call(evt, evt.data)
       }
     })

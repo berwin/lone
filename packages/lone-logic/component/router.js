@@ -6,7 +6,11 @@ export default function events (Lone) {
 }
 
 function navigateTo ({ url }) {
-  this._slave.send('logic:navigateTo', null, { url })
+  this._slave.send('logic:navigateTo', null, { url }).then(res => {
+    console.log(res)
+  }).catch(err => {
+    console.log(err)
+  })
 }
 
 function redirectTo ({ url }) {

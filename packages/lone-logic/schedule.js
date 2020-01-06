@@ -6,44 +6,44 @@ export default function (slave) {
   const instanceStorage = new Map()
 
   const MESSENGER_EVENTS_UI = {
-    'ui:inited': function ({ name, id, propsData, parentListeners, search }) {
+    'page:inited': function ({ name, id, propsData, parentListeners, search }) {
       const vm = createComponentInstance(name, id, { propsData, parentListeners, slave, query: parseSearch(search) })
       instanceStorage.set(id, vm)
     },
-    'ui:ready': function ({ id }) {
+    'page:ready': function ({ id }) {
       const vm = instanceStorage.get(id)
       callHook(vm, 'onReady')
       callHook(vm, 'mounted')
     },
-    'ui:triggerEvent': function ({ id, method, event }) {
+    'page:triggerEvent': function ({ id, method, event }) {
       const vm = instanceStorage.get(id)
       triggerEvent(vm, method, event)
     },
-    'ui:data': function ({ id, data }) {
+    'page:data': function ({ id, data }) {
       const vm = instanceStorage.get(id)
       vm.setData(data)
     },
-    'ui:beforeMount': function ({ id }) {
+    'page:beforeMount': function ({ id }) {
       const vm = instanceStorage.get(id)
       callHook(vm, 'beforeMount')
     },
-    'ui:beforeUpdate': function ({ id }) {
+    'page:beforeUpdate': function ({ id }) {
       const vm = instanceStorage.get(id)
       callHook(vm, 'beforeUpdate')
     },
-    'ui:updated': function ({ id }) {
+    'page:updated': function ({ id }) {
       const vm = instanceStorage.get(id)
       callHook(vm, 'updated')
     },
-    'ui:show': function ({ id }) {
+    'page:show': function ({ id }) {
       const vm = instanceStorage.get(id)
       callHook(vm, 'onShow')
     },
-    'ui:hide': function ({ id }) {
+    'page:hide': function ({ id }) {
       const vm = instanceStorage.get(id)
       callHook(vm, 'onHide')
     },
-    'ui:destroyed': function ({ id }) {
+    'page:destroyed': function ({ id }) {
       const vm = instanceStorage.get(id)
       callHook(vm, 'destroyed')
       instanceStorage.delete(id)

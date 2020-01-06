@@ -1,6 +1,7 @@
 import Native from './native-messenger'
 import Post from './post-messenger'
 import WebWorker from './worker-messenger'
+import { feedbackType } from 'lone-util'
 
 const connection = Symbol('messenger:master#connection')
 
@@ -25,17 +26,23 @@ export default class Master {
     (this._messages[type] || (this._messages[type] = [])).push(fn)
   }
 
-  send (type, channel, data) {
-    this._postMessage(type, channel, data)
+  send (type, targetChannel, data) {
+    this._postMessage(type, null, data, targetChannel)
   }
 
   listen () {
     this._onmessage(evt => {
+      // 如果是中转信号，则直接转发至Slave（存在targetChannel的为中转信号，没有则表示发送给Master的信号）
+      if (evt.targetChannel) return this._postMessage(evt.type, evt.targetChannel, evt.data, evt.channel)
       const cbs = this._messages[evt.type]
       if (!cbs) return
       let i = cbs.length
       while (i--) {
-        cbs[i].call(evt, evt.targetChannel, evt.data)
+        Promise.resolve(cbs[i].call(evt, evt.channel, evt.data))
+          .then(
+            data => this._postMessage(feedbackType(evt.type), evt.channel, { data }),
+            err => this._postMessage(feedbackType(evt.type), evt.channel, { err })
+          )
       }
     })
   }
@@ -46,12 +53,12 @@ export default class Master {
     this.post.onmessage(fn)
   }
 
-  _postMessage (type, channel, data) {
+  _postMessage (type, targetChannel, data, channel) {
     // Only developer component logic running under the sandbox
-    if (channel === 'logic-worker') {
-      if (this.options.env === 'native') return this.native.send(type, data)
-      if (this.options.env === 'worker') return this.worker.send(type, data)
+    if (targetChannel === 'logic-worker') {
+      if (this.options.env === 'native') return this.native.send(type, data, channel)
+      if (this.options.env === 'worker') return this.worker.send(type, data, channel)
     }
-    return this.post.send(type, channel, data)
+    return this.post.send(type, targetChannel, data, channel)
   }
 }
