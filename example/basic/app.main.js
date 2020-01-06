@@ -193,5 +193,10 @@ Lone.logic('query', {
   },
   back () {
     this.navigateBack()
+  },
+  navigatorTo (url) {
+    this.navigateTo({
+      url
+    })
   }
 })

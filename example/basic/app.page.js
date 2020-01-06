@@ -162,6 +162,7 @@ Lone.page({
       template: `
         <div>
           <div><button @click="back">navigateBack</button></div>
+          <div><button v-on:click="navigatorTo('/query?a=1&b=3')">navigateTo: /query?a=1&b=2</button></div>
           <h2>Query:{{query}}</h2>
         </div>
       `
