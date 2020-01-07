@@ -13,7 +13,16 @@ Lone.logic('test', {
     },
     navigatorTo (url) {
       this.navigateTo({
-        url
+        url,
+        success () {
+          console.log('navigateTo Success!')
+        },
+        fail () {
+          console.log('navigateTo Fail!')
+        },
+        complete () {
+          console.log('navigateTo Complete!')
+        }
       })
     },
     test (data) {

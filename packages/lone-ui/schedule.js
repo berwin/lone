@@ -16,13 +16,13 @@ class Schedule {
         vm.router.navigateTo(vm.router.routes[0].path)
       },
       'logic:navigateTo': function (channel, { url }) {
-        vm.router.navigateTo(url)
+        return vm.router.navigateTo(url)
       },
       'logic:redirectTo': function (channel, { url }) {
-        vm.router.redirectTo(url)
+        return vm.router.redirectTo(url)
       },
       'logic:navigateBack': function (channel, { delta }) {
-        vm.router.navigateBack(delta)
+        return vm.router.navigateBack(delta)
       }
     }
     vm.pageEvents = {
