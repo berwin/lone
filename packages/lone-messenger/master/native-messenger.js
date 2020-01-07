@@ -5,9 +5,9 @@ class NativeMessenger {
     window.senative.call('frontPageReady', '', function (code, msg, data) {})
   }
 
-  send (type, data) {
+  send (type, data, channel) {
     if (!isObject(data)) throw new TypeError('data must be plain object.')
-    const bag = JSON.stringify({ type, data })
+    const bag = JSON.stringify({ type, data, channel })
     window.senative.call('sendMessage', bag, (code, data, msg) => {})
   }
 

@@ -13,8 +13,8 @@ class WorkerMessenger {
     }
   }
 
-  send (type, data) {
-    this.source.postMessage({ type, data })
+  send (type, data, channel) {
+    this.source.postMessage({ type, data, channel })
   }
 }
 

@@ -232,3 +232,8 @@ export function looseIndexOf (arr, val) {
   }
   return -1
 }
+
+// generate messenger feedback type
+export function feedbackType (type) {
+  return type + '#feedback'
+}

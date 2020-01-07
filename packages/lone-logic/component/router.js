@@ -1,3 +1,5 @@
+import { noop } from 'lone-util'
+
 export default function events (Lone) {
   const proto = Lone.prototype
   proto.navigateTo = navigateTo
@@ -5,14 +7,23 @@ export default function events (Lone) {
   proto.navigateBack = navigateBack
 }
 
-function navigateTo ({ url }) {
-  this._slave.send('logic:navigateTo', null, { url })
+function navigateTo ({ url, success = noop, fail = noop, complete = noop }) {
+  this._slave
+    .send('logic:navigateTo', null, { url })
+    .then(res => success(res), err => fail(err))
+    .then(complete)
 }
 
-function redirectTo ({ url }) {
-  this._slave.send('logic:redirectTo', null, { url })
+function redirectTo ({ url, success = noop, fail = noop, complete = noop }) {
+  this._slave
+    .send('logic:redirectTo', null, { url })
+    .then(res => success(res), err => fail(err))
+    .then(complete)
 }
 
-function navigateBack ({ delta } = {}) {
-  this._slave.send('logic:navigateBack', null, { delta })
+function navigateBack ({ delta, success = noop, fail = noop, complete = noop } = {}) {
+  this._slave
+    .send('logic:navigateBack', null, { delta })
+    .then(res => success(res), err => fail(err))
+    .then(complete)
 }
