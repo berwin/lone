@@ -1,6 +1,7 @@
 {
   "name": "root",
   "private": true,
+  "version": "1.0.0",
   "main": "dist/lone.js",
   "scripts": {
     "dev": "webpack -w --config scripts/webpack.dev.conf.js",
