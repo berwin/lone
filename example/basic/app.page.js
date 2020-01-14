@@ -12,7 +12,12 @@ Lone.page({
             <li><button v-on:click="navigatorTo('/不存在的URL')">navigateTo: 不存在的URL</button></li>
           </ul>
           <ul>
-            <li v-for="item in list">{{item}}</li>
+            <li v-for="(item, index) in list">item: {{item}}, index: {{index}}</li>
+          </ul>
+          <ul id="v-for-object" class="demo">
+            <li v-for="(value, name, index) in object">
+              {{ index }}. {{ name }}: {{ value }}
+            </li>
           </ul>
           <h2 :id="n" :style="{backgroundColor: 'red'}" style="color:blue;">N:{{ n }}</h2>
           <ad title="My journey with Lone" :n="n" @enlarge-text="test" :list="list" />

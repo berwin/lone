@@ -1,7 +1,15 @@
 importScripts('../../dist/lone.logic.js')
 
 Lone.logic('test', {
-  data: () => ({ n: 0, list: [1, 2, 3, 4, 5] }),
+  data: () => ({
+    n: 0,
+    list: [1, 2, 3, 4, 5],
+    object: {
+      title: 'How to do lists in Vue',
+      author: 'Jane Doe',
+      publishedAt: '2016-04-10'
+    }
+  }),
   methods: {
     navigateAndIncrement () {
       const increment = () => this.n++
