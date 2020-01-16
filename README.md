@@ -57,12 +57,13 @@ http-server
 
 ## 项目架构
 
-* `lone-compiler-core` - 与平台无关的编译器核心逻辑，
+* `lone-compiler-core` - 与平台无关的编译器核心逻辑
 * `lone-compiler-dom` - 针对浏览器环境的编译器插件
 * `lone-virtualdom` - 虚拟DOM渲染逻辑
-* `lone-logic` - 用于执行组件逻辑的核心模块（触发生命周期，执行组件方法等功能），同时服务于在沙箱环境下执行的用户组件逻辑和在Page层下执行的官方组件逻辑。
-* `lone-logic-worker` - Logic线程下的基础库代码，基于`lone-logic`，负责与UI线程通信，提供创建组件实例等功能
-* `lone-ui` - UI线程下的基础库代码，负责与Logic线程通信与创建webview
+* `lone-logic` - 用于执行组件逻辑的核心模块（触发生命周期，执行组件方法等功能），跨环境（同时服务于在沙箱环境下执行的用户组件逻辑和在Page层下执行的官方组件逻辑），且负责与UI线程通信，提供创建组件实例等功能。
+* `lone-logic-master` - Page线程下执行逻辑组件（官方逻辑组件）的基础代码，基于`lone-logic`，提供在Page层下执行逻辑组件的基础库代码。
+* `lone-logic-worker` - Logic线程下执行逻辑组件的基础代码，基于`lone-logic`，提供在沙箱环境下执行用户组件逻辑的基础库代码。
+* `lone-ui` - UI线程下的基础库代码，信号中转站，Master层，负责调度Page与Logic线程之间的通信，负责创建webview，负责路由等全局功能。
 * `lone-page` - webview 内部的基础库代码，用于执行组件渲染的核心模块（模板编译，virtualDOM渲染，事件监听等各种UI操作），在页面内执行。
 * `lone-messenger` 跨进程通信模块
 * `lone-util` 公共工具函数库
