@@ -49,7 +49,7 @@ http-server
 
 ### Chrome 浏览器插件 `Web Server for Chrome`
 
-插件按照完毕后，可以将目录设置为项目根目录。
+插件安装完毕后，可以将目录设置为项目根目录。
 
 然后访问：[http://127.0.0.1:8887/example/basic/](http://127.0.0.1:8887/example/basic/)
 
