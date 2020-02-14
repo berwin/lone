@@ -197,6 +197,33 @@ warn目前在 lone-util 项目中是一个空函数，然后 lone-compiler-core/
 
 2. 第二种就是当页面跳转路由的时候 这样上一个iframe会hide 新增的iframe会show 但是这个时间是比较难以确定的还需要博文指导 博文说是在每个组件init的时候去做监听 不过我任务在init的时候页面还没有创建 都是虚拟dom也没有办法判断是否都是在可视区 就算可以判断是在可视区 也不对 因为一个iframe有多个组件 有部分组件肯定不在可视区 这样判断肯定不是准确的 所以我认为还是监听iframe的变化比较准确 当iframe创建的时候 去show当前的组件 hide上一个比较正确
 
+回复：@lipeng1 目前可以考虑到的两种场景正如你所说，有两大类，一类是完全等价于 `onvisibilitychange`， **页面级** 不可见时触发 `onHide`。另一类是路由。
+
+**所有触发场景：**
+
+1. 页面被其他窗口盖住
+2. 类似于Mac系统切换了屏幕，或者在手机上按了Home键
+3. 类似于浏览器切换了Tab标签到其他网站
+4. 切换路由时，前一个页面需要执行`onHide`，新增页面需要触发`onShow`
+
+以上场景1、2、3 使用`onvisibilitychange`即可监听，但由于我们有路由的场景，所以只是使用`onvisibilitychange`可能不足以覆盖所有场景，当然这是我猜测的，具体还需要去看下是否真的无法满足。
+
+**针对路由的场景：**
+
+如果第二个页面（第二个iframe）把前一个页面（第一个iframe）盖住，目前不确定这种场景下浏览器是否会在第一个iframe内部触发`onvisibilitychange`事件，如果触发则使用`onvisibilitychange`即可完成该需求的所有功能，如果无法满足，那么正如你所说，需要在创建第二个iframe的时候，通知第一个iframe内部去触发`onHide`相关的通知。
+
+**另外，科普一下整体架构的运行流程：**
+
+Master最先执行，然后初始化worker环境，然后创建第一个页面（默认页面），创建默认页面后再去实例化页面内的组件（称作渲染层组件），然后再实例化worker下的组件（称为逻辑组件）。
+
+所以在渲染组件初始化时监听事件，不存在你所说的虚拟DOM的问题，渲染层组件通过`onvisibilitychange`发现页面`onHide`了，则发送一个信号到worker下的逻辑组件，去触发对应的`onHide`生命周期，`onShow`同理。
+
+**需要注意的：**
+
+这里唯一需要注意的是，如果`onvisibilitychange`无法满足路由切换的场景，那么需要在Master层去通知Page层内的组件`页面已经隐藏|显示了`。所以如何手动触发`onvisibilitychange`事件是个问题，如果不能手动触发`onvisibilitychange`则需要使用其他事件系统解决这个问题。
+
+另外，如果组件触发了`onHide`，那么不应该再触发`onHide`，所以组件内需要有一个状态标识，如果当前组件已经是`hide`状态了，则不应该再触发`onHide`，因为之前触发过。
+
 ### #6 提供官方组件Logic运行环境 - ★★★★★
 
 **背景：**
@@ -565,3 +592,288 @@ https://developers.weixin.qq.com/miniprogram/dev/reference/api/Component.html
 同时触发`beforeDestroy` 与 `destroyed` 生命周期钩子。
 
 提示：组件实例被销毁时，该组件实例的所有子组件实例，也应该一并销毁。
+
+
+## Merge Request
+
+### Feature/v-model
+
+双线程v-model双向绑定的实现借鉴了vue中v-model的实现。在vue中，v-model="value"指令经过编译处理为动态绑定了value, 然后给标签添加一个事件，并且在事件触发的时候动态修改value的值，以达到双向绑定的模式。在双线程模式下，我们直接通过value=XXX是无法完成渲染层和逻辑层的同步更新的，需要分别在渲染层和逻辑层进行数据的更新。而组件逻辑层的setData方法刚好实现了同时更新渲染层和逻辑层的功能。因此，当事件触发时，采用了worker消息传递的方式，通知到逻辑层，在逻辑层执行setData方法进行数据更新。步骤如下： 1. 渲染层触发事件是，调用worker的send方法将要更新的数据和当前的组件id传递给master主线程。 2. master主线程监听到对应事件，通过send方法将数据和组件id传递到逻辑层。 3. 逻辑层监听到对应事件，根据组件id获取要更新的组件，然后调用该组件的setData方法进行数据更新。
+
+### Hotfix/vmodel fixed
+
+
+修复了双线程中v-model的若干问题。
+#### 一、主要问题：
+
+问题1： 多个复选框(checkbox)和radio使用v-model进行输入绑定渲染报错（使用了v-model绑定，分别报了_i/_q is not defined 的错误）。
+
+原因： virtualdom渲染逻辑中缺少原型 _i 和 _q方法。
+
+解决方案： 在virtualdom渲染逻辑中添加 _i 和 _q方法。
+
+#### 问题2： 双线程模式下radio单选选中之后状态不能变更（更改选中选项后，前一个选中状态并不会取消）。
+
+原因： vue中，在没有添加name属性值的radio中，可以通过动态的改变checked为true/false来改变radio的选中状态。 但是在双线程模式下，渲染层的数据却无法更新，理论上需要通过worker消息通信的机制进行更新，但是这个并不好处理。 所以选择了添加name属性的替代方案。
+
+解决方案： 在编译阶段，手动地给绑定了v-model的radio添加name属性并赋予同一个属性值。
+
+#### 问题3： 修复多个复选框v-model绑定数据不同步更新问题。
+
+原因： 多个复选框的绑定数据更新时，没有通过worker消息传递方式更新逻辑层和渲染层的数据。
+
+解决方案： 多个复选框的绑定数据需要更新时，通过worker的send方式进行渲染层和逻辑层的数据更新。
+
+#### 二、其他小问题
+fixed: 如果开发者自己添加了name则使用开发者的name。
+
+lone-compiler-dom 中，page:vmodel的worker监听事件统一改为page:data。
+
+### Feature/log
+
+实现统一错误处理工具方法
+
+背景：目前项目的错误处理比较凌乱。有一些代码由于是从Vue上直接copy过来的，所以warn，error是Vue的语法，但我们又没实现warn和error等功能
+解决方案:
+1.在 lone-util 中统一实现，集中管理,并暴露方法： handleError, warn, tip
+2.通过参考Vue的实现，内部实现如下：
+
+warn 使用 console.error 提示非法操作的具体位置（例如 Error in data()）和错误出现在哪个组件， 该方法不显示开发者code的错误的调用栈
+tip 同 warn，使用的是 console.warn
+handlerError 使用 warn 输出友好提示，并抛出调用栈
+3.使用 lone-util 中实现的错误处理方法替换项目中已单独实现的，替换内容包括如下：
+
+引用了 lone-logic/helper.js 的错误处理方法的
+引用了 lone-util/index 的错误处理方法的
+
+### 架构调整 - 新增lone-logic-worker
+
+背景：计划新增官方组件逻辑运行环境（开发者组件逻辑运行在worker中，而官方组件逻辑运行在page里）
+
+目前想到的解决方案有两种：
+
+1. 官方组件与开发者组件完全一致，使用Lone.logic注册组件（在page中注册），该方案只需要在page中使用<script>将Lone-Logic引入进来即可
+    1. 优点：开发成本低
+    2. 缺点：messenger信号频道号需要特殊处理（根据不同的环境给一个不同的频道号）。
+2. 官方组件的逻辑在page中和模板一起注册，例如：{template: 'xx', name: 'xx', onLoad (query) {console.log(query)}}
+    1. 优点：组件注册的API更符合设计，而且频道号处理更清晰
+    2. 缺点：开发成本相对1来说要高一点
+最终决定使用第二种方案。
+
+因为使用第二种方案，所以目前的lone-logic组件相关逻辑有很多可以复用的地方，所以将架构进行调整。调整完毕后的架构如下：
+
+1. lone-logic - 核心通用的组件逻辑
+2. lone-logic-worker - 组件逻辑在worker下执行的相关逻辑，主要处理messenger的调度和组件实例的管理。
+3. lone-logic-master - 组件逻辑在page下执行的相关逻辑，主要处理messenger的调度和组件实例的管理。
+
+### 架构调整 - 为了提供官方组件在Page层下执行逻辑而调整整体架构
+
+**调整思路：**
+
+1. 将Logic组件相关的逻辑提取为通用的逻辑（lone-logic），同时服务于开发者组件逻辑与官方组件逻辑。
+2. 新增lone-logic-worker模块，该模块基于lone-logic，提供开发者组件逻辑执行环境。注册到web-worker中执行。
+3. 开发者组件逻辑的频道号固定为：worker-logic。官方组件逻辑的频道号为动态频道号（每个页面分配一个唯一的频道号）[pageId]-logic。
+3. Page层的组件在发送信号时，需要判断当前组件是不是具备official标识，根据标识选择频道号（worker-logic，[pageId]-logic）。
+5. 因为官方组件逻辑在Page层执行，所以选择使用Slave的postMessage模式进行通信，但使用页面级别的频道号[pageId]-logic。
+
+> 正常Page层下的组件是组件级别的频道号。但官方逻辑执行组件因为复用lone-logic的组件逻辑，所以只能使用页面级频道号，然后页面级信号发送到lone-logic后，该模块内部会找到具体通知哪个组件执行逻辑。
+
+具体查看 #6
+
+### Feature/lifecycle
+
+补充渲染相关的生命周期 beforeMounted beforeUpdate updated
+
+背景
+```
+用户可以注册生命周期钩子
+```
+
+解决方案
+
+```
+beforeMounted: 在logic层监听 ui:inited 里执行回调
+
+logic层setData若数据未发生变化进行拦截，否则 执行beforeUpdate回调,发送 component:data ->ui->page
+
+page层接收component:data _setData构造新的vnode,path更新DOM 后 将page:updated ->ui->logic
+
+logic层接收ui:updated 执行用户回调updated
+```
+
+疑问
+
+```
+改变模板里没有的变量，视图不变，但依然执行 beforeUpdate updated 回调 （vue这种情况是不执行）
+```
+
+### 提供官方组件Logic运行环境
+
+提供官方组件Logic运行环境
+
+**背景：**
+
+目前只有开发者的代码执行环境，是在web-worker里运行，而官方组件代码逻辑不应该放在web-worker里，应该直接放在Master层或Page层，已获得更高的渲染权限。
+
+**具体实现步骤：**
+
+1. 提供辅助函数 getLogicChannel，该函数根据 this.$official 标识返回频道号 logic-worker 或 logic-[pageID]，UI层组件根据频道号将信号发送到指定环境（沙箱环境|Master环境）。函数需要放在UI组件实例上，以便模板中使用，因为模板在with中访问方法，例如：with(this){访问方法}。
+2. Logic环境下会发送 logic:inited 信号通知lone-ui web-worker已经初始化完毕，lone-ui收到通知后，会创建第一个页面（也就是默认页面）。现在这个信号移动到lone-logic-worker下发送，因为该信号的本质是沙箱环境初始化完毕后，通知lone-ui创建默认页面。而官方组件逻辑执行环境（lone-logic-master）则不需要发送这个信号。
+3. Page层（lone-page）在初始化时，注册官方逻辑组件，包括组件注册，schedule系统初始化与Slave信号的初始化，Slave频道号为字符串'logic'+[当前页面的PID]（logic-[pid]）
+4. 注册组件使用通用lone-logic模块注册，该模块提供了环境无关的核心组件逻辑。
+
+更多信息请查看Issues：#6
+
+### 生命周期 onhide 和onshow
+
+新增生命周期：onShow与onHide。
+
+**背景：**
+
+实现的功能是：
+
+1. 当页面不可见时触发 onHide 事件
+2. 当页面可见时，触发 onShow 事件
+
+可能会触发onHide的行为包括但不限于：
+
+1. 小程序窗口被其他窗口挡住
+2. 最小化小程序
+3. 浏览器切换到其他Tab标签
+4. 跳转新路由的时候，前一个页面的所有组件需要触发onHide
+
+可能会触发onShow的行为包括但不限于：
+
+1. 创建页面时
+2. 页面由“不可见”变为“可见”时
+3. 需注意的是，onShow与onHide无需反复触发。已经触发过onHide无需再次触发onHide。
+
+**实现思路：**
+
+由于渲染组件在Page（iframe）中执行，每个Page（iframe）存在唯一document环境，所以在Page初始时，在渲染组件中注册自定义事件。
+
+例如：
+
+```
+document.addEventListener('onShow',function())
+```
+
+这样每个组件都注册了自定义事件，由于不同Page的document不同，所以只需在Page级别触发事件，即可通知该页面下所有组件触发对应的生命周期。
+
+针对触发条件存在两种情况
+
+* 全局 onvisibilitychange
+
+    1. 当浏览器切换tab时
+    2. 最小化的时候执行
+    3. 主页面被其他窗口挡住时
+
+    为了保证全局注册事件统一，在主页面中注册（packages/lone-ui初始化的时候注册），在主页面中触发事件。
+
+* 局部
+    * 当新增路由时，会像stack中push一个iframe的引用，所以在push之前，找到当前路由的iframe引用，然后执行它的自定义onHide事件
+
+缺点：
+
+onvisibilitychange 的初始注册事件，显得那个文件，格格不入
+
+优点：
+
+全局注册唯一事件，不会重复注册，重复触发
+
+**更多详细信息，请查看issues：#5**
+
+### 组件销毁钩子函数beforeDestroy和destroyed
+
+新增组件销毁逻辑，并新增生命周期：beforeDestroy与destroyed。
+
+目前销毁的有：
+
+1. 逻辑组件中的 数据、组件事件，包括组件自身实力也会被销毁。
+2. 渲染组件中只销毁了 DOM事件 与 UI，DOM事件包括：自定义事件 onShow与onHide，以及DOM元素上绑定的Click等事件。
+目前在逻辑组件中暴露一个API $destroy，手动调用该API触发销毁逻辑
+
+当API被调用时，触发以下逻辑：
+
+1. 清除逻辑组件中的数据与事件
+2. 逻辑组件 发送信号 到渲染组件（告诉渲染层逻辑层已经销毁完毕）
+3. 渲染组件开始清除，DOM事件与UI
+4. 渲染组件 发送信号 到逻辑组件（告诉逻辑层渲染层已经销毁完毕）
+5. 逻辑层将逻辑组件实例删除
+
+目前没有实现的功能时：
+
+父组件实例触发销毁逻辑时，子组件实例没有销毁。
+
+#### 评论
+
+#### 评论一
+
+代码中的逻辑为：Page中同时使用 `vm.slave.onmessage('component:patch')` 和自定义事件 `document.addEventListener('onDestroy')`接受销毁组件的信号。但其实只需要一个信号即可，建议只使用`vm.slave.onmessage('component:patch')` 接受销毁信号。
+
+#### 评论二
+
+实现思路不对，清除组件先暂时不删除DOM，但不代表不需要通知渲染层的组件进行destroy的逻辑。信号需要发送到渲染层，渲染层需要清除事件绑定等组件运行期间遗留的所有副作用。
+
+因此：`vm && xxxxx` 这些安全检查语法需要删除，因为它会将本该报错的错误吞掉。
+
+另外：`vm.$options = {}`不用删除。
+
+还有：为什么触发 `destroyed` 之后清除事件？？
+
+### 为 onLoad 生命周期新增 query 参数
+
+实现思路：
+
+1. 在创建 iframe 时，将 search 字符串设置到iframe属性上，当页面加载完毕后，可以获取到当前页面的search字符串：?a=b&c=d；（search 字符串的来源为 navigateTo的参数）
+2. 发送 page:inited 信号创建逻辑层组件时，将 search 字符串一起发送到逻辑层
+3. 逻辑层在创建组件时，将 search 字符串解析成 query 数据，并保存到组件上
+4. 触发 onLoad 时，将 query 数据放在参数上
+
+重要提示：
+
+如果用户在初始化之前，调用setData，那么setData的信号将先于component:inited发送信号，会导致报错（因为setData会触发渲染，但数据还没设置到上下文，所以读不到数据会报错）。
+
+为了防止此类事件发生，用户调用 setData 只有在 component:inited 发送之后才会发送信号。在此之前，调用setData不会发送信号，仅更改数据，component:inited 信号在发送时，会将最新的数据一起发送到渲染层。
+
+### 路由API支持更多参数（success, fail, complete）#10
+
+**背景：**
+
+路由相关的API（navigateTo，redirectTo，navigateBack），需要新增 success，fail, complete 用来监听反馈。
+
+**前提条件：**
+
+1. 该需求需要考虑路由是否存在，创建路由时是否成功， 是否成功的信息需要从Master传递到Logic中。
+2. 目前的Messenger信号是单项信号，收不到反馈
+
+**解决思路：**
+
+1. 增强 Messenger 模块，支持反馈信息。
+2. 基于增强后的 Messenger 模块实现该需求
+    1. Logic中监听信号反馈信息，并根据反馈信息调用对应的回调函数
+    2. Master中，根据真实创建路由是否成功，将信息反馈给Messenger模块（Messenger模块会将反馈返回给发送方）
+
+**增强 Messenger 模块：**
+
+1. slave.send 返回Promise，通过监听Promise来得知该信号的反馈信息
+2. slave.onmessage(type, fn) 第二个函数支持通过返回一个 Promise 将反馈信息发送给slave.send。（如果函数返回了reject状态的Promise，slave.send返回的Promise状态为reject）
+3. master.onmessage(type, fn) 第二个函数支持返回 Promise 将反馈信息发送给slave.send。
+4. 考虑到很多中转信号，目前是手动在lone-ui转发，本次修改也改成了自动将中转信号直接转发到Slave，无需中间手动转发。
+
+**实现思路：**
+
+1. slave.send 函数运行后返回Promise，在Promise内部发送信号后，监听 type为 [type + '#feedback']的消息，当收到消息时（该消息为反馈消息），根据返回的数据执行resolve或reject，并清除 [type + '#feedback'] 的监听。
+2. Master或Slave收到信号执行回调时，使用Promise.resolve将函数的返回值转化为Promise，并根据该Promise的状态和数据，将信息重新发 [type + '#feedback'] 处。
+
+
+**自动转发中转信号，实现思路:**
+
+1. 在Master中收到信号时，检查是否存在targetChannel （如果存在说明信号是中转信号，因为发送给Master的信号不需要设置targetChannel）。
+2. 如果存在，则直接向 targetChannel 发送信号，不执行其他任何操作。
+3. 如果不存在，检查_messages并执行监听的回调。
+
+**路由支持更多参数：**
+
+1. 路由API中，直接使用Promise语法监听 slave.send 的状态，如果成功则执行success，失败执行fail，无论失败还是成功执行complete。
+2. Master中根据路由是否成功并通过返回Promise状态将真实情况反馈给Messenger。
